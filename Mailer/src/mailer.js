@@ -35,6 +35,7 @@ export async function sendEmail() {
   let process = [];
   let json;
   json = await getMailContents();
+  const email_password = process.env.EMAIL_PASSWORD
 
   if (json.length == 0) {
     console.log("No late processes.");
@@ -66,7 +67,7 @@ export async function sendEmail() {
       secure: false,
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
+        pass: email_password,
       },
       tls: {
         rejectUnauthorized: false,
