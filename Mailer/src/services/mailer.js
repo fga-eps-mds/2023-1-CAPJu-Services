@@ -1,11 +1,11 @@
 import * as nodemailer from "nodemailer";
 import path from "path";
 import { QueryTypes } from "sequelize";
-import dotenv from "dotenv";
-import { queryMailContents } from "./queryMailContents.js";
-import db from "./database.js"
+import { config } from "dotenv";
+import { queryMailContents } from "../utils/queryMailContents.js";
+import db from "../config/database.js"
 
-dotenv.config();
+config();
 
 function formatDate(date) {
   date = new Date(date);

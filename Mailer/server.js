@@ -1,6 +1,6 @@
 import cron from "node-cron";
-import db from "./src/database.js"
-import * as mailer from "./src/mailer.js";
+import db from "./src/config/database.js"
+import * as mailer from "./src/services/mailer.js";
 
 db.authenticate()
     .then(() => {
