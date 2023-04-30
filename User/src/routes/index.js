@@ -1,8 +1,12 @@
-import express from 'express';
-import UserRoutes from './user.js';
+import express from "express";
+import userRouter from "./user.js";
 
-const applicationRoutes = express.Router();
+const applicationRoutes = express.Router()
 
-applicationRoutes.use('/users', UserRoutes);
+applicationRoutes.get('/', (req, res) => {
+  res.send('CAPJu Online!')
+})
+
+applicationRoutes.use('/users', userRouter)
 
 export default applicationRoutes;
