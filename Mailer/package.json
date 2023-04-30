@@ -5,8 +5,14 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint src"
+    "start": "node server.js",
+    "test": "jest",
+    "lint": "eslint src",
+    "migration": "sequelize db:migrate",
+    "seed": "sequelize db:seed:all",
+    "shred": "sequelize db:migrate:undo:all",
+    "prettify": "prettier --write src",
+    "check-format": "prettier --check src"
   },
   "author": "",
   "license": "MIT",
@@ -16,9 +22,7 @@
     "node-cron": "^3.0.2",
     "nodemailer": "^6.9.1",
     "pg": "^8.10.0",
+    "prettier": "^2.8.8",
     "sequelize": "^6.31.0"
-  },
-  "devDependencies": {
-    "eslint": "^8.39.0"
   }
 }

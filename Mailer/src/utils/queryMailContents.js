@@ -24,4 +24,3 @@ join flow f on \
     f."idFlow" = fp."idFlow" \
 where \
     extract(day from (current_timestamp - p."effectiveDate")) > cast(s.duration as integer)';
-

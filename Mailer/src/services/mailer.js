@@ -3,7 +3,7 @@ import path from "path";
 import { QueryTypes } from "sequelize";
 import { config } from "dotenv";
 import { queryMailContents } from "../utils/queryMailContents.js";
-import db from "../config/database.js"
+import db from "../config/database.js";
 
 config();
 
@@ -35,7 +35,7 @@ export async function sendEmail() {
   let process = [];
   let json;
   json = await getMailContents();
-  const email_password = process.env.EMAIL_PASSWORD
+  const email_password = process.env.EMAIL_PASSWORD;
 
   if (json.length == 0) {
     console.log("No late processes.");
@@ -204,4 +204,3 @@ export async function sendEmail() {
   }
   return true;
 }
-
