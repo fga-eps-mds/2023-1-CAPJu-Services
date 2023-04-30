@@ -1,0 +1,19 @@
+{
+  "name": "user",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.17.1",
+    "express-validator": "^6.10.0",
+    "nodemon": "^2.0.22",
+    "pg": "^8.6.0",
+    "sequelize": "^6.6.2"
+  }
+}
