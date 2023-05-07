@@ -7,6 +7,8 @@ import db from "../config/database.js";
 
 config();
 
+const email_password = process.env.CAPJU_EMAIL_PASSWORD;
+
 function formatDate(date) {
   date = new Date(date);
   var day = date.getDate().toString().padStart(2, "0");
@@ -22,7 +24,6 @@ export async function getMailContents() {
     });
     return mailContents;
   } catch (error) {
-    console.log(error);
     return {
       error,
       message: "Failed to query mail contents",
@@ -35,14 +36,13 @@ export async function sendEmail() {
   let process = [];
   let json;
   json = await getMailContents();
-  const email_password = process.env.EMAIL_PASSWORD;
 
   if (json.length == 0) {
     console.log("No late processes.");
     return true;
   }
   if (!email_password) {
-    console.log("CAPJU_EMAIL_PASSWORD is blank.");
+    console.log("EMAIL_PASSWORD is blank.");
     return false;
   }
 
