@@ -1,11 +1,13 @@
 class UserService {
-  constructor (UserModel) {
+  constructor(UserModel) {
     this.user = UserModel
   }
+  async getAllUsers() {
+    return await this.user.findAll();
+  }
 
-  async getAllUsers () {
-    const users = await this.user.findAll()
-    return users
+  async getUserByCpf() {
+    return await this.user.findOne({ where: cpf });
   }
 }
 
