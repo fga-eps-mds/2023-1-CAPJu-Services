@@ -36,6 +36,9 @@ class UserService {
       },
     });
   }
+  async getAllUsers() {
+    return await this.user.findAll();
+  }
 
   async getUserByCpfWithPassword(cpf) {
     return this.user.findOne({
