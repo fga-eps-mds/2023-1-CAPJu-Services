@@ -1,10 +1,9 @@
-import {
-  formatDate,
-  getMailContents,
-  sendEmail,
-} from "../../src/services/mailer.js";
+
 import nodemailer from "nodemailer";
 import db from "../../src/config/database.js";
+const Mailer = require("../../src/services/mailer.js");
+const mailer = new Mailer();
+
 
 jest.mock('nodemailer', () => ({
   createTransport: jest.fn().mockReturnValue({
@@ -73,7 +72,7 @@ jest.mock("../../src/config/database.js", () => {
 describe("getMailContents", () => {
   it("should return mail contents from the database", async () => {
     db.connection.query = jest.fn(() => mockGetMailContents);
-    const result = await getMailContents();
+    const result = await mailer.getMailContents();
     expect(result).toEqual(mockGetMailContents);
     expect(db.connection.query).toHaveBeenCalledTimes(1);
     expect(db.connection.query).toHaveBeenCalledWith(expect.any(String), {
@@ -86,7 +85,7 @@ describe("getMailContents", () => {
     db.connection.query = jest.fn(() => {
       throw mockError;
     });
-    const result = await getMailContents();
+    const result = await mailer.getMailContents();
     expect(result).toEqual({
       error: mockError,
       message: "Failed to query mail contents",
@@ -100,14 +99,14 @@ describe("getMailContents", () => {
 
 describe("Test for function sendEmail", () => {
   it("should send email correctly", async () => {
-    const result = sendEmail();
+    const result = mailer.sendEmail();
     expect(result).toBeTruthy();
   });
 
   it("should log and return false if password is not set", async () => {
     process.env.EMAIL_PASSWORD = "";
     console.log = jest.fn();
-    const result = await sendEmail();
+    const result = await mailer.sendEmail();
     expect(console.log).toHaveBeenCalledWith("EMAIL_PASSWORD is blank.");
     expect(result).toBe(false);
     delete process.env.EMAIL_PASSWORD;
@@ -117,7 +116,7 @@ describe("Test for function sendEmail", () => {
     db.connection.query = jest.fn(() => []);
     jest.spyOn(console, 'log').mockImplementation();
 
-    const result = await sendEmail();
+    const result = await mailer.sendEmail();
 
     expect(result).toBe(true);
     expect(console.log).toHaveBeenCalledWith('No late processes.');
