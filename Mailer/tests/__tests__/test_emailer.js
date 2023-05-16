@@ -1,8 +1,9 @@
 
 import nodemailer from "nodemailer";
 import db from "../../src/config/database.js";
-const Mailer = require("../../src/services/mailer.js");
-const mailer = new Mailer();
+import Mailer from "../../src/services/mailer.js";
+
+let mailer = new Mailer();
 
 
 jest.mock('nodemailer', () => ({
