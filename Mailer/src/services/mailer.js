@@ -35,7 +35,6 @@ class Mailer {
     return day + "/" + month + "/" + year;
   }
 
-
   async sendEmail() {
     const emails = [];
     let process = [];
@@ -210,4 +209,4 @@ class Mailer {
     return true;
   }
 }
-module.exports = Mailer;
+export default Mailer;
