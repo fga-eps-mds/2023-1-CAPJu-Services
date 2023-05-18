@@ -39,7 +39,7 @@ class Mailer {
     const emails = [];
     let process = [];
     let json;
-    json = await this.getMailContents();
+    json = await this.#getMailContents();
 
     if (json.length == 0) {
       console.log("No late processes.");
