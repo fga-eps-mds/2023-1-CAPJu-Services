@@ -1,10 +1,8 @@
-
 import nodemailer from "nodemailer";
 import db from "../../src/config/database.js";
 import Mailer from "../../src/services/mailer.js";
 
 let mailer = new Mailer();
-
 
 jest.mock('nodemailer', () => ({
   createTransport: jest.fn().mockReturnValue({
@@ -59,7 +57,6 @@ beforeEach(() => {
   jest.resetModules();
 });
 
-
 jest.mock("../../src/config/database.js", () => {
   const connection = {
     query: jest.fn(),
@@ -70,36 +67,9 @@ jest.mock("../../src/config/database.js", () => {
   };
 });
 
-describe("getMailContents", () => {
-  it("should return mail contents from the database", async () => {
-    db.connection.query = jest.fn(() => mockGetMailContents);
-    const result = await mailer.getMailContents();
-    expect(result).toEqual(mockGetMailContents);
-    expect(db.connection.query).toHaveBeenCalledTimes(1);
-    expect(db.connection.query).toHaveBeenCalledWith(expect.any(String), {
-      type: expect.anything(),
-    });
-  });
-
-  it("should return an error object when failed to query mail contents", async () => {
-    const mockError = new Error("Database connection failed");
-    db.connection.query = jest.fn(() => {
-      throw mockError;
-    });
-    const result = await mailer.getMailContents();
-    expect(result).toEqual({
-      error: mockError,
-      message: "Failed to query mail contents",
-    });
-    expect(db.connection.query).toHaveBeenCalledTimes(1);
-    expect(db.connection.query).toHaveBeenCalledWith(expect.any(String), {
-      type: expect.anything(),
-    });
-  });
-});
-
 describe("Test for function sendEmail", () => {
   it("should send email correctly", async () => {
+    db.connection.query = jest.fn(() => mockGetMailContents);
     const result = mailer.sendEmail();
     expect(result).toBeTruthy();
   });

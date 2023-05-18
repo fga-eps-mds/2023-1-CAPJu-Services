@@ -13,5 +13,5 @@ db.authenticate()
     });
 
 cron.schedule("0 0 0 * * *", () => {
-  mailer.sendEmail();
+    mailer.sendEmail();
 });
