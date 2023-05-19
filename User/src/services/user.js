@@ -6,8 +6,8 @@ class UserService {
     return await this.user.findAll();
   }
 
-  async getUserByCpf() {
-    return await this.user.findOne({ where: cpf });
+  async getUserByCpf(cpf) {
+    return await this.user.findAll({ where: { cpf } });
   }
 }
 
