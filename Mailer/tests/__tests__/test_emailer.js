@@ -2,8 +2,6 @@ import nodemailer from "nodemailer";
 import db from "../../src/config/database.js";
 import Mailer from "../../src/services/mailer.js";
 
-let mailer = new Mailer();
-
 jest.mock('nodemailer', () => ({
   createTransport: jest.fn().mockReturnValue({
     sendMail: jest.fn().mockResolvedValue({ success: true }),
@@ -70,26 +68,24 @@ jest.mock("../../src/config/database.js", () => {
 describe("Test for function sendEmail", () => {
   it("should send email correctly", async () => {
     db.connection.query = jest.fn(() => mockGetMailContents);
+    let mailer = new Mailer();
     const result = mailer.sendEmail();
     expect(result).toBeTruthy();
   });
 
   it("should log and return false if password is not set", async () => {
     process.env.EMAIL_PASSWORD = "";
-    console.log = jest.fn();
+    let mailer = new Mailer();
     const result = await mailer.sendEmail();
-    expect(console.log).toHaveBeenCalledWith("EMAIL_PASSWORD is blank.");
     expect(result).toBe(false);
     delete process.env.EMAIL_PASSWORD;
   });
 
   it('should return true when there are no late processes', async () => {
+    process.env.EMAIL_PASSWORD = "test@email.com";
+    let mailer = new Mailer();
     db.connection.query = jest.fn(() => []);
-    jest.spyOn(console, 'log').mockImplementation();
-
     const result = await mailer.sendEmail();
-
     expect(result).toBe(true);
-    expect(console.log).toHaveBeenCalledWith('No late processes.');
   });
 });

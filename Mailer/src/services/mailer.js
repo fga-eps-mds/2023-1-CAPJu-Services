@@ -8,7 +8,6 @@ import db from "../config/database.js";
 config();
 
 class Mailer {
-
   constructor() {
     const email_password = process.env.CAPJU_EMAIL_PASSWORD;
   }
@@ -156,8 +155,8 @@ class Mailer {
                   </thead>
                   <tbody>
                     ${process
-            .map((flow) => {
-              return `
+                      .map((flow) => {
+                        return `
                       <tr>
                         <td>${flow.flow}</td>
                         <td>${flow.process_record}</td>
@@ -167,8 +166,8 @@ class Mailer {
                         <td>${flow.delay_days}</td>
                       </tr>
                       `;
-            })
-            .join("")}
+                      })
+                      .join("")}
                   </tbody>
                 </table>
                 <figure>
