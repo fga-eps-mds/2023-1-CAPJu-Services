@@ -26,7 +26,6 @@ class UnitController {
       });
       return res.json(unit);
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: "Erro ao criar unidade",
@@ -37,16 +36,22 @@ class UnitController {
   async update(req, res) {
     const { idUnit, name } = req.body;
 
-    const unit = await Unit.findByPk(idUnit);
+    try {
+      const unit = await Unit.findByPk(idUnit);
 
-    if (!unit) {
-      return res.status(404).json({ message: "Essa unidade não existe!" });
-    } else {
-      unit.set({ name });
+      if (!unit) {
+        return res.status(404).json({ message: "Essa unidade não existe!" });
+      }
 
+      unit.name = name;
       await unit.save();
 
       return res.status(200).json(unit);
+    } catch (error) {
+      return res.status(500).json({
+        error,
+        message: "Erro ao atualizar unidade",
+      });
     }
   }
 
@@ -66,20 +71,26 @@ class UnitController {
   async getAdminsByUnitId(req, res) {
     const idUnit = req.params.id;
 
-    const users_response = await axios.get(user_api + '/users', {
-      params: {
-        idUnit,
-        idRole: ROLE.DIRETOR,
-      },
-    });
-    const user = JSON.parse(user_response);
+    try {
+      const users_response = await axios.get(user_api + '/users', {
+        params: {
+          idUnit,
+          idRole: ROLE.DIRETOR,
+        },
+      });
+      const user = JSON.parse(users_response.data);
 
-    if (user) {
-      return res
-        .status(404)
-        .json({ error: "Não há administradores para essa unidade" });
-    } else {
-      return res.status(200).json(user);
+      if (user.length === 0) {
+        return res
+          .status(404)
+          .json({ error: "Não há administradores para essa unidade" });
+      } else {
+        return res.status(200).json(user);
+      }
+    } catch (error) {
+      return res.status(500).json({
+        error: "Erro ao buscar administradores",
+      });
     }
   }
 }
