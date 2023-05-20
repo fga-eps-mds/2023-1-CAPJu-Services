@@ -9,7 +9,7 @@ config();
 
 class Mailer {
 
-  constructor(){
+  constructor() {
     const email_password = process.env.CAPJU_EMAIL_PASSWORD;
   }
 
@@ -39,14 +39,13 @@ class Mailer {
     const emails = [];
     let process = [];
     let json;
+
     json = await this.#getMailContents();
 
     if (json.length == 0) {
-      console.log("No late processes.");
       return true;
     }
     if (!this.email_password) {
-      console.log("EMAIL_PASSWORD is blank.");
       return false;
     }
 
@@ -157,8 +156,8 @@ class Mailer {
                   </thead>
                   <tbody>
                     ${process
-                      .map((flow) => {
-                        return `
+            .map((flow) => {
+              return `
                       <tr>
                         <td>${flow.flow}</td>
                         <td>${flow.process_record}</td>
@@ -168,8 +167,8 @@ class Mailer {
                         <td>${flow.delay_days}</td>
                       </tr>
                       `;
-                      })
-                      .join("")}
+            })
+            .join("")}
                   </tbody>
                 </table>
                 <figure>
@@ -209,4 +208,5 @@ class Mailer {
     return true;
   }
 }
+
 export default Mailer;
