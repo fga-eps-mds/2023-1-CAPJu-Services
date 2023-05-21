@@ -1,6 +1,6 @@
 class UserService {
   constructor(UserModel) {
-    this.user = UserModel
+    this.user = UserModel;
   }
   async getAllUsers() {
     return await this.user.findAll();

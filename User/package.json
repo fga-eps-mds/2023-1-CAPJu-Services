@@ -5,7 +5,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "nodemon src/server.js"
+    "start": "nodemon src/server.js",
+    "format": " npx prettier --write --ignore-unknown ."
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -15,5 +16,8 @@
     "nodemon": "^2.0.22",
     "pg": "^8.11.0",
     "sequelize": "^6.31.1"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.8"
   }
 }
