@@ -7,7 +7,7 @@ export class UserController {
     this.userService = new UserService(models.User)
   }
 
-  getAllUsers = async (req, res, next) => {
+  index = async (req, res, next) => {
     console.log(`UserController => getAllUsers`)
     try {
       const users = await this.userService.getAllUsers();
