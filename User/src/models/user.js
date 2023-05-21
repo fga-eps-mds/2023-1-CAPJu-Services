@@ -1,5 +1,6 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelizeConfig from '../config/sequelize.js';
+
 class UserModel extends Model {
   static init(sequelize) {
     super.init(
@@ -42,3 +43,4 @@ class UserModel extends Model {
 }
 UserModel.init(sequelizeConfig, Sequelize.DataTypes);
 export default UserModel;
+
