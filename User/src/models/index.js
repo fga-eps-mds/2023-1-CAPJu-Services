@@ -4,6 +4,6 @@ const User = UserModel;
 
 const models = {
   User,
-}
+};
 
 export default models;
