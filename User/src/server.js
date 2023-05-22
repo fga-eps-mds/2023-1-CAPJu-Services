@@ -13,7 +13,7 @@ app.use('/', applicationRoutes);
 
 sequelizeConfig.sync().then(() => {
   console.info(
-    `Conexão com o banco de dados ${process.env.DB_NAME}-${process.env.DB_HOST} na porta ${process.env.DB_PORT} realizada com sucesso!`
+    `Conexão com o banco de dados ${process.env.DB_NAME}-${process.env.DB_HOST} na porta ${process.env.DB_PORT} realizada com sucesso!`,
   );
 });
 
