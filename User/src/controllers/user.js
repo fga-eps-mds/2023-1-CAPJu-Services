@@ -58,7 +58,7 @@ export class UserController {
       const { cpf, password } = req.body;
       // Check for user cpf
       const user = await this.userService.getUserByCpfWithPassword(
-        cpfFilter(cpf)
+        cpfFilter(cpf),
       );
       if (!user) {
         return res.status(401).json({
@@ -92,6 +92,27 @@ export class UserController {
     } catch (error) {
       console.error(`loginUser ERROR: ${error}`);
       return res.status(500).json({ error, message: 'erro inesperado' });
+    }
+  };
+
+  store = async (req, res) => {
+    console.info('UserController => createUser');
+    try {
+      const { fullName, cpf, email, password, idUnit, idRole } = req.body;
+      const data = {
+        fullName,
+        cpf: cpfFilter(cpf),
+        email,
+        password,
+        accepted: false,
+        idUnit,
+        idRole,
+      };
+      const user = await this.userService.createUser(data);
+      return res.json(user);
+    } catch (error) {
+      console.error(`createUser ERROR: ${error}`);
+      return res.status(500).json({ error, message: 'Erro ao criar usuário' });
     }
   };
 }

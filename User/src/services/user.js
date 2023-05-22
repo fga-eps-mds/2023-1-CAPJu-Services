@@ -42,6 +42,10 @@ class UserService {
       where: { cpf },
     });
   }
+
+  async createUser(data) {
+    return this.user.create(data);
+  }
 }
 
 export default UserService;
