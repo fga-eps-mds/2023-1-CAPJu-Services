@@ -6,6 +6,21 @@ export class UserController {
     this.userService = new UserService(models.User);
   }
 
+  getUserByCpf = async (req, res) => {
+    console.info('UserController => getUserByCpf');
+    try {
+      const { cpf } = req.params;
+      const userRaw = await this.userService.getUserByCpf(cpf);
+      if (!userRaw) {
+        return res.status(404).json({ error: 'Usuário não existe' });
+      }
+      return res.status(200).json(userRaw);
+    } catch (error) {
+      console.error(`getUserByCpf ERROR: ${error}`);
+      return res.status(500).json({ message: 'Erro ao buscar usuário' });
+    }
+  };
+
   getAllUsers = async (req, res) => {
     console.info('UserController => getAllUsers');
     try {
@@ -52,21 +67,6 @@ export class UserController {
         error,
         message: 'Erro ao listar usuários aceitos ou não',
       });
-    }
-  };
-
-  getUserByCpf = async (req, res) => {
-    console.info('UserController => getUserByCpf');
-    try {
-      const { cpf } = req.params;
-      const user = await this.userService.getUserByCpf(cpf);
-      res.status(200).json({
-        message: 'Usuários encontrado com sucesso!',
-        data: user,
-      });
-    } catch (error) {
-      console.error(`getUserByCpf ERROR: ${error}`);
-      return res.status(500).json({ message: 'Erro ao buscar usuário' });
     }
   };
 }
