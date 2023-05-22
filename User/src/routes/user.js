@@ -7,5 +7,6 @@ UserRoutes.get('/allUser', userController.getAllUsers);
 UserRoutes.get('/cpf/:cpf', userController.getUserByCpf);
 UserRoutes.post('/login', userController.loginUser);
 UserRoutes.post('/newUser', userController.store);
+UserRoutes.delete('/deleteUser/:cpf', userController.deleteByCpf);
 
 export default UserRoutes;
