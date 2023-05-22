@@ -136,4 +136,74 @@ export class UserController {
     }
   }
 
+  updateUserEmail = async (req, res) => {
+    console.info('UserController => updateUserEmail');
+    try {
+      const { cpf } = req.params;
+      const { email } = req.body;
+      const updated = await this.userService.updateUser(cpfFilter(cpf), email);
+      if (updated) {
+        return res.status(200).json({
+          message: 'Email atualizado com sucesso',
+        });
+      } else {
+        return res.status(400).json({
+          message: 'Email não atualizado',
+        });
+      }
+    } catch (error) {
+      console.error(`updateUser ERROR: ${error}`);
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao atualizar email' });
+    }
+  };
+
+  updateUserRole = async (req, res) => {
+    console.info('UserController => updateUserRole');
+    try {
+      const { idRole, cpf } = req.body;
+      const updated = await this.userService.updateUserRole(
+        cpfFilter(cpf),
+        idRole,
+      );
+      if (updated) {
+        return res.status(200).json({
+          message: 'Role atualizado com sucesso',
+        });
+      } else {
+        return res.status(400).json({
+          message: 'Role não atualizada',
+        });
+      }
+    } catch (error) {
+      console.error(`updateUserRole ERROR: ${error}`);
+      return res.status(500).json({ error, message: 'Erro ao atualizar role' });
+    }
+  };
+
+  updateUserPassword = async (req, res) => {
+    console.info('UserController => updateUserPassword');
+    try {
+      const { cpf } = req.params;
+      const { oldPassword, newPassword } = req.body;
+      const updated = await this.userService.updateUserPassword(
+        cpfFilter(cpf),
+        oldPassword,
+        newPassword
+      );
+      if (updated) {
+        return res.status(200).json({
+          message: 'Senha atualizada com sucesso',
+        });
+      } else {
+        return res.status(400).json({
+          message: 'Senha não atualizada!',
+        });
+      }
+    } catch (error) {
+      console.error(`updateUserPassword ERROR: ${error}`);
+      return res.status(500).json({ error, message: 'Erro ao atualizar senha' });
+    }
+  };
 }
