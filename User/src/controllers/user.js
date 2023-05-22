@@ -115,4 +115,25 @@ export class UserController {
       return res.status(500).json({ error, message: 'Erro ao criar usuário' });
     }
   };
+
+  deleteByCpf = async (req,res) => {
+    try{
+      const cpf = req.params.cpf;
+      const user = await this.userService.getUserByCpf(cpfFilter(cpf));
+      if (!user) {
+        return res.status(404).json({ error: "Usuário não existe!" });
+      } else {
+        await user.destroy();
+        return res.status(200).json({
+          message: "Usuário apagado com sucesso",
+        });
+      }
+    }catch(error){
+      return res.status(500).json({
+        error,
+        message: "Erro ao apagar usuário",
+      });
+    }
+  }
+
 }
