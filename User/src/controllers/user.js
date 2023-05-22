@@ -1,5 +1,7 @@
 import models from '../models/index.js';
 import UserService from '../services/user.js';
+import { cpfFilter } from '../utils/cpf.js';
+import { generateToken } from '../utils/jwt.js';
 
 export class UserController {
   constructor() {
@@ -36,29 +38,9 @@ export class UserController {
             message: 'Parâmetro accepted deve ser \'true\' ou \'false\'',
           });
         }
-        users = users.map(user => {
-          return {
-            cpf: user.cpf,
-            fullName: user.fullName,
-            email: user.email,
-            accepted: user.accepted,
-            idUnit: user.idUnit,
-            idRole: user.idRole,
-          };
-        });
         return res.status(200).json(users);
       } else {
         users = await this.userService.getAllUsers();
-        users = users.map(user => {
-          return {
-            cpf: user.cpf,
-            fullName: user.fullName,
-            email: user.email,
-            accepted: user.accepted,
-            idUnit: user.idUnit,
-            idRole: user.idRole,
-          };
-        });
         return res.status(200).json(users);
       }
     } catch (error) {
@@ -67,6 +49,49 @@ export class UserController {
         error,
         message: 'Erro ao listar usuários aceitos ou não',
       });
+    }
+  };
+
+  loginUser = async (req, res) => {
+    console.info('UserController => loginUser');
+    try {
+      const { cpf, password } = req.body;
+      // Check for user cpf
+      const user = await this.userService.getUserByCpfWithPassword(
+        cpfFilter(cpf)
+      );
+      if (!user) {
+        return res.status(401).json({
+          error: 'Usuário inexistente',
+          message: 'Usuário inexistente',
+        });
+      }
+      if (!user.accepted) {
+        return res.status(401).json({
+          message: 'Usuário não aceito',
+        });
+      }
+      if (user.password === password) {
+        let expiresIn = new Date();
+        expiresIn.setDate(expiresIn.getDate() + 3);
+        return res.status(200).json({
+          cpf: user.cpf,
+          fullName: user.fullName,
+          email: user.email,
+          idUnit: user.idUnit,
+          token: generateToken(user.cpf),
+          idRole: user.idRole,
+          expiresIn,
+        });
+      } else {
+        return res.status(401).json({
+          error: 'Impossível autenticar',
+          message: 'Senha ou usuário incorretos',
+        });
+      }
+    } catch (error) {
+      console.error(`loginUser ERROR: ${error}`);
+      return res.status(500).json({ error, message: 'erro inesperado' });
     }
   };
 }
