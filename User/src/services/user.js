@@ -46,6 +46,43 @@ class UserService {
   async createUser(data) {
     return this.user.create(data);
   }
+
+  async updateUserEmail(cpf, email) {
+    const user = await this.getUserByCpf(cpf);
+    if (user) {
+      const [updatedRows] = await this.user.update(
+        { email: email },
+        { where: { cpf: cpf } },
+      );
+      if (updatedRows) return true;
+    }
+    return false;
+  }
+
+  async updateUserRole(cpf, idRole) {
+    const user = await this.getUserByCpf(cpf);
+    if (user) {
+      const [updatedRows] = await this.user.update(
+        { idRole: idRole },
+        { where: { cpf: cpf } },
+      );
+      if (updatedRows) return true;
+    }
+    return false;
+  }
+  async updateUserPassword(cpf, oldPassword, newPassword) {
+    const user = await this.getUserByCpfWithPassword(cpf);
+    if (user) {
+      if (user.password === oldPassword) {
+        const [updatedRows] = await this.user.update(
+          { password: newPassword },
+          { where: { cpf: cpf } },
+        );
+        if (updatedRows) return true;
+      }
+    }
+    return false;
+  }
 }
 
 export default UserService;
