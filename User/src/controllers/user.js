@@ -6,8 +6,8 @@ export class UserController {
     this.userService = new UserService(models.User);
   }
 
-  index = async (req, res, next) => {
-    console.log(`UserController => getAllUsers`);
+  index = async (req, res) => {
+    console.info('UserController => getAllUsers');
     try {
       const users = await this.userService.getAllUsers();
       res.status(200).json({
@@ -15,13 +15,13 @@ export class UserController {
         data: users,
       });
     } catch (error) {
-      console.log(`getAllUsers ERROR: ${error}`);
+      console.error(`getAllUsers ERROR: ${error}`);
       return res.status(500).json({ message: 'Erro ao buscar usuários' });
     }
   };
 
-  getUserByCpf = async (req, res, next) => {
-    console.log(`UserController => getUserByCpf`);
+  getUserByCpf = async (req, res) => {
+    console.info('UserController => getUserByCpf');
     try {
       const { cpf } = req.params;
       const user = await this.userService.getUserByCpf(cpf);
@@ -30,7 +30,7 @@ export class UserController {
         data: user,
       });
     } catch (error) {
-      console.log(`getUserByCpf ERROR: ${error}`);
+      console.error(`getUserByCpf ERROR: ${error}`);
       return res.status(500).json({ message: 'Erro ao buscar usuário' });
     }
   };

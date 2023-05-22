@@ -1,6 +1,5 @@
-import { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelizeConfig from '../config/sequelize.js';
-import { Sequelize } from 'sequelize';
 class UserModel extends Model {
   static init(sequelize) {
     super.init(

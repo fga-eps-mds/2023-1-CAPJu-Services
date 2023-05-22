@@ -12,11 +12,11 @@ app.use(express.json());
 app.use('/', applicationRoutes);
 
 sequelizeConfig.sync().then(() => {
-  console.log(
+  console.info(
     `Conexão com o banco de dados ${process.env.DB_NAME}-${process.env.DB_HOST} na porta ${process.env.DB_PORT} realizada com sucesso!`,
   );
 });
 
 app.listen(port, () => {
-  console.log(`Escutando na porta ${port}! \n`);
+  console.info(`Escutando na porta ${port}! \n`);
 });
