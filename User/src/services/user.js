@@ -28,6 +28,18 @@ class UserService {
     });
   }
 
+  async getAcceptedUsers() {
+    return this.user.findAll({
+      where: { accepted: true }
+    });
+  }
+
+  async getNoAcceptedUsers() {
+    return this.user.findAll({
+      where: { accepted: false }
+    });
+  }
+
   async getUserByCpf(cpf) {
     return this.user.findOne({
       where: { cpf },
