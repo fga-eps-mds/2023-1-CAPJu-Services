@@ -8,13 +8,13 @@ class UserService {
 
   async getAcceptedUsers() {
     return this.user.findAll({
-      where: { accepted: true }
+      where: { accepted: true },
     });
   }
 
   async getNoAcceptedUsers() {
     return this.user.findAll({
-      where: { accepted: false }
+      where: { accepted: false },
     });
   }
 
