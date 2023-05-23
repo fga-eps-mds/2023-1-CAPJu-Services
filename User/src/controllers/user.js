@@ -206,4 +206,27 @@ export class UserController {
       return res.status(500).json({ error, message: 'Erro ao atualizar senha' });
     }
   };
+
+  deleteRequest = async (req, res) => {
+    console.info('UserController => deleteRequest');
+    try {
+      const cpf = req.params.cpf;
+      const user = await this.userService.getUserByCpf(cpfFilter(cpf));
+
+      if (!user) {
+        res.status(404).json({ error: 'Usuário não existe' });
+      } else {
+        await user.destroy();
+        return res.status(200).json({
+          message: 'Usuário não aceito foi excluído',
+        });
+      }
+    } catch (error) {
+      console.error(`acceptRequest ERROR: ${error}`);
+      return res.status(500).json({
+        error,
+        message: 'Erro ao negar pedido do usuário',
+      });
+    }
+  };
 }
