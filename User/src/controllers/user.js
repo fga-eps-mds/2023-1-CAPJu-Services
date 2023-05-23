@@ -9,7 +9,6 @@ export class UserController {
   }
 
   getUserByCpf = async (req, res) => {
-    console.info('UserController => getUserByCpf');
     try {
       const { cpf } = req.params;
       const userRaw = await this.userService.getUserByCpf(cpf);
@@ -18,13 +17,11 @@ export class UserController {
       }
       return res.status(200).json(userRaw);
     } catch (error) {
-      console.error(`getUserByCpf ERROR: ${error}`);
       return res.status(500).json({ message: 'Erro ao buscar usuário' });
     }
   };
 
   getAllUsers = async (req, res) => {
-    console.info('UserController => getAllUsers');
     try {
       const { accepted } = req.query;
       let users = [];
@@ -44,7 +41,6 @@ export class UserController {
         return res.status(200).json(users);
       }
     } catch (error) {
-      console.error(`getAllUsers ERROR: ${error}`);
       return res.status(500).json({
         error,
         message: 'Erro ao listar usuários aceitos ou não',
@@ -53,7 +49,6 @@ export class UserController {
   };
 
   loginUser = async (req, res) => {
-    console.info('UserController => loginUser');
     try {
       const { cpf, password } = req.body;
       // Check for user cpf
@@ -90,13 +85,11 @@ export class UserController {
         });
       }
     } catch (error) {
-      console.error(`loginUser ERROR: ${error}`);
       return res.status(500).json({ error, message: 'erro inesperado' });
     }
   };
 
   store = async (req, res) => {
-    console.info('UserController => createUser');
     try {
       const { fullName, cpf, email, password, idUnit, idRole } = req.body;
       const data = {
@@ -111,13 +104,12 @@ export class UserController {
       const user = await this.userService.createUser(data);
       return res.json(user);
     } catch (error) {
-      console.error(`createUser ERROR: ${error}`);
       return res.status(500).json({ error, message: 'Erro ao criar usuário' });
     }
   };
 
-  deleteByCpf = async (req,res) => {
-    try{
+  deleteByCpf = async (req, res) => {
+    try {
       const cpf = req.params.cpf;
       const user = await this.userService.getUserByCpf(cpfFilter(cpf));
       if (!user) {
@@ -128,7 +120,7 @@ export class UserController {
           message: "Usuário apagado com sucesso",
         });
       }
-    }catch(error){
+    } catch (error) {
       return res.status(500).json({
         error,
         message: "Erro ao apagar usuário",
@@ -137,7 +129,6 @@ export class UserController {
   }
 
   updateUserEmail = async (req, res) => {
-    console.info('UserController => updateUserEmail');
     try {
       const { cpf } = req.params;
       const { email } = req.body;
@@ -152,7 +143,6 @@ export class UserController {
         });
       }
     } catch (error) {
-      console.error(`updateUser ERROR: ${error}`);
       return res
         .status(500)
         .json({ error, message: 'Erro ao atualizar email' });
@@ -160,7 +150,6 @@ export class UserController {
   };
 
   updateUserRole = async (req, res) => {
-    console.info('UserController => updateUserRole');
     try {
       const { idRole, cpf } = req.body;
       const updated = await this.userService.updateUserRole(
@@ -177,13 +166,11 @@ export class UserController {
         });
       }
     } catch (error) {
-      console.error(`updateUserRole ERROR: ${error}`);
       return res.status(500).json({ error, message: 'Erro ao atualizar role' });
     }
   };
 
   updateUserPassword = async (req, res) => {
-    console.info('UserController => updateUserPassword');
     try {
       const { cpf } = req.params;
       const { oldPassword, newPassword } = req.body;
@@ -202,13 +189,34 @@ export class UserController {
         });
       }
     } catch (error) {
-      console.error(`updateUserPassword ERROR: ${error}`);
-      return res.status(500).json({ error, message: 'Erro ao atualizar senha' });
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao atualizar senha' });
+    }
+  };
+
+  acceptRequest = async (req, res) => {
+    try {
+      const cpf = req.params.cpf;
+      const user = await this.userService.getUserByCpf(cpfFilter(cpf));
+      if (!user) {
+        res.status(404).json({ error: 'Usuário não existe' });
+      } else {
+        user.set({ accepted: true });
+        await user.save();
+        return res.status(200).json({
+          message: 'Usuário aceito com sucesso',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        error,
+        message: 'Falha ao aceitar usuário',
+      });
     }
   };
 
   deleteRequest = async (req, res) => {
-    console.info('UserController => deleteRequest');
     try {
       const cpf = req.params.cpf;
       const user = await this.userService.getUserByCpf(cpfFilter(cpf));
@@ -222,7 +230,6 @@ export class UserController {
         });
       }
     } catch (error) {
-      console.error(`acceptRequest ERROR: ${error}`);
       return res.status(500).json({
         error,
         message: 'Erro ao negar pedido do usuário',
