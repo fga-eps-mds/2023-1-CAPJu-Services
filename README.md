@@ -137,6 +137,15 @@ npm run test
 
 ```
 
+## Testes
+
+```bash
+npm run test
+
+## Esse comando irá rodar os testes do serviço escolhido.
+
+```
+
 ### Deployment
 
 [GitHub Actions](https://github.com/fga-eps-mds/2023-1-CAPJu-Services/actions).
