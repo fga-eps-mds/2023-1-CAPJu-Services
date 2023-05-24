@@ -8,9 +8,9 @@
     "start": "nodemon src/server.js",
     "test": "jest",
     "lint": "eslint src",
-    "migration": "sequelize db:migrate",
-    "seed": "sequelize db:seed:all",
-    "shred": "sequelize db:migrate:undo:all",
+    "migration": "npx sequelize-cli db:migrate",
+    "seed": "npx sequelize-cli db:seed:all",
+    "shred": "npx sequelize-cli db:migrate:undo:all",
     "prettify": "prettier --write src",
     "check-format": "prettier --check src"
   },

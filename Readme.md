@@ -95,8 +95,16 @@ npm install nome-da-dependencia
 
 Obs: Para rodar os comandos listados abaixo, é necessário a criação prévia da base de dados que terá o mesmo nome da variável DB_NAME encontrada no .env.
 
+Obs: Pra executar esses comandos, se faz necessário a instalação da sequelize-cli como pacote externo.
+
 ```bash
-npx sequelize-cli db:migrate
+npm install -g sequelize-cli
+
+# Esse comando irá instalar a sequelize-cli de maneira global e irá permitir que você rode comandos com o npx.
+```
+
+```bash
+npm run migration OU npx sequelize-cli db:migrate
 
 # Esse comando irá rodar as migrations criando as tabelas no seu banco da dados.
 ```
@@ -105,7 +113,7 @@ Caso seja necessário remover a última migration, pode ser usado esse comando:
 
 ```bash
 
-npx sequelize-cli db:migrate:undo
+npm run shred OU npx sequelize-cli db:migrate:undo
 
 # Esse comando irá remover a última migration criada.
 ```
@@ -115,7 +123,14 @@ npx sequelize-cli db:migrate:undo
 A biblioteca [Prettier](https://prettier.io/) é a ferramente utilizada para adicionar a formatação padrão de código, e pode ser aplicada com o seguinte comando:
 
 ```bash
-npm run format
+npm run prettify
+
+## Esse comando irá padronizar o estilo de código para o padrão estabelecido no projeto.
+
+npm run check-format
+
+## Esse comando irá verificar erros de sintaxe e possíveis melhorias.
+
 ```
 
 ### Deployment
