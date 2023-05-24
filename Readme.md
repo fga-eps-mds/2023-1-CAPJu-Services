@@ -89,6 +89,27 @@ Pode ser utilizado o seguinte comando para inserir novas dependencias na aplica�
 npm install nome-da-dependencia
 ```
 
+## Criando banco de dados
+
+É utilizado um sistema de migrations para mantermos o banco de dados sempre atualizado:
+
+Obs: Para rodar os comandos listados abaixo, é necessário a criação prévia da base de dados que terá o mesmo nome da variável DB_NAME encontrada no .env.
+
+```bash
+npx sequelize-cli db:migrate
+
+# Esse comando irá rodar as migrations criando as tabelas no seu banco da dados.
+```
+
+Caso seja necessário remover a última migration, pode ser usado esse comando:
+
+```bash
+
+npx sequelize-cli db:migrate:undo
+
+# Esse comando irá remover a última migration criada.
+```
+
 ## Formatação do código
 
 A biblioteca [Prettier](https://prettier.io/) é a ferramente utilizada para adicionar a formatação padrão de código, e pode ser aplicada com o seguinte comando:
