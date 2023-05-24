@@ -1,4 +1,4 @@
-# CAPJu - Front
+# CAPJu - Services
 
 <div align="center">
   <img src="https://i.imgur.com/0KsqIUe.png" alt="logo">
@@ -27,12 +27,11 @@ Este repositório contém o código-fonte do backend do projeto CAPJu, seguindo 
 - Serviço de Unidades (Unit):
 - Serviço de Email (Mailer):
 
-## Arquiteturave
+## Arquitetura
 
-```bash
-# Deve conter a imagem da arquitetura utilizada
-```
-
+<div align="center">
+<img src="./assets/arquitetura.jpeg" width=600px />
+</div>
 ## Instalação
 
 ### Configurando .env Global (Destinado para rodar o banco de dados no docker)
