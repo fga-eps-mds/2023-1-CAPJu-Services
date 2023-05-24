@@ -5,7 +5,7 @@ class UserService {
   async getAllUsers() {
     return this.user.findAll({
       attributes: {
-        exclude: ['password'],
+        exclude: ["password"],
       },
     });
   }
@@ -14,7 +14,7 @@ class UserService {
     return this.user.findAll({
       where: { accepted: true },
       attributes: {
-        exclude: ['password'],
+        exclude: ["password"],
       },
     });
   }
@@ -23,7 +23,7 @@ class UserService {
     return this.user.findAll({
       where: { accepted: false },
       attributes: {
-        exclude: ['password'],
+        exclude: ["password"],
       },
     });
   }
@@ -44,7 +44,7 @@ class UserService {
     return this.user.findOne({
       where: { cpf },
       attributes: {
-        exclude: ['password'],
+        exclude: ["password"],
       },
     });
   }
@@ -67,7 +67,7 @@ class UserService {
     if (user) {
       const [updatedRows] = await this.user.update(
         { email: email },
-        { where: { cpf: cpf } },
+        { where: { cpf: cpf } }
       );
       if (updatedRows) return true;
     }
@@ -79,7 +79,7 @@ class UserService {
     if (user) {
       const [updatedRows] = await this.user.update(
         { idRole: idRole },
-        { where: { cpf: cpf } },
+        { where: { cpf: cpf } }
       );
       if (updatedRows) return true;
     }
@@ -91,7 +91,7 @@ class UserService {
       if (user.password === oldPassword) {
         const [updatedRows] = await this.user.update(
           { password: newPassword },
-          { where: { cpf: cpf } },
+          { where: { cpf: cpf } }
         );
         if (updatedRows) return true;
       }
