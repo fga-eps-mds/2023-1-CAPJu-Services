@@ -48,7 +48,7 @@ export class UserController {
     }
   };
 
-  loginUser = async (req, res) => {
+ loginUser = async (req, res) => {
     try {
       const { cpf, password } = req.body;
       const user = await this.userService.getUserByCpfWithPassword(
@@ -107,7 +107,7 @@ export class UserController {
     }
   };
 
-  deleteByCpf = async (req, res) => {
+ deleteByCpf = async (req, res) => {
     try {
       const { cpf } = req.params;
       const user = await this.userService.getUserByCpf(cpfFilter(cpf));
@@ -151,7 +151,7 @@ export class UserController {
     }
   };
 
-  updateUserRole = async (req, res) => {
+   updateUserRole = async (req, res) => {
     try {
       const { idRole, cpf } = req.body;
       const updated = await this.userService.updateUserRole(
@@ -172,7 +172,7 @@ export class UserController {
     }
   };
 
-  updateUserPassword = async (req, res) => {
+   updateUserPassword = async (req, res) => {
     try {
       const { cpf } = req.params;
       const { oldPassword, newPassword } = req.body;
@@ -197,7 +197,7 @@ export class UserController {
     }
   };
 
-  acceptRequest = async (req, res) => {
+   acceptRequest = async (req, res) => {
     try {
       const { cpf } = req.params;
       const user = await this.userService.getUserByCpf(cpfFilter(cpf));
@@ -218,7 +218,7 @@ export class UserController {
     }
   };
 
-  deleteRequest = async (req, res) => {
+ deleteRequest = async (req, res) => {
     try {
       const { cpf } = req.params;
       const user = await this.userService.getUserByCpf(cpfFilter(cpf));
