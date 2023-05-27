@@ -119,16 +119,12 @@ npm run shred OU npx sequelize-cli db:migrate:undo
 
 ## Formatação do código
 
-A biblioteca [Prettier](https://prettier.io/) é a ferramente utilizada para adicionar a formatação padrão de código, e pode ser aplicada com o seguinte comando:
+As bibliotecas [Prettier](https://prettier.io/) e [EsLint](https://eslint.org/) são as ferramentas utilizadas para adicionar a formatação padrão de código e verificação de sintaxe, e podem ser aplicadas com o seguinte comando:
 
 ```bash
-npm run prettify
+npm run format
 
-## Esse comando irá padronizar o estilo de código para o padrão estabelecido no projeto.
-
-npm run check-format
-
-## Esse comando irá verificar erros de sintaxe e possíveis melhorias.
+## Esse comando irá padronizar o estilo de código para o padrão estabelecido no projeto e verificar erros de sintaxe e possíveis melhorias.
 
 ```
 
