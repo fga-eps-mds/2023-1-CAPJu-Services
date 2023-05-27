@@ -12,7 +12,8 @@
     "seed": "sequelize db:seed:all",
     "shred": "sequelize db:migrate:undo:all",
     "prettify": "prettier --write src",
-    "check-format": "prettier --check src"
+    "check-format": "prettier --check src",
+    "format": " npx prettier --write src --ignore-unknown . && prettier --check src &&  npx eslint --fix src --ext .js"
   },
   "author": "",
   "license": "MIT",

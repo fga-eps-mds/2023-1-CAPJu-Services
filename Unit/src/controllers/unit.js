@@ -1,18 +1,18 @@
-import Unit from "../models/unit.js";
-import axios from "axios";
-import { ROLE } from "../schemas/role.js";
-import { config } from "dotenv";
+import Unit from '../models/unit.js';
+import axios from 'axios';
+import { ROLE } from '../schemas/role.js';
+import { config } from 'dotenv';
 
-config()
+config();
 
-const user_api = process.env.API_URL_USER
+const user_api = process.env.API_URL_USER;
 
 class UnitController {
   async index(req, res) {
     const units = await Unit.findAll();
 
     if (!units) {
-      return res.status(401).json({ message: "Não Existe unidades" });
+      return res.status(401).json({ message: 'Não Existe unidades' });
     } else {
       return res.status(200).json(units);
     }
@@ -28,7 +28,7 @@ class UnitController {
     } catch (error) {
       return res.status(500).json({
         error,
-        message: "Erro ao criar unidade",
+        message: 'Erro ao criar unidade',
       });
     }
   }
@@ -40,7 +40,7 @@ class UnitController {
       const unit = await Unit.findByPk(idUnit);
 
       if (!unit) {
-        return res.status(404).json({ message: "Essa unidade não existe!" });
+        return res.status(404).json({ message: 'Essa unidade não existe!' });
       }
 
       unit.name = name;
@@ -50,7 +50,7 @@ class UnitController {
     } catch (error) {
       return res.status(500).json({
         error,
-        message: "Erro ao atualizar unidade",
+        message: 'Erro ao atualizar unidade',
       });
     }
   }
@@ -61,7 +61,7 @@ class UnitController {
     const unit = await Unit.findByPk(idUnit);
 
     if (!unit) {
-      return res.status(401).json({ error: "Essa unidade não existe!" });
+      return res.status(401).json({ error: 'Essa unidade não existe!' });
     } else {
       await unit.destroy();
       return res.status(200).json(unit);
@@ -83,13 +83,13 @@ class UnitController {
       if (user.length === 0) {
         return res
           .status(404)
-          .json({ error: "Não há administradores para essa unidade" });
+          .json({ error: 'Não há administradores para essa unidade' });
       } else {
         return res.status(200).json(user);
       }
     } catch (error) {
       return res.status(500).json({
-        error: "Erro ao buscar administradores",
+        error: 'Erro ao buscar administradores',
       });
     }
   }
