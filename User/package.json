@@ -12,7 +12,8 @@
     "seed": "npx sequelize-cli db:seed:all",
     "shred": "npx sequelize-cli db:migrate:undo:all",
     "prettify": "prettier --write src",
-    "check-format": "prettier --check src"
+    "check-format": "prettier --check src",
+    "format": " npx prettier --write src --ignore-unknown . && prettier --check src &&  npx eslint --fix src --ext .js"
   },
   "dependencies": {
     "@babel/core": "^7.21.8",
