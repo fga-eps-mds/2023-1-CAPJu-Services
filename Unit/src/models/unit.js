@@ -1,4 +1,4 @@
-import { Model, DataTypes } from "sequelize";
+import { Model, DataTypes } from 'sequelize';
 
 class Unit extends Model {
   static init(sequelize) {
@@ -16,8 +16,8 @@ class Unit extends Model {
       },
       {
         sequelize,
-        tableName: "unit",
-      }
+        tableName: 'unit',
+      },
     );
   }
 }
