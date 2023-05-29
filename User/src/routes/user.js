@@ -11,7 +11,6 @@ UserRoutes.post('/newUser', userController.store);
 UserRoutes.post('/acceptRequest/:cpf', userController.acceptRequest);
 UserRoutes.put('/updateUser/:cpf', userController.updateUserEmail);
 UserRoutes.put('/updateUserRole', userController.updateUserRole);
-UserRoutes.put('/updateUnitAdmin', userController.updateUnitAdmin);
 UserRoutes.post('/updateUserPassword/:cpf', userController.updateUserPassword);
 UserRoutes.delete('/deleteUser/:cpf', userController.deleteByCpf);
 UserRoutes.delete('/deleteRequest/:cpf', userController.deleteRequest);

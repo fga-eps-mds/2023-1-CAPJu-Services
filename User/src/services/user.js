@@ -50,7 +50,7 @@ class UserService {
     return this.user.findAll({
       where: {
         idUnit: idUnit,
-        idRole: 5,
+        idRole: 1,
       },
     });
   }
@@ -70,18 +70,6 @@ class UserService {
     if (user) {
       const [updatedRows] = await this.user.update(
         { email: email },
-        { where: { cpf: cpf } },
-      );
-      if (updatedRows) return true;
-    }
-    return false;
-  }
-
-  async updateUnitAdmin(idRole, idUnit, cpf) {
-    const user = await this.getAcceptedUserByUnitAndCpf(idUnit, cpf);
-    if (user) {
-      const [updatedRows] = await this.user.update(
-        { idRole: idRole },
         { where: { cpf: cpf } },
       );
       if (updatedRows) return true;

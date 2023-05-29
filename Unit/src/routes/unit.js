@@ -8,8 +8,6 @@ UnitRoutes.get('/units', unitController.getAllUnits);
 UnitRoutes.get('/unitAdmins/:idUnit', unitController.getAdminsByUnitId);
 UnitRoutes.post('/newUnit', unitController.store);
 UnitRoutes.put('/updateUnit', unitController.update);
-UnitRoutes.put('/setUnitAdmin', unitController.setUnitAdmin);
-UnitRoutes.put('/removeUnitAdmin', unitController.removeUnitAdmin);
 UnitRoutes.delete('/deleteUnit', unitController.delete);
 
 export default UnitRoutes;
