@@ -238,4 +238,17 @@ export class UserController {
       });
     }
   };
+
+  getUsersAdminByUnitId = async (req, res) => {
+    try {
+      const { idUnit } = req.params;
+      const usersRaw = await this.userService.getUsersAdminByIdUnit(idUnit);
+      if (!usersRaw) {
+        return res.status(404).json({ error: 'Usuários não existem' });
+      }
+      return res.status(200).json(usersRaw);
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro ao buscar usuários' });
+    }
+  };
 }

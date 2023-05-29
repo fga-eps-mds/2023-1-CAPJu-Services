@@ -5,7 +5,7 @@ import applicationRoutes from './routes/index.js';
 import sequelizeConfig from './config/sequelize.js';
 
 const app = express();
-const port = 8080;
+const port = 8081;
 
 app.use(cors());
 app.use(express.json());
