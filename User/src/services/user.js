@@ -37,6 +37,16 @@ class UserService {
     });
   }
 
+
+  async getUsersAdminByIdUnit(idUnit) {
+    return this.user.findAll({
+      where: {
+        idUnit: idUnit,
+        idRole: 5,
+      },
+    });
+  }
+
   async getUserByCpfWithPassword(cpf) {
     return this.user.findOne({
       where: { cpf },
