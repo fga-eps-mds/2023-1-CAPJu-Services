@@ -1,6 +1,7 @@
-import { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes, Sequelize } from 'sequelize';
+import sequelizeConfig from '../config/sequelize.js';
 
-class Unit extends Model {
+class UnitModel extends Model {
   static init(sequelize) {
     super.init(
       {
@@ -21,5 +22,5 @@ class Unit extends Model {
     );
   }
 }
-
-export default Unit;
+UnitModel.init(sequelizeConfig, Sequelize.DataTypes);
+export default UnitModel;
