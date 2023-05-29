@@ -1,52 +1,57 @@
-import Unit from '../models/unit.js';
+import 'dotenv/config';
 import axios from 'axios';
-import { ROLE } from '../schemas/role.js';
-import { config } from 'dotenv';
+import models from '../models/index.js';
+import UnitService from '../services/unit.js';
 
-config();
-
-const user_api = process.env.API_URL_USER;
-
-class UnitController {
-  async index(req, res) {
-    const units = await Unit.findAll();
-
-    if (!units) {
-      return res.status(401).json({ message: 'Não Existe unidades' });
-    } else {
-      return res.status(200).json(units);
-    }
+export class UnitController {
+  constructor() {
+    this.unitService = new UnitService(models.Unit);
   }
 
-  async store(req, res) {
-    const { name } = req.body;
+  getAllUnits = async (req, res) => {
     try {
-      const unit = await Unit.create({
-        name,
-      });
+      const units = await this.unitService.getAllUnits();
+      if (!units) {
+        return res.status(401).json({ message: 'Não Existe unidades' });
+      } else {
+        return res.status(200).json(units);
+      }
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro ao buscar unidades' });
+    }
+
+  }
+
+  store = async (req, res) => {
+    try {
+      const { name } = req.body;
+      const unit = await this.unitService.createUnit(name);
       return res.json(unit);
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error,
-        message: 'Erro ao criar unidade',
+        message: "Erro ao criar unidade",
       });
     }
   }
 
-  async update(req, res) {
-    const { idUnit, name } = req.body;
-
+  update = async (req, res) => {
     try {
-      const unit = await Unit.findByPk(idUnit);
+      const { idUnit, name } = req.body;
+      console.log("idUnit", idUnit, name)
+      const updated = await this.unitService.updateUnit(idUnit, name);
+      console.log("updated", updated)
 
-      if (!unit) {
-        return res.status(404).json({ message: 'Essa unidade não existe!' });
+      if (updated) {
+        return res.status(200).json({
+          message: 'Unidade atualizado com sucesso',
+        });
+      } else {
+        return res.status(400).json({
+          message: 'Unidade não atualizada',
+        });
       }
-
-      unit.name = name;
-      await unit.save();
-
-      return res.status(200).json(unit);
     } catch (error) {
       return res.status(500).json({
         error,
@@ -55,44 +60,40 @@ class UnitController {
     }
   }
 
-  async delete(req, res) {
-    const { idUnit } = req.body;
-
-    const unit = await Unit.findByPk(idUnit);
-
-    if (!unit) {
-      return res.status(401).json({ error: 'Essa unidade não existe!' });
-    } else {
-      await unit.destroy();
-      return res.status(200).json(unit);
+  delete = async (req, res) => {
+    try {
+      const { idUnit } = req.body;
+      const unit = await this.unitService.getUnitById(idUnit);
+      if (!unit) {
+        return res.status(404).json({ error: 'Unidade não existe!' });
+      } else {
+        await unit.destroy();
+        return res.status(200).json({
+          message: 'Unidade apagada com sucesso',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        error,
+        message: 'Erro ao apagar unidade',
+      });
     }
   }
 
-  async getAdminsByUnitId(req, res) {
-    const idUnit = req.params.id;
-
+  getAdminsByUnitId = async (req, res) => {
     try {
-      const users_response = await axios.get(user_api + '/users', {
-        params: {
-          idUnit,
-          idRole: ROLE.DIRETOR,
-        },
-      });
-      const user = JSON.parse(users_response.data);
-
-      if (user.length === 0) {
-        return res
-          .status(404)
-          .json({ error: 'Não há administradores para essa unidade' });
+      const { idUnit } = req.params;
+      const users_response = await axios.get(`${process.env.USER_URL_API}/admins/unit/${idUnit}`);
+      if (users_response.data.length === 0) {
+        return res.status(401).json({ message: 'Não existem usuários adminstradores nessa unidade' });
       } else {
-        return res.status(200).json(user);
+        return res.status(200).json(users_response.data);
       }
     } catch (error) {
+      console.log("error", error)
       return res.status(500).json({
         error: 'Erro ao buscar administradores',
       });
     }
   }
 }
-
-export default new UnitController();
