@@ -51,9 +51,7 @@ export class UserController {
   loginUser = async (req, res) => {
     try {
       const { cpf, password } = req.body;
-      const user = await this.userService.getUserByCpfWithPassword(
-        cpfFilter(cpf),
-      );
+      const user = await this.userService.getUserByCpfWithPassword(cpf);
       if (!user) {
         return res.status(401).json({
           error: 'Usuário inexistente',
@@ -110,7 +108,7 @@ export class UserController {
   deleteByCpf = async (req, res) => {
     try {
       const { cpf } = req.params;
-      const user = await this.userService.getUserByCpf(cpfFilter(cpf));
+      const user = await this.userService.getAcceptedUserByCpf(cpf)
       if (!user) {
         return res.status(404).json({ error: 'Usuário não existe!' });
       } else {

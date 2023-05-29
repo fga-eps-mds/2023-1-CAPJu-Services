@@ -19,6 +19,24 @@ class UserService {
     });
   }
 
+  async getNoAcceptedUserByCpf(cpf) {
+    return this.user.findOne({
+      where: { accepted: false, cpf: cpfFilter(cpf) },
+      attributes: {
+        exclude: ['password'],
+      },
+    });
+  }
+
+  async getAcceptedUserByCpf(cpf) {
+    return this.user.findOne({
+      where: { accepted: true, cpf: cpfFilter(cpf) },
+      attributes: {
+        exclude: ['password'],
+      },
+    });
+  }
+
   async getAcceptedUserByUnitAndCpf(idUnit, cpf) {
     return this.user.findOne({
       where: { accepted: true, idUnit: idUnit, cpf: cpf },
