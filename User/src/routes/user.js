@@ -5,6 +5,7 @@ const userController = new UserController();
 
 UserRoutes.get('/allUser', userController.getAllUsers);
 UserRoutes.get('/cpf/:cpf', userController.getUserByCpf);
+UserRoutes.get('/admins/unit/:idUnit', userController.getUsersAdminByUnitId);
 UserRoutes.post('/login', userController.loginUser);
 UserRoutes.post('/newUser', userController.store);
 UserRoutes.post('/acceptRequest/:cpf', userController.acceptRequest);
