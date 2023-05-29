@@ -1,3 +1,5 @@
+import { cpfFilter } from '../utils/cpf.js';
+
 class UserService {
   constructor(UserModel) {
     this.user = UserModel;
@@ -39,7 +41,7 @@ class UserService {
 
   async getAcceptedUserByUnitAndCpf(idUnit, cpf) {
     return this.user.findOne({
-      where: { accepted: true, idUnit: idUnit, cpf: cpf },
+      where: { accepted: true, idUnit: idUnit, cpf: cpfFilter(cpf) },
       attributes: {
         exclude: ['password'],
       },
@@ -57,7 +59,7 @@ class UserService {
 
   async getUserByCpf(cpf) {
     return this.user.findOne({
-      where: { cpf },
+      where: { cpf: cpfFilter(cpf) },
       attributes: {
         exclude: ['password'],
       },
@@ -75,7 +77,7 @@ class UserService {
 
   async getUserByCpfWithPassword(cpf) {
     return this.user.findOne({
-      where: { cpf },
+      where: { cpf: cpfFilter(cpf) },
     });
   }
 
@@ -88,7 +90,7 @@ class UserService {
     if (user) {
       const [updatedRows] = await this.user.update(
         { email: email },
-        { where: { cpf: cpf } },
+        { where: { cpf: cpfFilter(cpf) } },
       );
       if (updatedRows) return true;
     }
@@ -100,7 +102,7 @@ class UserService {
     if (user) {
       const [updatedRows] = await this.user.update(
         { idRole: idRole },
-        { where: { cpf: cpf } },
+        { where: { cpf: cpfFilter(cpf) } },
       );
       if (updatedRows) return true;
     }
@@ -112,7 +114,7 @@ class UserService {
       if (user.password === oldPassword) {
         const [updatedRows] = await this.user.update(
           { password: newPassword },
-          { where: { cpf: cpf } },
+          { where: { cpf: cpfFilter(cpf) } },
         );
         if (updatedRows) return true;
       }
