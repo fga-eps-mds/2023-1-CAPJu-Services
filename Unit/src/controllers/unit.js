@@ -2,7 +2,7 @@ import 'dotenv/config';
 import axios from 'axios';
 import models from '../models/index.js';
 import UnitService from '../services/unit.js';
-import { ROLE } from "../schemas/role.js";
+import { ROLE } from '../schemas/role.js';
 export class UnitController {
   constructor() {
     this.unitService = new UnitService(models.Unit);
@@ -19,8 +19,7 @@ export class UnitController {
     } catch (error) {
       return res.status(500).json({ message: 'Erro ao buscar unidades' });
     }
-
-  }
+  };
 
   store = async (req, res) => {
     try {
@@ -31,17 +30,17 @@ export class UnitController {
       console.log(error);
       return res.status(500).json({
         error,
-        message: "Erro ao criar unidade",
+        message: 'Erro ao criar unidade',
       });
     }
-  }
+  };
 
   update = async (req, res) => {
     try {
       const { idUnit, name } = req.body;
-      console.log("idUnit", idUnit, name)
+      console.log('idUnit', idUnit, name);
       const updated = await this.unitService.updateUnit(idUnit, name);
-      console.log("updated", updated)
+      console.log('updated', updated);
 
       if (updated) {
         return res.status(200).json({
@@ -58,7 +57,7 @@ export class UnitController {
         message: 'Erro ao atualizar unidade',
       });
     }
-  }
+  };
 
   delete = async (req, res) => {
     try {
@@ -78,14 +77,18 @@ export class UnitController {
         message: 'Erro ao apagar unidade',
       });
     }
-  }
+  };
 
   getAdminsByUnitId = async (req, res) => {
     try {
       const { idUnit } = req.params;
-      const users_response = await axios.get(`${process.env.USER_URL_API}/admins/unit/${idUnit}`);
-      if ((users_response.data).length === 0) {
-        return res.status(401).json({ message: 'Não existem usuários adminstradores nessa unidade' });
+      const users_response = await axios.get(
+        `${process.env.USER_URL_API}/admins/unit/${idUnit}`,
+      );
+      if (users_response.data.length === 0) {
+        return res.status(401).json({
+          message: 'Não existem usuários adminstradores nessa unidade',
+        });
       } else {
         return res.status(200).json(users_response.data);
       }
@@ -94,7 +97,7 @@ export class UnitController {
         error: 'Erro ao buscar administradores',
       });
     }
-  }
+  };
 
   setUnitAdmin = async (req, res) => {
     try {
@@ -102,20 +105,47 @@ export class UnitController {
       const data = {
         idRole: ROLE.ADMINISTRADOR,
         idUnit: idUnit,
-        cpf
-      }
-      const userAdmin = await axios.put(`${process.env.USER_URL_API}/updateUnitAdmin`, data);
-      if (userAdmin.data)
-        return res.status(200).json(userAdmin.data);
-      else return res.status(404).json({
-        message: "Usuário não cadastrado como administrador da unidade",
-      });
+        cpf,
+      };
+      const userAdmin = await axios.put(
+        `${process.env.USER_URL_API}/updateUnitAdmin`,
+        data,
+      );
+      if (userAdmin.data) return res.status(200).json(userAdmin.data);
+      else
+        return res.status(404).json({
+          message: 'Usuário não cadastrado como administrador da unidade',
+        });
     } catch (error) {
-      console.log("error", error)
+      console.log('error', error);
       return res.status(500).json({
         error: 'Erro ao cadastrar administrador de unidade',
       });
     }
-  }
+  };
 
+  removeUnitAdmin = async (req, res) => {
+    try {
+      const { idUnit, cpf } = req.body;
+      const data = {
+        idRole: ROLE.JUIZ,
+        idUnit: idUnit,
+        cpf,
+      };
+      const userAdmin = await axios.put(
+        `${process.env.USER_URL_API}/updateUnitAdmin`,
+        data,
+      );
+      if (userAdmin.data) return res.status(200).json(userAdmin.data);
+      else
+        return res.status(404).json({
+          message: 'Usuário não removido da unidade',
+        });
+    } catch (error) {
+      console.log('error', error);
+      return res.status(500).json({
+        error: 'Erro ao remover administrador de unidade',
+      });
+    }
+  };
 }

@@ -28,7 +28,7 @@ class UnitService {
     return false;
   }
 
-  async deleteUnit(idUnit, name) {
+  async deleteUnit(idUnit) {
     const unit = await this.getUnitById(idUnit);
     if (unit) {
       const [updatedRows] = await this.unit.destroy({ where: { idUnit } });
