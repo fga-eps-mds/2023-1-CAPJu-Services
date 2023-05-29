@@ -1,6 +1,5 @@
 import models from '../models/index.js';
 import UserService from '../services/user.js';
-import { cpfFilter } from '../utils/cpf.js';
 import { generateToken } from '../utils/jwt.js';
 
 export class UserController {
@@ -91,7 +90,7 @@ export class UserController {
       const { fullName, cpf, email, password, idUnit, idRole } = req.body;
       const data = {
         fullName,
-        cpf: cpfFilter(cpf),
+        cpf,
         email,
         password,
         accepted: false,
@@ -130,7 +129,7 @@ export class UserController {
       const { cpf } = req.params;
       const { email } = req.body;
       const updated = await this.userService.updateUserEmail(
-        cpfFilter(cpf),
+        cpf,
         email,
       );
       if (updated) {
@@ -153,7 +152,7 @@ export class UserController {
     try {
       const { idRole, cpf } = req.body;
       const updated = await this.userService.updateUserRole(
-        cpfFilter(cpf),
+        cpf,
         idRole,
       );
       if (updated) {
@@ -175,7 +174,7 @@ export class UserController {
       const { cpf } = req.params;
       const { oldPassword, newPassword } = req.body;
       const updated = await this.userService.updateUserPassword(
-        cpfFilter(cpf),
+        cpf,
         oldPassword,
         newPassword,
       );
@@ -198,7 +197,7 @@ export class UserController {
   acceptRequest = async (req, res) => {
     try {
       const { cpf } = req.params;
-      const user = await this.userService.getUserByCpf(cpfFilter(cpf));
+      const user = await this.userService.getUserByCpf(cpf);
       if (!user) {
         res.status(404).json({ error: 'Usuário não existe' });
       } else {
@@ -219,7 +218,7 @@ export class UserController {
   deleteRequest = async (req, res) => {
     try {
       const { cpf } = req.params;
-      const user = await this.userService.getUserByCpf(cpfFilter(cpf));
+      const user = await this.userService.getNoAcceptedUserByCpf(cpf);
 
       if (!user) {
         res.status(404).json({ error: 'Usuário não existe' });
