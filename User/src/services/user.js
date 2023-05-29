@@ -46,7 +46,6 @@ class UserService {
     });
   }
 
-
   async getUsersAdminByIdUnit(idUnit) {
     return this.user.findAll({
       where: {

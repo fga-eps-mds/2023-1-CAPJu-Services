@@ -200,10 +200,14 @@ export class UserController {
   updateUnitAdmin = async (req, res) => {
     try {
       const { idRole, idUnit, cpf } = req.body;
-      const updated = await this.userService.updateUnitAdmin(idRole, idUnit, cpf);
+      const updated = await this.userService.updateUnitAdmin(
+        idRole,
+        idUnit,
+        cpf,
+      );
       if (updated) {
         return res.status(200).json({
-          message: 'Usuário cadastrado como administrador da unidade.',
+          message: 'Role do usuário atualizada com sucesso.',
         });
       } else {
         return res.status(200).json({
@@ -213,7 +217,7 @@ export class UserController {
     } catch (error) {
       return res
         .status(500)
-        .json({ error, message: 'Erro ao cadastrar administrador' });
+        .json({ error, message: 'Erro ao atualizar role do usuário' });
     }
   };
 
