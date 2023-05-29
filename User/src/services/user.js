@@ -19,6 +19,15 @@ class UserService {
     });
   }
 
+  async getAcceptedUserByUnitAndCpf(idUnit, cpf) {
+    return this.user.findOne({
+      where: { accepted: true, idUnit: idUnit, cpf: cpf },
+      attributes: {
+        exclude: ['password'],
+      },
+    });
+  }
+
   async getNoAcceptedUsers() {
     return this.user.findAll({
       where: { accepted: false },
@@ -62,6 +71,18 @@ class UserService {
     if (user) {
       const [updatedRows] = await this.user.update(
         { email: email },
+        { where: { cpf: cpf } },
+      );
+      if (updatedRows) return true;
+    }
+    return false;
+  }
+
+  async updateUnitAdmin(idRole, idUnit, cpf) {
+    const user = await this.getAcceptedUserByUnitAndCpf(idUnit, cpf);
+    if (user) {
+      const [updatedRows] = await this.user.update(
+        { idRole: idRole },
         { where: { cpf: cpf } },
       );
       if (updatedRows) return true;

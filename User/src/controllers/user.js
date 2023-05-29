@@ -197,6 +197,26 @@ export class UserController {
     }
   };
 
+  updateUnitAdmin = async (req, res) => {
+    try {
+      const { idRole, idUnit, cpf } = req.body;
+      const updated = await this.userService.updateUnitAdmin(idRole, idUnit, cpf);
+      if (updated) {
+        return res.status(200).json({
+          message: 'Usuário cadastrado como administrador da unidade.',
+        });
+      } else {
+        return res.status(200).json({
+          message: 'Usuário não pertence a unidade.',
+        });
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao cadastrar administrador' });
+    }
+  };
+
   acceptRequest = async (req, res) => {
     try {
       const { cpf } = req.params;
