@@ -303,13 +303,13 @@ describe('UserController', () => {
     it('should delete an existing user by CPF', async () => {
       const user = { cpf: '1234567890', destroy: jest.fn() };
 
-      userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(user);
+      userServiceMock.getAcceptedUserByCpf = jest.fn().mockResolvedValue(user);
 
       reqMock.params.cpf = '1234567890';
 
       await userController.deleteByCpf(reqMock, resMock);
 
-      expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
+      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith('1234567890');
       expect(user.destroy).toHaveBeenCalled();
       expect(resMock.status).toHaveBeenCalledWith(200);
       expect(resMock.json).toHaveBeenCalledWith({
@@ -318,13 +318,13 @@ describe('UserController', () => {
     });
 
     it('should return 404 if user does not exist', async () => {
-      userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(null);
+      userServiceMock.getAcceptedUserByCpf = jest.fn().mockResolvedValue(null);
 
       reqMock.params.cpf = '1234567890';
 
       await userController.deleteByCpf(reqMock, resMock);
 
-      expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
+      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith('1234567890');
       expect(resMock.status).toHaveBeenCalledWith(404);
       expect(resMock.json).toHaveBeenCalledWith({
         error: 'Usuário não existe!',
@@ -333,7 +333,7 @@ describe('UserController', () => {
 
     it('should return 500 if an error occurs', async () => {
       const errorMessage = 'Internal server error';
-      userServiceMock.getUserByCpf = jest
+      userServiceMock.getAcceptedUserByCpf = jest
         .fn()
         .mockRejectedValue(new Error(errorMessage));
 
@@ -341,7 +341,7 @@ describe('UserController', () => {
 
       await userController.deleteByCpf(reqMock, resMock);
 
-      expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
+      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith('1234567890');
       expect(resMock.status).toHaveBeenCalledWith(500);
       expect(resMock.json).toHaveBeenCalledWith({
         error: expect.any(Error),
