@@ -18,16 +18,24 @@ class ProcessModel extends Model {
           type: DataTypes.DATE,
           allowNull: false,
         },
+        idFlow: {
+          type: DataTypes.INTEGER,
+          foreignKey: true,
+          allowNull: false,
+        },
         idUnit: {
           type: DataTypes.INTEGER,
+          foreignKey: true,
           allowNull: false,
         },
         idStage: {
           type: DataTypes.INTEGER,
+          foreignKey: true,
           allowNull: false,
         },
         idPriority: {
           type: DataTypes.INTEGER,
+          foreignKey: true,
           allowNull: false,
         },
         status: {
