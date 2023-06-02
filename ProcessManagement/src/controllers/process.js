@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import models from '../models/index.js';
+import models from '../models/_index.js';
 import ProcessService from '../services/process.js';
 
 export class ProcessController {
