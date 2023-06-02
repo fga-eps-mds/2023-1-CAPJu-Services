@@ -5,18 +5,20 @@ import 'dotenv/config';
 import sequelizeConfig from './config/sequelize.js';
 
 const app = express();
-const port = 8080;
+const port = process.env.API_PORT;
 
 app.use(cors());
 app.use(express.json());
 // app.use('/', applicationRoutes);
 
 sequelizeConfig.sync().then(() => {
-    console.info(
-        `Conexão com o banco de dados ${process.env.DB_NAME}-${process.env.DB_HOST} na porta ${process.env.DB_PORT} realizada com sucesso!`,
-    );
+  console.info(
+    `Conexão com o banco de dados ${process.env.DB_NAME}-${process.env.DB_HOST} na porta ${process.env.DB_PORT} realizada com sucesso!`,
+  );
 });
 
 app.listen(port, () => {
-    console.info(`Escutando na porta ${port}! \n`);
+  console.info(
+    `Serviço de Gerenciamento de Processos - Escutando na porta ${port}! \n`,
+  );
 });
