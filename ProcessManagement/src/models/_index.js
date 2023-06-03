@@ -1,3 +1,5 @@
+import { Sequelize } from 'sequelize';
+import sequelizeConfig from '../config/sequelize.js';
 import PriorityModel from './priority.js';
 import FlowModel from './flow.js';
 import StageModel from './stage.js';

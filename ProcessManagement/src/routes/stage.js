@@ -1,9 +1,8 @@
 import express from 'express';
-import { StageController } from '../controllers/stage.js';
+import controllers from '../controllers/_index.js';
 
 const StageRoutes = express.Router();
-const stageController = new StageController();
 
-StageRoutes.get('/', stageController.getAllStages);
+StageRoutes.get('/', controllers.stageController.getAllStages);
 
 export default StageRoutes;

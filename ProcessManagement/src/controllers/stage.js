@@ -1,10 +1,9 @@
 import 'dotenv/config';
-import models from '../models/_index.js';
-import StageService from '../services/stage.js';
+import services from '../services/_index.js';
 
 export class StageController {
   constructor() {
-    this.stageService = new StageService(models.Stage);
+    this.stageService = services.stageService;
   }
 
   getAllStages = async (req, res) => {

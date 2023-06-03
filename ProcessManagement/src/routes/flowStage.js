@@ -1,9 +1,8 @@
 import express from 'express';
-import { FlowStageController } from '../controllers/flowStage.js';
+import controllers from '../controllers/_index.js';
 
 const FlowStageRoutes = express.Router();
-const flowStageController = new FlowStageController();
 
-FlowStageRoutes.get('/', flowStageController.getAllFlowsStages);
+FlowStageRoutes.get('/', controllers.flowStageController.getAllFlowsStages);
 
 export default FlowStageRoutes;

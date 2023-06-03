@@ -1,9 +1,7 @@
 import express from 'express';
-import { ProcessController } from '../controllers/process.js';
-
+import controllers from '../controllers/_index.js';
 const ProcessRoutes = express.Router();
-const processController = new ProcessController();
 
-ProcessRoutes.get('/', processController.getAllProcess);
+ProcessRoutes.get('/', controllers.processController.getAllProcess);
 
 export default ProcessRoutes;
