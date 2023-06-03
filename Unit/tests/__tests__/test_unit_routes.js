@@ -1,148 +1,124 @@
+import 'dotenv/config';
 import axios from 'axios';
-import UnitController from '../../src/controllers/unit.js';
 import Unit from '../../src/models/unit.js';
 import { ROLE } from '../../src/schemas/role.js';
+import { UnitController } from '../../src/controllers/unit.js';
 
 jest.mock('axios');
 
+const reqMock = {};
+const resMock = {
+  status: jest.fn().mockReturnThis(),
+  json: jest.fn(),
+};
+
 describe('UnitController', () => {
+  let unitController;
+
+  beforeEach(() => {
+    unitController = new UnitController();
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('index', () => {
-    it('should return units when they exist', async () => {
-      const mockUnits = [
-        { id: 1, name: 'Unit 1' },
-        { id: 2, name: 'Unit 2' },
-      ];
-      Unit.findAll = jest.fn().mockResolvedValue(mockUnits);
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+  describe('getAllUnits', () => {
+    it('should return all units when they exist', async () => {
+      const units = [{ id: 1, name: 'Unit 1' }, { id: 2, name: 'Unit 2' }];
+      unitController.unitService.getAllUnits = jest.fn().mockResolvedValue(units);
 
-      await UnitController.index({}, res);
+      await unitController.getAllUnits(reqMock, resMock);
 
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(mockUnits);
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith(units);
     });
 
-    it('should return an error when units do not exist', async () => {
-      Unit.findAll = jest.fn().mockResolvedValue(null);
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+    it('should return a 401 status and message when no units exist', async () => {
+      unitController.unitService.getAllUnits = jest.fn().mockResolvedValue(null);
 
-      await UnitController.index({}, res);
+      await unitController.getAllUnits(reqMock, resMock);
 
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Não Existe unidades' });
+      expect(resMock.status).toHaveBeenCalledWith(401);
+      expect(resMock.json).toHaveBeenCalledWith({ message: 'Não Existe unidades' });
+    });
+
+    it('should return a 500 status and error message when an error occurs', async () => {
+      const errorMessage = 'Erro ao buscar unidades';
+      unitController.unitService.getAllUnits = jest.fn().mockRejectedValue(new Error(errorMessage));
+
+      await unitController.getAllUnits(reqMock, resMock);
+
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({ message: 'Erro ao buscar unidades' });
     });
   });
 
   describe('store', () => {
-    it('should create a new unit', async () => {
-      const req = {
-        body: { name: 'Unit 1' },
-      };
-      const mockUnit = { id: 1, name: 'Unit 1' };
-      Unit.create = jest.fn().mockResolvedValue(mockUnit);
-      const res = {
-        json: jest.fn(),
-      };
+    it('should create a new unit and return it', async () => {
+      const unitName = 'New Unit';
+      const createdUnit = { id: 1, name: unitName };
+      unitController.unitService.createUnit = jest.fn().mockResolvedValue(createdUnit);
+      reqMock.body = { name: unitName };
 
-      await UnitController.store(req, res);
+      await unitController.store(reqMock, resMock);
 
-      expect(Unit.create).toHaveBeenCalledWith({ name: 'Unit 1' });
-      expect(res.json).toHaveBeenCalledWith(mockUnit);
+      expect(resMock.json).toHaveBeenCalledWith(createdUnit);
     });
 
-    it('should return an error when creating a unit fails', async () => {
-      const req = {
-        body: { name: 'Unit 1' },
-      };
-      const errorMessage = 'Error creating unit';
-      Unit.create = jest.fn().mockRejectedValue(new Error(errorMessage));
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+    it('should return a 500 status and error message when an error occurs', async () => {
+      const unitName = 'New Unit';
+      const errorMessage = 'Erro ao criar unidade';
+      unitController.unitService.createUnit = jest.fn().mockRejectedValue(new Error(errorMessage));
+      reqMock.body = { name: unitName };
 
-      await UnitController.store(req, res);
+      await unitController.store(reqMock, resMock);
 
-      expect(Unit.create).toHaveBeenCalledWith({ name: 'Unit 1' });
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        error: new Error(errorMessage),
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: expect.any(Error),
         message: 'Erro ao criar unidade',
       });
     });
   });
 
   describe('update', () => {
-    it('should update an existing unit', async () => {
-      const req = {
-        body: { idUnit: 1, name: 'Updated Unit' },
-      };
-      const mockUnit = { id: 1, name: 'Old Unit' };
-      const mockSave = jest.fn().mockResolvedValue(mockUnit);
-      const mockFindByPk = jest
-        .spyOn(Unit, 'findByPk')
-        .mockResolvedValue(mockUnit);
-      mockUnit.save = mockSave;
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+    it('should update a unit and return a success message when update is successful', async () => {
+      unitController.unitService.updateUnit = jest.fn().mockResolvedValue(true);
+      const unitName = 'New Unit Name';
+      reqMock.body = { name: unitName };
 
-      await UnitController.update(req, res);
+      await unitController.update(reqMock, resMock);
 
-      expect(mockFindByPk).toHaveBeenCalledWith(1);
-      expect(mockUnit.name).toBe('Updated Unit');
-      expect(mockSave).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(mockUnit);
-    });
-
-    it('should return an error when updating a non-existing unit', async () => {
-      const req = {
-        body: { idUnit: 1, name: 'Updated Unit' },
-      };
-      Unit.findByPk = jest.fn().mockResolvedValue(null);
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
-
-      await UnitController.update(req, res);
-
-      expect(Unit.findByPk).toHaveBeenCalledWith(1);
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({
-        message: 'Essa unidade não existe!',
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Unidade atualizado com sucesso',
       });
     });
 
-    it('should return an error when an exception occurs', async () => {
-      const req = {
-        body: { idUnit: 1, name: 'Updated Unit' },
-      };
+    it('should return a failure message with status 400 when unit update fails', async () => {
+      unitController.unitService.updateUnit = jest.fn().mockResolvedValue(false);
+      const unitName = 'New Unit Name';
+      reqMock.body = { name: unitName };
+
+      await unitController.update(reqMock, resMock);
+
+      expect(resMock.status).toHaveBeenCalledWith(400);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Unidade não atualizada',
+      });
+    });
+
+    it('should return a 500 status and error message when an error occurs', async () => {
       const errorMessage = 'Error updating unit';
-      const mockFindByPk = jest
-        .spyOn(Unit, 'findByPk')
-        .mockRejectedValue(new Error(errorMessage));
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+      unitController.unitService.updateUnit = jest.fn().mockRejectedValue(new Error(errorMessage));
+      const unitName = 'New Unit Name';
+      reqMock.body = { name: unitName };
 
-      await UnitController.update(req, res);
+      await unitController.update(reqMock, resMock);
 
-      expect(mockFindByPk).toHaveBeenCalledWith(1);
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
         error: new Error(errorMessage),
         message: 'Erro ao atualizar unidade',
       });
@@ -150,132 +126,92 @@ describe('UnitController', () => {
   });
 
   describe('delete', () => {
-    it('should delete an existing unit', async () => {
-      const req = {
-        body: { idUnit: 1 },
+    it('should delete a unit and return a success message when deletion is successful', async () => {
+      const unitId = 1;
+      reqMock.body = { idUnit: unitId };
+      const unitMock = {
+        destroy: jest.fn(),
       };
-      const mockUnit = { id: 1, name: 'Unit 1' };
-      Unit.findByPk = jest.fn().mockResolvedValue(mockUnit);
-      const destroyMock = jest.fn();
-      mockUnit.destroy = destroyMock;
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+      unitController.unitService.getUnitById = jest.fn().mockResolvedValue(unitMock);
 
-      await UnitController.delete(req, res);
+      await unitController.delete(reqMock, resMock);
 
-      expect(Unit.findByPk).toHaveBeenCalledWith(1);
-      expect(destroyMock).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith(mockUnit);
+      expect(unitController.unitService.getUnitById).toHaveBeenCalledWith(unitId);
+      expect(unitMock.destroy).toHaveBeenCalled();
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Unidade apagada com sucesso',
+      });
     });
 
-    it('should return an error when deleting a non-existing unit', async () => {
-      const req = {
-        body: { idUnit: 1 },
-      };
-      Unit.findByPk = jest.fn().mockResolvedValue(null);
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+    it('should return a 404 status and error message when unit does not exist', async () => {
+      const unitId = 1;
+      reqMock.body = { idUnit: unitId };
+      unitController.unitService.getUnitById = jest.fn().mockResolvedValue(null);
 
-      await UnitController.delete(req, res);
+      await unitController.delete(reqMock, resMock);
 
-      expect(Unit.findByPk).toHaveBeenCalledWith(1);
-      expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({
-        error: 'Essa unidade não existe!',
+      expect(unitController.unitService.getUnitById).toHaveBeenCalledWith(unitId);
+      expect(resMock.status).toHaveBeenCalledWith(404);
+      expect(resMock.json).toHaveBeenCalledWith({ error: 'Unidade não existe!' });
+    });
+
+    it('should return a 500 status and error message when an error occurs', async () => {
+      const unitId = 1;
+      reqMock.body = { idUnit: unitId };
+      const errorMessage = 'Error deleting unit';
+      unitController.unitService.getUnitById = jest.fn().mockRejectedValue(new Error(errorMessage));
+
+      await unitController.delete(reqMock, resMock);
+
+      expect(unitController.unitService.getUnitById).toHaveBeenCalledWith(unitId);
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: new Error(errorMessage),
+        message: 'Erro ao apagar unidade',
       });
     });
   });
 
   describe('getAdminsByUnitId', () => {
-    it('should return the user if there are admins for the unit', async () => {
-      const req = {
-        params: { id: 1 },
-      };
-      const mockUsersResponse = {
-        data: JSON.stringify([{ id: 1, name: 'Admin' }]),
-      };
-      axios.get.mockResolvedValue(mockUsersResponse);
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+    it('should return admins of a unit when the request is successful', async () => {
+      const idUnit = 1;
+      const admins = [{ id: 1, name: 'Admin 1' }, { id: 2, name: 'Admin 2' }];
+      reqMock.params = { idUnit };
+      axios.get.mockResolvedValue({ data: admins });
 
-      await UnitController.getAdminsByUnitId(req, res);
+      await unitController.getAdminsByUnitId(reqMock, resMock);
 
-      expect(axios.get).toHaveBeenCalledWith(
-        `${process.env.API_URL_USER}/users`,
-        {
-          params: {
-            idUnit: 1,
-            idRole: ROLE.DIRETOR,
-          },
-        },
-      );
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith([{ id: 1, name: 'Admin' }]);
+      expect(axios.get).toHaveBeenCalledWith(`${process.env.USER_URL_API}/admins/unit/${idUnit}`);
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith(admins);
     });
 
-    it('should return an error if there are no admins for the unit', async () => {
-      const req = {
-        params: { id: 1 },
-      };
-      const mockUsersResponse = {
-        data: JSON.stringify([]),
-      };
-      axios.get.mockResolvedValue(mockUsersResponse);
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+    it('should return a 401 status and message when there are no admins in the unit', async () => {
+      const idUnit = 1;
+      reqMock.params = { idUnit };
+      axios.get.mockResolvedValue({ data: [] });
 
-      await UnitController.getAdminsByUnitId(req, res);
+      await unitController.getAdminsByUnitId(reqMock, resMock);
 
-      expect(axios.get).toHaveBeenCalledWith(
-        `${process.env.API_URL_USER}/users`,
-        {
-          params: {
-            idUnit: 1,
-            idRole: ROLE.DIRETOR,
-          },
-        },
-      );
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({
-        error: 'Não há administradores para essa unidade',
+      expect(axios.get).toHaveBeenCalledWith(`${process.env.USER_URL_API}/admins/unit/${idUnit}`);
+      expect(resMock.status).toHaveBeenCalledWith(401);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Não existem usuários adminstradores nessa unidade',
       });
     });
 
-    it('should handle errors when making the API request', async () => {
-      const req = {
-        params: { id: 1 },
-      };
+    it('should return a 500 status and error message when an error occurs', async () => {
+      const idUnit = 1;
+      reqMock.params = { idUnit };
       const errorMessage = 'Erro ao buscar administradores';
-      const mockRejectedPromise = Promise.reject(new Error(errorMessage));
-      axios.get.mockReturnValue(mockRejectedPromise);
-      console.error = jest.fn();
-      const res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+      axios.get.mockRejectedValue(new Error(errorMessage));
 
-      await UnitController.getAdminsByUnitId(req, res);
+      await unitController.getAdminsByUnitId(reqMock, resMock);
 
-      expect(axios.get).toHaveBeenCalledWith(
-        `${process.env.API_URL_USER}/users`,
-        {
-          params: {
-            idUnit: 1,
-            idRole: ROLE.DIRETOR,
-          },
-        },
-      );
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
+      expect(axios.get).toHaveBeenCalledWith(`${process.env.USER_URL_API}/admins/unit/${idUnit}`);
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
         error: 'Erro ao buscar administradores',
       });
     });
