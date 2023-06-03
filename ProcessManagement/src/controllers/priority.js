@@ -1,10 +1,9 @@
 import 'dotenv/config';
-import models from '../models/_index.js';
-import PriorityService from '../services/priority.js';
+import services from '../services/_index.js';
 
 export class PriorityController {
   constructor() {
-    this.priorityService = new PriorityService(models.Priority);
+    this.priorityService = services.priorityService;
   }
 
   getAllPriorities = async (req, res) => {

@@ -1,10 +1,9 @@
 import 'dotenv/config';
-import models from '../models/_index.js';
-import FlowStageService from '../services/flowStage.js';
+import services from '../services/_index.js';
 
 export class FlowStageController {
   constructor() {
-    this.flowStageService = new FlowStageService(models.FlowStage);
+    this.flowStageService = services.flowStageService;
   }
 
   getAllFlowsStages = async (req, res) => {

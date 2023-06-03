@@ -1,10 +1,9 @@
 import 'dotenv/config';
-import models from '../models/_index.js';
-import ProcessService from '../services/process.js';
+import services from '../services/_index.js';
 
 export class ProcessController {
   constructor() {
-    this.processService = new ProcessService(models.Process);
+    this.processService = services.processService;
   }
 
   getAllProcess = async (req, res) => {

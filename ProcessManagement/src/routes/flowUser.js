@@ -1,9 +1,8 @@
 import express from 'express';
-import { FlowUserController } from '../controllers/flowUser.js';
+import controllers from '../controllers/_index.js';
 
 const FlowUserRoutes = express.Router();
-const flowUserController = new FlowUserController();
 
-FlowUserRoutes.get('/', flowUserController.getAllFlowsUsers);
+FlowUserRoutes.get('/', controllers.flowUserController.getAllFlowsUsers);
 
 export default FlowUserRoutes;

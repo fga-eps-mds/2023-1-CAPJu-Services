@@ -1,9 +1,8 @@
 import express from 'express';
-import { PriorityController } from '../controllers/priority.js';
+import controllers from '../controllers/_index.js';
 
 const PriorityRoutes = express.Router();
-const priorityController = new PriorityController();
 
-PriorityRoutes.get('/', priorityController.getAllPriorities);
+PriorityRoutes.get('/', controllers.priorityController.getAllPriorities);
 
 export default PriorityRoutes;
