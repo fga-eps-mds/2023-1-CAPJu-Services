@@ -14,6 +14,10 @@ class ProcessModel extends Model {
           type: DataTypes.STRING(50),
           allowNull: true,
         },
+        finalised: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+        },
         effectiveDate: {
           type: DataTypes.DATE,
           allowNull: false,
@@ -51,6 +55,18 @@ class ProcessModel extends Model {
         tableName: 'process',
       },
     );
+  }
+  static associate(models) {
+    this.belongsTo(models.Priority, {
+      foreignKey: 'idPriority',
+      as: 'processPriority',
+    });
+    this.belongsTo(models.Stage, { foreignKey: 'idStage', as: 'processStage' });
+    this.belongsToMany(models.Flow, {
+      foreignKey: 'record',
+      through: 'idFlowProcess',
+      as: 'process',
+    });
   }
 }
 ProcessModel.init(sequelizeConfig, Sequelize.DataTypes);
