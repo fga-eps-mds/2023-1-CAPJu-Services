@@ -3,6 +3,7 @@ import axios from 'axios';
 import models from '../models/index.js';
 import UnitService from '../services/unit.js';
 import { ROLE } from '../schemas/role.js';
+
 export class UnitController {
   constructor() {
     this.unitService = new UnitService(models.Unit);
@@ -27,7 +28,6 @@ export class UnitController {
       const unit = await this.unitService.createUnit(name);
       return res.json(unit);
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: 'Erro ao criar unidade',
@@ -38,9 +38,7 @@ export class UnitController {
   update = async (req, res) => {
     try {
       const { idUnit, name } = req.body;
-      console.log('idUnit', idUnit, name);
       const updated = await this.unitService.updateUnit(idUnit, name);
-      console.log('updated', updated);
 
       if (updated) {
         return res.status(200).json({
