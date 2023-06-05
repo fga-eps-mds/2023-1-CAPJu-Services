@@ -9,6 +9,10 @@ class FlowService {
   async createFlow(name, idUnit) {
     return this.flow.create({ name, idUnit });
   }
+
+  async deleteFlowById(idFlow) {
+    return await this.flow.destroy({ where: { idFlow } });
+  }
 }
 
 export default FlowService;

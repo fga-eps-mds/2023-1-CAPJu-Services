@@ -83,4 +83,29 @@ export class FlowController {
       return res.status(500).json({ message: 'Erro ao criar fluxo' });
     }
   };
+
+  delete = async (req, res) => {
+    try {
+      const { idFlow } = req.params;
+      // const processes = await FlowProcess.findAll({ where: { idFlow } });
+      // if (processes.length > 0) {
+      //   return res.status(409).json({
+      //     error: "Há processos no fluxo",
+      //     message: `Há ${processes.length} processos no fluxo`,
+      //   });
+      // }
+      await this.flowStageService.deleteFlowStageById(idFlow);
+      await this.flowUserService.deleteFlowUserById(idFlow);
+
+      const flow = await this.flowService.deleteFlowById(idFlow);
+      if (flow)
+        return res.status(200).json({ message: 'Fluxo apagado com sucesso' });
+      else return res.status(404).json({ message: 'Fluxo não encontrado' });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error, message: 'Impossível apagar fluxo' });
+    }
+  };
 }
