@@ -18,6 +18,7 @@
   "dependencies": {
     "@babel/core": "^7.21.8",
     "@babel/preset-env": "^7.21.5",
+    "axios": "^1.4.0",
     "babel-jest": "^29.5.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
