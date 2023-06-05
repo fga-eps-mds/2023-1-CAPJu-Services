@@ -9,6 +9,10 @@ class FlowStageService {
   async createFlowStage(payload) {
     return this.flowStage.create(payload);
   }
+
+  async deleteFlowStageById(idFlow) {
+    return this.flowStage.destroy({ where: { idFlow } });
+  }
 }
 
 export default FlowStageService;

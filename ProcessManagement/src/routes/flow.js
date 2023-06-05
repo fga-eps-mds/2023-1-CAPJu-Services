@@ -4,5 +4,6 @@ import controllers from '../controllers/_index.js';
 const FlowRoutes = express.Router();
 FlowRoutes.get('/', controllers.flowController.getAllFlows);
 FlowRoutes.post('/newFlow', controllers.flowController.store);
+FlowRoutes.delete('/flow/:idFlow', controllers.flowController.delete);
 
 export default FlowRoutes;
