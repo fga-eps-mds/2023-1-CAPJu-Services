@@ -75,6 +75,15 @@ class UserService {
     });
   }
 
+  async getUserByUnit(cpf, idUnit) {
+    return this.user.findOne({
+      where: {
+        cpf: cpf,
+        idUnit: idUnit
+      },
+    });
+  }
+
   async getUserByCpfWithPassword(cpf) {
     return this.user.findOne({
       where: { cpf: cpfFilter(cpf) },

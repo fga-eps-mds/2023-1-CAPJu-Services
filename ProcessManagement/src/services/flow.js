@@ -5,6 +5,10 @@ class FlowService {
   async getAllFlows() {
     return this.flow.findAll();
   }
+
+  async createFlow(name, idUnit) {
+    return this.flow.create({ name, idUnit });
+  }
 }
 
 export default FlowService;

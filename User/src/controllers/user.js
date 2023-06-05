@@ -248,4 +248,14 @@ export class UserController {
       return res.status(500).json({ message: 'Erro ao buscar usuários' });
     }
   };
+
+  getUserByUnit = async (req, res) => {
+    try {
+      const { cpf, idUnit } = req.params;
+      const user = await this.userService.getUserByUnit(cpf, Number(idUnit));
+      return res.status(200).json(user);
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro ao buscar usuário' });
+    }
+  };
 }
