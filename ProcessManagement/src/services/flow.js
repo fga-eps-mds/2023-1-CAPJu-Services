@@ -6,6 +6,12 @@ class FlowService {
     return this.flow.findAll();
   }
 
+  async getFlowById(idFlow) {
+    return this.flow.findOne({
+      where: { idFlow },
+    });
+  }
+
   async createFlow(name, idUnit) {
     return this.flow.create({ name, idUnit });
   }

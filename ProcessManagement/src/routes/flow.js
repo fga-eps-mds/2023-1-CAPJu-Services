@@ -7,6 +7,8 @@ FlowRoutes.get(
   '/flows/process/:record',
   controllers.flowController.indexByRecord,
 );
+FlowRoutes.get('/flow/:idFlow', controllers.flowController.getById);
+
 FlowRoutes.post('/newFlow', controllers.flowController.store);
 FlowRoutes.delete('/flow/:idFlow', controllers.flowController.delete);
 

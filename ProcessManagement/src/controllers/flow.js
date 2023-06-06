@@ -60,6 +60,38 @@ export class FlowController {
     }
   };
 
+  getById = async (req, res) => {
+    const { idFlow } = req.params;
+    try {
+      const flow = await this.flowService.getFlowById(idFlow);
+      if (!flow)
+        return res.status(404).json({ message: `Não há fluxo '${idFlow}'` });
+
+      const flowStages = await this.flowStageService.getAllFlowsStagesByIdFlow(
+        flow.idFlow,
+      );
+
+      const { stages, sequences } =
+        await this.flowService.stagesSequencesFromFlowStages(flowStages);
+
+      const flowSequence = {
+        idFlow: flow.idFlow,
+        name: flow.name,
+        idUnit: flow.idUnit,
+        stages,
+        sequences,
+      };
+
+      return res.status(200).json(flowSequence);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        error,
+        message: `Impossível obter fluxo ${idFlow}`,
+      });
+    }
+  };
+
   store = async (req, res) => {
     try {
       const { name, idUnit, sequences, idUsersToNotify } = req.body;
