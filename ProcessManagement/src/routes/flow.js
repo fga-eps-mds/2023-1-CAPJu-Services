@@ -2,7 +2,7 @@ import express from 'express';
 import controllers from '../controllers/_index.js';
 
 const FlowRoutes = express.Router();
-FlowRoutes.get('/', controllers.flowController.getAllFlows);
+FlowRoutes.get('/', controllers.flowController.index);
 FlowRoutes.get(
   '/flows/process/:record',
   controllers.flowController.indexByRecord,
