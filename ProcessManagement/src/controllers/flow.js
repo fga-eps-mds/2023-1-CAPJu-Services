@@ -8,6 +8,33 @@ export class FlowController {
     this.stageService = services.stageService;
     this.flowStageService = services.flowStageService;
     this.flowUserService = services.flowUserService;
+    this.processService = services.processService;
+  }
+
+
+  indexByRecord = async (req, res) => {
+    const { record } = req.params;
+
+    // try {
+    //   const flowProcesses = await FlowProcess.findAll({
+    //     where: { record },
+    //   });
+
+    //   if (flowProcesses.length > 0) {
+    //     return res.status(200).json(flowProcesses);
+    //   }
+
+    //   return res.status(404).json({
+    //     error: "Não há fluxos com esse processo",
+    //     message: `Não há fluxos com o processo '${record}'`,
+    //   });
+    // } catch (error) {
+    //   console.log(error);
+    //   return res.status(500).json({
+    //     error,
+    //     message: `Erro ao buscar fluxos do processo ${record}`,
+    //   });
+    // }
   }
 
   getAllFlows = async (req, res) => {
@@ -24,6 +51,8 @@ export class FlowController {
       return res.status(500).json({ message: 'Erro ao buscar fluxo' });
     }
   };
+
+
 
   store = async (req, res) => {
     try {
@@ -87,13 +116,13 @@ export class FlowController {
   delete = async (req, res) => {
     try {
       const { idFlow } = req.params;
-      // const processes = await FlowProcess.findAll({ where: { idFlow } });
-      // if (processes.length > 0) {
-      //   return res.status(409).json({
-      //     error: "Há processos no fluxo",
-      //     message: `Há ${processes.length} processos no fluxo`,
-      //   });
-      // }
+      const processes = await this.processService.getProcessByIdFlow({ where: { idFlow } });
+      if (processes.length > 0) {
+        return res.status(409).json({
+          error: "Há processos no fluxo",
+          message: `Há ${processes.length} processos no fluxo`,
+        });
+      }
       await this.flowStageService.deleteFlowStageById(idFlow);
       await this.flowUserService.deleteFlowUserById(idFlow);
 
