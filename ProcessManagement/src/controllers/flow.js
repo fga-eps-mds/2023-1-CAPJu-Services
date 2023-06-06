@@ -32,18 +32,31 @@ export class FlowController {
     }
   };
 
-  getAllFlows = async (req, res) => {
+  index = async (req, res) => {
     try {
-      const priorities = await this.flowService.getAllFlows();
-      if (!priorities) {
-        return res
-          .status(401)
-          .json({ message: 'Não existem fluxos cadatradas' });
-      } else {
-        return res.status(200).json(priorities);
+      const flows = await this.flowService.getAllFlows();
+      let flowsWithSequences = [];
+      for (const flow of flows) {
+        const flowStages =
+          await this.flowStageService.getAllFlowsStagesByIdFlow(flow.idFlow);
+        const { stages, sequences } =
+          await this.flowService.stagesSequencesFromFlowStages(flowStages);
+        const flowSequence = {
+          idFlow: flow.idFlow,
+          name: flow.name,
+          idUnit: flow.idUnit,
+          stages,
+          sequences,
+        };
+        flowsWithSequences.push(flowSequence);
       }
+
+      return res.status(200).json(flowsWithSequences);
     } catch (error) {
-      return res.status(500).json({ message: 'Erro ao buscar fluxo' });
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error, message: 'Impossível obter fluxos' });
     }
   };
 

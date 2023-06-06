@@ -6,6 +6,12 @@ class FlowStageService {
     return this.flowStage.findAll();
   }
 
+  async getAllFlowsStagesByIdFlow(idFlow) {
+    return this.flowStage.findAll({
+      where: { idFlow },
+    });
+  }
+
   async createFlowStage(payload) {
     return this.flowStage.create(payload);
   }
