@@ -11,31 +11,26 @@ export class FlowController {
     this.processService = services.processService;
   }
 
-
   indexByRecord = async (req, res) => {
-    const { record } = req.params;
+    try {
+      const { record } = req.params;
+      const flowProcesses = await this.processService.getProcessByRecord(
+        record,
+      );
 
-    // try {
-    //   const flowProcesses = await FlowProcess.findAll({
-    //     where: { record },
-    //   });
+      if (flowProcesses.length > 0) return res.status(200).json(flowProcesses);
 
-    //   if (flowProcesses.length > 0) {
-    //     return res.status(200).json(flowProcesses);
-    //   }
-
-    //   return res.status(404).json({
-    //     error: "Não há fluxos com esse processo",
-    //     message: `Não há fluxos com o processo '${record}'`,
-    //   });
-    // } catch (error) {
-    //   console.log(error);
-    //   return res.status(500).json({
-    //     error,
-    //     message: `Erro ao buscar fluxos do processo ${record}`,
-    //   });
-    // }
-  }
+      return res.status(200).json({
+        message: `Não há fluxos com o processo`,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        error,
+        message: `Erro ao buscar fluxos do processo`,
+      });
+    }
+  };
 
   getAllFlows = async (req, res) => {
     try {
@@ -51,8 +46,6 @@ export class FlowController {
       return res.status(500).json({ message: 'Erro ao buscar fluxo' });
     }
   };
-
-
 
   store = async (req, res) => {
     try {
@@ -116,10 +109,12 @@ export class FlowController {
   delete = async (req, res) => {
     try {
       const { idFlow } = req.params;
-      const processes = await this.processService.getProcessByIdFlow({ where: { idFlow } });
+      const processes = await this.processService.getProcessByIdFlow({
+        where: { idFlow },
+      });
       if (processes.length > 0) {
         return res.status(409).json({
-          error: "Há processos no fluxo",
+          error: 'Há processos no fluxo',
           message: `Há ${processes.length} processos no fluxo`,
         });
       }

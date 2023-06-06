@@ -32,6 +32,13 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      status: {
+        type: Sequelize.ENUM({
+          values: ['inProgress', 'archived', 'finished', 'notStarted'],
+        }),
+        defaultValue: 'notStarted',
+        allowNull: false,
+      },
       idStage: {
         type: Sequelize.INTEGER,
         allowNull: false,

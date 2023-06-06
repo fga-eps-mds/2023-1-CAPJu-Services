@@ -7,11 +7,11 @@ class ProcessService {
   }
 
   async getProcessByRecord(record) {
-    return this.process.findOne({ where: { record } });
+    return this.process.findAll({ where: { record } });
   }
 
   async getProcessByIdFlow(idFlow) {
-    return this.process.all({ where: { idFlow } });
+    return this.process.findAll({ where: { idFlow } });
   }
 }
 
