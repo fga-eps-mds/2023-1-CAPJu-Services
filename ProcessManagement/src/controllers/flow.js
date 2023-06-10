@@ -92,6 +92,76 @@ export class FlowController {
     }
   };
 
+  getByIdWithSequence = async (req, res) => {
+    const { idFlow } = req.params;
+
+    try {
+      const flow = await this.flowService.getFlowById(idFlow);
+      if (!flow)
+        return res.status(404).json({ message: `Fluxo ${idFlow} não existe` });
+
+      const flowStages = await this.flowStageService.getAllFlowsStagesByIdFlow(
+        idFlow,
+      );
+
+      if (flowStages.length === 0) {
+        return res
+          .status(404)
+          .json({ message: `Fluxo ${idFlow} não tem sequências` });
+      }
+
+      let sequences = [];
+
+      for (const { idStageA: from, commentary, idStageB: to } of flowStages) {
+        sequences.push({ from, commentary, to });
+      }
+      return res.status(200).json({
+        idFlow: flow.idFlow,
+        name: flow.name,
+        idUnit: flow.idUnit,
+        sequences: sequences,
+      });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error, message: 'Impossível ler sequências' });
+    }
+  };
+
+  getFlowStages = async (req, res) => {
+    try {
+      const flowStages = await this.flowStageService.getAllFlowStages();
+
+      if (!flowStages) {
+        return res
+          .status(404)
+          .json({ message: "Não há fluxos ligados a etapas" });
+      }
+
+      return res.status(200).json(flowStages);
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error, message: "Erro ao ler fluxos ligados a etapas" });
+    }
+  }
+
+  getUsersToNotify = async (req, res) => {
+    const { idFlow } = req.params;
+    try {
+      const result = await this.flowUserService.getUsersToNotify(idFlow);
+      res.status(200).json({ usersToNotify: result });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        error,
+        message: "Impossível obter usuários que devem ser notificados no fluxo",
+      });
+    }
+  }
+
   store = async (req, res) => {
     try {
       const { name, idUnit, sequences, idUsersToNotify } = req.body;
@@ -151,12 +221,82 @@ export class FlowController {
     }
   };
 
+  update = async (req, res) => {
+    const { name, idFlow, idUnit, sequences, idUsersToNotify } = req.body;
+
+    try {
+      const flow = await this.flowService.getFlowById(idFlow);
+      if (!flow) {
+        return res
+          .status(404)
+          .json({ message: `Fluxo '${idFlow} não existe!` });
+      } else {
+        const updatedFlow = await this.flowService.updateFlow(name, idFlow);
+        if (updatedFlow === false) {
+          return res
+            .status(404)
+            .json({ message: `Impossível editar o fluxo` });
+        }
+
+        for (const cpf of idUsersToNotify) {
+          await axios.get(
+            `${process.env.USER_URL_API}/user/${cpf}/unit/${idUnit}`,
+          );
+        }
+
+        if (sequences.length < 1)
+          return res
+            .status(404)
+            .json({ message: 'Necessário pelo menos duas etapas!' });
+
+        for (const sequence of sequences) {
+          const { from: idStageA, to: idStageB } = sequence;
+          if (idStageA == idStageB)
+            return res
+              .status(400)
+              .json({ message: 'Sequências devem ter início e fim diferentes' });
+          if (!(await this.stageService.getStageById(idStageA)).dataValues)
+            return res.status(400).json({
+              message: `Não existe a etapa com identificador '${idStageA}'`,
+            });
+          if (!(await this.stageService.getStageById(idStageB)).dataValues)
+            return res.status(400).json({
+              message: `Não existe a etapa com identificador '${idStageA}'`,
+            });
+        }
+
+        for (const sequence of sequences) {
+          const data = {
+            idFlow: updatedFlow.idFlow,
+            idStageA: sequence.from,
+            idStageB: sequence.to,
+            commentary: sequence.commentary,
+          };
+          await this.flowStageService.createFlowStage(data);
+        }
+
+        for (const cpf of idUsersToNotify) {
+          await this.flowUserService.createFlowUser(cpf, updatedFlow.idFlow);
+        }
+
+        return res.status(200).json({
+          idFlow: updatedFlow.idFlow,
+          name: updatedFlow.name,
+          idUnit: idUnit,
+          sequences,
+          usersToNotify: idUsersToNotify,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ error, message: "Impossível editar fluxo" });
+    }
+  }
+
   delete = async (req, res) => {
     try {
       const { idFlow } = req.params;
-      const processes = await this.processService.getProcessByIdFlow({
-        where: { idFlow },
-      });
+      const processes = await this.processService.getProcessByIdFlow(idFlow);
       if (processes.length > 0) {
         return res.status(409).json({
           error: 'Há processos no fluxo',
@@ -177,4 +317,28 @@ export class FlowController {
         .json({ error, message: 'Impossível apagar fluxo' });
     }
   };
+
+  deleteFlowStage = async (req, res) => {
+    const { idFlow, idStageA, idStageB } = req.params;
+
+    try {
+      const deletedFlowStage = await this.flowStageService.deleteFlowStageByIdAndStages(idFlow, idStageA, idStageB);
+
+      if (deletedFlowStage === 0) {
+        return res.status(404).json({
+          message: `Não há relacionameto entre o fluxo '${idFlow}' e as etapas '${idStageA}' e '${idStageB}'`,
+        });
+      }
+
+      return res.status(200).json({
+        message: `Desassociação entre fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}' concluída`,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        error,
+        message: `Falha ao desassociar fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}'`,
+      });
+    }
+  }
 }
