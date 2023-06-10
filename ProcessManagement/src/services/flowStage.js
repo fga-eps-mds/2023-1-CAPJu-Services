@@ -1,3 +1,5 @@
+import { Op } from "sequelize";
+
 class FlowStageService {
   constructor(FlowStageModel) {
     this.flowStage = FlowStageModel;
@@ -18,6 +20,18 @@ class FlowStageService {
 
   async deleteFlowStageById(idFlow) {
     return this.flowStage.destroy({ where: { idFlow } });
+  }
+
+  async deleteFlowStageByIdAndStages(idFlow, idStageA, idStageB) {
+    return this.flowStage.destroy({
+      where: {
+        [Op.and]: {
+          idFlow,
+          idStageA,
+          idStageB
+        },
+      },
+    });
   }
 }
 

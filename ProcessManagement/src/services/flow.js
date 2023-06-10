@@ -16,6 +16,19 @@ class FlowService {
     return this.flow.create({ name, idUnit });
   }
 
+  async updateFlow(name, idFlow) {
+    const [updatedRows] = await this.flow.update(
+      { name },
+      { where: { idFlow } },
+    );
+    if (updatedRows) {
+      const updatedFlow = await this.getFlowById(idFlow);
+      return updatedFlow;
+    } else {
+      return false;
+    }
+  }
+
   async deleteFlowById(idFlow) {
     return await this.flow.destroy({ where: { idFlow } });
   }
