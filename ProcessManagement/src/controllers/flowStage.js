@@ -6,20 +6,51 @@ export class FlowStageController {
     this.flowStageService = services.flowStageService;
   }
 
-  getAllFlowsStages = async (req, res) => {
+  getFlowStages = async (req, res) => {
     try {
       const flowStages = await this.flowStageService.getAllFlowStages();
+
       if (!flowStages) {
         return res
-          .status(401)
-          .json({ message: 'Não existem fluxos de etapas cadatradas' });
-      } else {
-        return res.status(200).json(flowStages);
+          .status(404)
+          .json({ message: 'Não há fluxos ligados a etapas' });
       }
+
+      return res.status(200).json(flowStages);
     } catch (error) {
+      console.log(error);
       return res
         .status(500)
-        .json({ message: 'Erro ao buscar fluxos de etapas' });
+        .json({ error, message: 'Erro ao ler fluxos ligados a etapas' });
+    }
+  };
+
+  deleteFlowStage = async (req, res) => {
+    const { idFlow, idStageA, idStageB } = req.params;
+
+    try {
+      const deletedFlowStage =
+        await this.flowStageService.deleteFlowStageByIdAndStages(
+          idFlow,
+          idStageA,
+          idStageB,
+        );
+
+      if (deletedFlowStage === 0) {
+        return res.status(404).json({
+          message: `Não há relacionameto entre o fluxo '${idFlow}' e as etapas '${idStageA}' e '${idStageB}'`,
+        });
+      }
+
+      return res.status(200).json({
+        message: `Desassociação entre fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}' concluída`,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        error,
+        message: `Falha ao desassociar fluxo '${idFlow}' e etapas '${idStageA}' e '${idStageB}'`,
+      });
     }
   };
 }

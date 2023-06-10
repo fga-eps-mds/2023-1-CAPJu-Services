@@ -18,7 +18,6 @@ class FlowUserService {
     return this.flowUser.destroy({ where: { idFlow } });
   }
 
-
   async getUsersToNotify(idFlow) {
     const query_results = await sequelizeConfig.query(
       'SELECT \
@@ -31,13 +30,11 @@ class FlowUserService {
       {
         replacements: [idFlow],
         type: QueryTypes.SELECT,
-      }
+      },
     );
 
     return query_results;
   }
-
-
 }
 
 export default FlowUserService;
