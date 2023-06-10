@@ -12,10 +12,12 @@ FlowRoutes.get(
   '/flowSequences/:idFlow',
   controllers.flowController.getByIdWithSequence,
 );
-FlowRoutes.get('/flowStages', controllers.flowController.getFlowStages); // MUDAR PARA FLOWSTAGECONTROLLER
-FlowRoutes.get('/flow/:idFlow/usersToNotify', controllers.flowController.getUsersToNotify);
+FlowRoutes.get(
+  '/flow/:idFlow/usersToNotify',
+  controllers.flowController.getUsersToNotify,
+);
 FlowRoutes.post('/newFlow', controllers.flowController.store);
 FlowRoutes.put('/', controllers.flowController.update);
 FlowRoutes.delete('/flow/:idFlow', controllers.flowController.delete);
-FlowRoutes.delete("/flow/:idFlow/:idStageA/:idStageB", controllers.flowController.deleteFlowStage);
+
 export default FlowRoutes;

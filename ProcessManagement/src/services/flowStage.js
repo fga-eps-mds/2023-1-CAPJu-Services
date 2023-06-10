@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op } from 'sequelize';
 
 class FlowStageService {
   constructor(FlowStageModel) {
@@ -28,7 +28,7 @@ class FlowStageService {
         [Op.and]: {
           idFlow,
           idStageA,
-          idStageB
+          idStageB,
         },
       },
     });

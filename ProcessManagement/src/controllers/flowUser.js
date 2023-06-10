@@ -23,5 +23,4 @@ export class FlowUserController {
         .json({ message: 'Erro ao buscar fluxos de usuários' });
     }
   };
-
 }
