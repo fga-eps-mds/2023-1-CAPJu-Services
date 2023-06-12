@@ -4,11 +4,11 @@ class FlowStageService {
   constructor(FlowStageModel) {
     this.flowStage = FlowStageModel;
   }
-  async getAllFlowStages() {
+  async findAll() {
     return this.flowStage.findAll();
   }
 
-  async getAllFlowsStagesByIdFlow(idFlow) {
+  async findAllByIdFlow(idFlow) {
     return this.flowStage.findAll({
       where: { idFlow },
     });
@@ -18,11 +18,11 @@ class FlowStageService {
     return this.flowStage.create(payload);
   }
 
-  async deleteFlowStageById(idFlow) {
+  async deleteFlowStageByIdFlow(idFlow) {
     return this.flowStage.destroy({ where: { idFlow } });
   }
 
-  async deleteFlowStageByIdAndStages(idFlow, idStageA, idStageB) {
+  async deleteFlowStageByIdFlowAndStages(idFlow, idStageA, idStageB) {
     return this.flowStage.destroy({
       where: {
         [Op.and]: {

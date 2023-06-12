@@ -6,9 +6,9 @@ export class FlowStageController {
     this.flowStageService = services.flowStageService;
   }
 
-  getFlowStages = async (req, res) => {
+  index = async (req, res) => {
     try {
-      const flowStages = await this.flowStageService.getAllFlowStages();
+      const flowStages = await this.flowStageService.findAll();
 
       if (!flowStages) {
         return res
@@ -25,12 +25,12 @@ export class FlowStageController {
     }
   };
 
-  deleteFlowStage = async (req, res) => {
+  delete = async (req, res) => {
     const { idFlow, idStageA, idStageB } = req.params;
 
     try {
       const deletedFlowStage =
-        await this.flowStageService.deleteFlowStageByIdAndStages(
+        await this.flowStageService.deleteFlowStageByIdFlowAndStages(
           idFlow,
           idStageA,
           idStageB,
