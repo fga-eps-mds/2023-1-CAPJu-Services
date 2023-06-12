@@ -2,11 +2,11 @@ class FlowService {
   constructor(FlowModel) {
     this.flow = FlowModel;
   }
-  async getAllFlows() {
+  async findAll() {
     return this.flow.findAll();
   }
 
-  async getFlowById(idFlow) {
+  async findOneByFlowId(idFlow) {
     return this.flow.findOne({
       where: { idFlow },
     });
@@ -22,7 +22,7 @@ class FlowService {
       { where: { idFlow } },
     );
     if (updatedRows) {
-      const updatedFlow = await this.getFlowById(idFlow);
+      const updatedFlow = await this.findOneByFlowId(idFlow);
       return updatedFlow;
     } else {
       return false;

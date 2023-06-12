@@ -11,7 +11,34 @@ export class FlowController {
     this.processService = services.processService;
   }
 
-  indexByRecord = async (req, res) => {
+  index = async (req, res) => {
+    try {
+      const flows = await this.flowService.findAll();
+      let flowsWithSequences = [];
+      for (const flow of flows) {
+        const flowStages =
+          await this.flowStageService.getAllFlowsStagesByIdFlow(flow.idFlow);
+        const { stages, sequences } =
+          await this.flowService.stagesSequencesFromFlowStages(flowStages);
+        const flowSequence = {
+          idFlow: flow.idFlow,
+          name: flow.name,
+          idUnit: flow.idUnit,
+          stages,
+          sequences,
+        };
+        flowsWithSequences.push(flowSequence);
+      }
+      return res.status(200).json(flowsWithSequences);
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error, message: 'Impossível obter fluxos' });
+    }
+  };
+
+  showByProcessRecord = async (req, res) => {
     try {
       const { record } = req.params;
       const flowProcesses = await this.processService.getProcessByRecord(
@@ -32,38 +59,10 @@ export class FlowController {
     }
   };
 
-  index = async (req, res) => {
-    try {
-      const flows = await this.flowService.getAllFlows();
-      let flowsWithSequences = [];
-      for (const flow of flows) {
-        const flowStages =
-          await this.flowStageService.getAllFlowsStagesByIdFlow(flow.idFlow);
-        const { stages, sequences } =
-          await this.flowService.stagesSequencesFromFlowStages(flowStages);
-        const flowSequence = {
-          idFlow: flow.idFlow,
-          name: flow.name,
-          idUnit: flow.idUnit,
-          stages,
-          sequences,
-        };
-        flowsWithSequences.push(flowSequence);
-      }
-
-      return res.status(200).json(flowsWithSequences);
-    } catch (error) {
-      console.log(error);
-      return res
-        .status(500)
-        .json({ error, message: 'Impossível obter fluxos' });
-    }
-  };
-
-  getById = async (req, res) => {
+  showByFlowId = async (req, res) => {
     const { idFlow } = req.params;
     try {
-      const flow = await this.flowService.getFlowById(idFlow);
+      const flow = await this.flowService.findOneByFlowId(idFlow);
       if (!flow)
         return res.status(404).json({ message: `Não há fluxo '${idFlow}'` });
 
@@ -92,11 +91,11 @@ export class FlowController {
     }
   };
 
-  getByIdWithSequence = async (req, res) => {
+  showByFlowIdWithSequence = async (req, res) => {
     const { idFlow } = req.params;
 
     try {
-      const flow = await this.flowService.getFlowById(idFlow);
+      const flow = await this.flowService.findOneByFlowId(idFlow);
       if (!flow)
         return res.status(404).json({ message: `Fluxo ${idFlow} não existe` });
 
@@ -129,7 +128,7 @@ export class FlowController {
     }
   };
 
-  getUsersToNotify = async (req, res) => {
+  showUsersToNotify = async (req, res) => {
     const { idFlow } = req.params;
     try {
       const result = await this.flowUserService.getUsersToNotify(idFlow);
@@ -148,9 +147,15 @@ export class FlowController {
       const { name, idUnit, sequences, idUsersToNotify } = req.body;
 
       for (const cpf of idUsersToNotify) {
-        await axios.get(
+        const user = await axios.get(
           `${process.env.USER_URL_API}/user/${cpf}/unit/${idUnit}`,
         );
+
+        if (!user.data) {
+          return res.status(404).json({
+            message: `Usuário '${cpf}' não existe na unidade '${idUnit}'`,
+          });
+        }
       }
 
       if (sequences.length < 1)
@@ -206,7 +211,7 @@ export class FlowController {
     const { name, idFlow, idUnit, sequences, idUsersToNotify } = req.body;
 
     try {
-      const flow = await this.flowService.getFlowById(idFlow);
+      const flow = await this.flowService.findOneByFlowId(idFlow);
       if (!flow) {
         return res
           .status(404)
@@ -218,9 +223,15 @@ export class FlowController {
         }
 
         for (const cpf of idUsersToNotify) {
-          await axios.get(
+          const user = await axios.get(
             `${process.env.USER_URL_API}/user/${cpf}/unit/${idUnit}`,
           );
+
+          if (!user.data) {
+            return res.status(404).json({
+              message: `Usuário '${cpf}' não existe na unidade '${idUnit}'`,
+            });
+          }
         }
 
         if (sequences.length < 1)
@@ -231,11 +242,9 @@ export class FlowController {
         for (const sequence of sequences) {
           const { from: idStageA, to: idStageB } = sequence;
           if (idStageA == idStageB)
-            return res
-              .status(400)
-              .json({
-                message: 'Sequências devem ter início e fim diferentes',
-              });
+            return res.status(400).json({
+              message: 'Sequências devem ter início e fim diferentes',
+            });
           if (!(await this.stageService.getStageById(idStageA)).dataValues)
             return res.status(400).json({
               message: `Não existe a etapa com identificador '${idStageA}'`,
