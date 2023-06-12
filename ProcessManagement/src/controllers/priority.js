@@ -6,9 +6,9 @@ export class PriorityController {
     this.priorityService = services.priorityService;
   }
 
-  getAllPriorities = async (req, res) => {
+  index = async (req, res) => {
     try {
-      const priorities = await this.priorityService.getAllPriorities();
+      const priorities = await this.priorityService.findAll();
       if (!priorities) {
         return res
           .status(401)
