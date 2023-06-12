@@ -1,26 +1,12 @@
-import models from '../models/index.js';
-import UserService from '../services/user.js';
+import services from '../services/_index.js';
 import { generateToken } from '../utils/jwt.js';
 
 export class UserController {
   constructor() {
-    this.userService = new UserService(models.User);
+    this.userService = services.userService;
   }
 
-  getUserByCpf = async (req, res) => {
-    try {
-      const { cpf } = req.params;
-      const userRaw = await this.userService.getUserByCpf(cpf);
-      if (!userRaw) {
-        return res.status(404).json({ error: 'Usuário não existe' });
-      }
-      return res.status(200).json(userRaw);
-    } catch (error) {
-      return res.status(500).json({ message: 'Erro ao buscar usuário' });
-    }
-  };
-
-  getAllUsers = async (req, res) => {
+  index = async (req, res) => {
     try {
       const { accepted } = req.query;
       let users = [];
@@ -44,6 +30,42 @@ export class UserController {
         error,
         message: 'Erro ao listar usuários aceitos ou não',
       });
+    }
+  };
+
+  indexUsersAdminByUnitId = async (req, res) => {
+    try {
+      const { idUnit } = req.params;
+      const usersRaw = await this.userService.getUsersAdminByIdUnit(idUnit);
+      if (!usersRaw) {
+        return res.status(404).json({ error: 'Usuários não existem' });
+      }
+      return res.status(200).json(usersRaw);
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro ao buscar usuários' });
+    }
+  };
+
+  showUserByCpf = async (req, res) => {
+    try {
+      const { cpf } = req.params;
+      const userRaw = await this.userService.getUserByCpf(cpf);
+      if (!userRaw) {
+        return res.status(404).json({ error: 'Usuário não existe' });
+      }
+      return res.status(200).json(userRaw);
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro ao buscar usuário' });
+    }
+  };
+
+  showUserByUnit = async (req, res) => {
+    try {
+      const { cpf, idUnit } = req.params;
+      const user = await this.userService.getUserByUnit(cpf, Number(idUnit));
+      return res.status(200).json(user);
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro ao buscar usuário' });
     }
   };
 
@@ -107,7 +129,7 @@ export class UserController {
   deleteByCpf = async (req, res) => {
     try {
       const { cpf } = req.params;
-      const user = await this.userService.getAcceptedUserByCpf(cpf)
+      const user = await this.userService.getAcceptedUserByCpf(cpf);
       if (!user) {
         return res.status(404).json({ error: 'Usuário não existe!' });
       } else {
@@ -128,10 +150,7 @@ export class UserController {
     try {
       const { cpf } = req.params;
       const { email } = req.body;
-      const updated = await this.userService.updateUserEmail(
-        cpf,
-        email,
-      );
+      const updated = await this.userService.updateUserEmail(cpf, email);
       if (updated) {
         return res.status(200).json({
           message: 'Email atualizado com sucesso',
@@ -151,10 +170,7 @@ export class UserController {
   updateUserRole = async (req, res) => {
     try {
       const { idRole, cpf } = req.body;
-      const updated = await this.userService.updateUserRole(
-        cpf,
-        idRole,
-      );
+      const updated = await this.userService.updateUserRole(cpf, idRole);
       if (updated) {
         return res.status(200).json({
           message: 'Role atualizado com sucesso',
@@ -233,29 +249,6 @@ export class UserController {
         error,
         message: 'Erro ao negar pedido do usuário',
       });
-    }
-  };
-
-  getUsersAdminByUnitId = async (req, res) => {
-    try {
-      const { idUnit } = req.params;
-      const usersRaw = await this.userService.getUsersAdminByIdUnit(idUnit);
-      if (!usersRaw) {
-        return res.status(404).json({ error: 'Usuários não existem' });
-      }
-      return res.status(200).json(usersRaw);
-    } catch (error) {
-      return res.status(500).json({ message: 'Erro ao buscar usuários' });
-    }
-  };
-
-  getUserByUnit = async (req, res) => {
-    try {
-      const { cpf, idUnit } = req.params;
-      const user = await this.userService.getUserByUnit(cpf, Number(idUnit));
-      return res.status(200).json(user);
-    } catch (error) {
-      return res.status(500).json({ message: 'Erro ao buscar usuário' });
     }
   };
 }

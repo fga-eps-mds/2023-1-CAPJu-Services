@@ -1,6 +1,6 @@
 import { UserController } from '../../src/controllers/user.js';
 import UserService from '../../src/services/user.js';
-import models from '../../src/models/index.js';
+import models from '../../src/models/_index.js';
 import * as jwtUtils from '../../src/utils/jwt.js';
 
 describe('UserController', () => {
@@ -30,7 +30,7 @@ describe('UserController', () => {
       userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(userRaw);
       reqMock.params.cpf = '1234567890';
 
-      await userController.getUserByCpf(reqMock, resMock);
+      await userController.showUserByCpf(reqMock, resMock);
 
       expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
       expect(resMock.status).toHaveBeenCalledWith(200);
@@ -41,7 +41,7 @@ describe('UserController', () => {
       userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(null);
       reqMock.params.cpf = '1234567890';
 
-      await userController.getUserByCpf(reqMock, resMock);
+      await userController.showUserByCpf(reqMock, resMock);
 
       expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
       expect(resMock.status).toHaveBeenCalledWith(404);
@@ -57,7 +57,7 @@ describe('UserController', () => {
         .mockRejectedValue(new Error(errorMessage));
       reqMock.params.cpf = '1234567890';
 
-      await userController.getUserByCpf(reqMock, resMock);
+      await userController.showUserByCpf(reqMock, resMock);
 
       expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
       expect(resMock.status).toHaveBeenCalledWith(500);
@@ -75,7 +75,7 @@ describe('UserController', () => {
       ];
       userServiceMock.getAllUsers = jest.fn().mockResolvedValue(users);
 
-      await userController.getAllUsers(reqMock, resMock);
+      await userController.index(reqMock, resMock);
 
       expect(userServiceMock.getAllUsers).toHaveBeenCalled();
       expect(resMock.status).toHaveBeenCalledWith(200);
@@ -90,7 +90,7 @@ describe('UserController', () => {
       userServiceMock.getAcceptedUsers = jest.fn().mockResolvedValue(users);
       reqMock.query.accepted = 'true';
 
-      await userController.getAllUsers(reqMock, resMock);
+      await userController.index(reqMock, resMock);
 
       expect(userServiceMock.getAcceptedUsers).toHaveBeenCalled();
       expect(resMock.status).toHaveBeenCalledWith(200);
@@ -105,7 +105,7 @@ describe('UserController', () => {
       userServiceMock.getNoAcceptedUsers = jest.fn().mockResolvedValue(users);
       reqMock.query.accepted = 'false';
 
-      await userController.getAllUsers(reqMock, resMock);
+      await userController.index(reqMock, resMock);
 
       expect(userServiceMock.getNoAcceptedUsers).toHaveBeenCalled();
       expect(resMock.status).toHaveBeenCalledWith(200);
@@ -115,7 +115,7 @@ describe('UserController', () => {
     it('should return 400 if "accepted" query parameter is neither true nor false', async () => {
       reqMock.query.accepted = 'invalid';
 
-      await userController.getAllUsers(reqMock, resMock);
+      await userController.index(reqMock, resMock);
 
       expect(resMock.status).toHaveBeenCalledWith(400);
       expect(resMock.json).toHaveBeenCalledWith({
@@ -129,7 +129,7 @@ describe('UserController', () => {
         .fn()
         .mockRejectedValue(new Error(errorMessage));
 
-      await userController.getAllUsers(reqMock, resMock);
+      await userController.index(reqMock, resMock);
 
       expect(resMock.status).toHaveBeenCalledWith(500);
       expect(resMock.json).toHaveBeenCalledWith({
@@ -309,7 +309,9 @@ describe('UserController', () => {
 
       await userController.deleteByCpf(reqMock, resMock);
 
-      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith('1234567890');
+      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith(
+        '1234567890',
+      );
       expect(user.destroy).toHaveBeenCalled();
       expect(resMock.status).toHaveBeenCalledWith(200);
       expect(resMock.json).toHaveBeenCalledWith({
@@ -324,7 +326,9 @@ describe('UserController', () => {
 
       await userController.deleteByCpf(reqMock, resMock);
 
-      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith('1234567890');
+      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith(
+        '1234567890',
+      );
       expect(resMock.status).toHaveBeenCalledWith(404);
       expect(resMock.json).toHaveBeenCalledWith({
         error: 'Usuário não existe!',
@@ -341,7 +345,9 @@ describe('UserController', () => {
 
       await userController.deleteByCpf(reqMock, resMock);
 
-      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith('1234567890');
+      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith(
+        '1234567890',
+      );
       expect(resMock.status).toHaveBeenCalledWith(500);
       expect(resMock.json).toHaveBeenCalledWith({
         error: expect.any(Error),
