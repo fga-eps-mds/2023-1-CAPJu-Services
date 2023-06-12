@@ -79,7 +79,7 @@ class UserService {
     return this.user.findOne({
       where: {
         cpf: cpf,
-        idUnit: idUnit
+        idUnit: idUnit,
       },
     });
   }

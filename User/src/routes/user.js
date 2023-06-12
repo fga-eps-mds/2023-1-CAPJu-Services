@@ -1,19 +1,33 @@
 import express from 'express';
-import { UserController } from '../controllers/user.js';
+import controllers from '../controllers/_index.js';
 const UserRoutes = express.Router();
-const userController = new UserController();
 
-UserRoutes.get('/allUser', userController.getAllUsers);
-UserRoutes.get('/cpf/:cpf', userController.getUserByCpf);
-UserRoutes.get('/admins/unit/:idUnit', userController.getUsersAdminByUnitId);
-UserRoutes.get('/user/:cpf/unit/:idUnit', userController.getUserByUnit);
-UserRoutes.post('/login', userController.loginUser);
-UserRoutes.post('/newUser', userController.store);
-UserRoutes.post('/acceptRequest/:cpf', userController.acceptRequest);
-UserRoutes.put('/updateUser/:cpf', userController.updateUserEmail);
-UserRoutes.put('/updateUserRole', userController.updateUserRole);
-UserRoutes.post('/updateUserPassword/:cpf', userController.updateUserPassword);
-UserRoutes.delete('/deleteUser/:cpf', userController.deleteByCpf);
-UserRoutes.delete('/deleteRequest/:cpf', userController.deleteRequest);
+UserRoutes.get('/allUser', controllers.userController.index);
+UserRoutes.get(
+    '/admins/unit/:idUnit',
+    controllers.userController.indexUsersAdminByUnitId,
+);
+UserRoutes.get('/cpf/:cpf', controllers.userController.showUserByCpf);
+UserRoutes.get(
+    '/user/:cpf/unit/:idUnit',
+    controllers.userController.showUserByUnit,
+);
+UserRoutes.post('/login', controllers.userController.loginUser);
+UserRoutes.post('/newUser', controllers.userController.store);
+UserRoutes.post(
+    '/acceptRequest/:cpf',
+    controllers.userController.acceptRequest,
+);
+UserRoutes.put('/updateUser/:cpf', controllers.userController.updateUserEmail);
+UserRoutes.put('/updateUserRole', controllers.userController.updateUserRole);
+UserRoutes.post(
+    '/updateUserPassword/:cpf',
+    controllers.userController.updateUserPassword,
+);
+UserRoutes.delete('/deleteUser/:cpf', controllers.userController.deleteByCpf);
+UserRoutes.delete(
+    '/deleteRequest/:cpf',
+    controllers.userController.deleteRequest,
+);
 
 export default UserRoutes;
