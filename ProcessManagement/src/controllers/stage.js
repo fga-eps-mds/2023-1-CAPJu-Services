@@ -6,9 +6,9 @@ export class StageController {
     this.stageService = services.stageService;
   }
 
-  getAllStages = async (req, res) => {
+  index = async (req, res) => {
     try {
-      const stages = await this.stageService.getAllStages();
+      const stages = await this.stageService.findAll();
       if (!stages) {
         return res
           .status(401)
@@ -21,10 +21,10 @@ export class StageController {
     }
   };
 
-  getStageById = async (req, res) => {
+  showStageByStageId = async (req, res) => {
     try {
       const { idStage } = req.params;
-      const stage = await this.stageService.getStageById(idStage);
+      const stage = await this.stageService.findOneByStageId(idStage);
       if (!stage) {
         return res.status(401).json({ error: 'Essa etapa não existe' });
       } else {

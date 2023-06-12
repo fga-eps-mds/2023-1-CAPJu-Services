@@ -2,11 +2,11 @@ class StageService {
   constructor(StageModel) {
     this.stage = StageModel;
   }
-  async getAllStages() {
+  async findAll() {
     return this.stage.findAll();
   }
 
-  async getStageById(idStage) {
+  async findOneByStageId(idStage) {
     return this.stage.findOne({
       where: { idStage },
     });
@@ -17,7 +17,7 @@ class StageService {
   }
 
   async deleteStage(idStage) {
-    return this.stage.destroy({ where: { idStage: idStage } });
+    return this.stage.destroy({ where: { idStage } });
   }
 }
 

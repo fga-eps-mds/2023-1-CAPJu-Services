@@ -168,11 +168,11 @@ export class FlowController {
           return res
             .status(400)
             .json({ message: 'Sequências devem ter início e fim diferentes' });
-        if (!(await this.stageService.getStageById(idStageA)).dataValues)
+        if (!(await this.stageService.findOneByStageId(idStageA)).dataValues)
           return res.status(400).json({
             message: `Não existe a etapa com identificador '${idStageA}'`,
           });
-        if (!(await this.stageService.getStageById(idStageB)).dataValues)
+        if (!(await this.stageService.findOneByStageId(idStageB)).dataValues)
           return res.status(400).json({
             message: `Não existe a etapa com identificador '${idStageA}'`,
           });
@@ -244,11 +244,11 @@ export class FlowController {
             return res.status(400).json({
               message: 'Sequências devem ter início e fim diferentes',
             });
-          if (!(await this.stageService.getStageById(idStageA)).dataValues)
+          if (!(await this.stageService.findOneByStageId(idStageA)).dataValues)
             return res.status(400).json({
               message: `Não existe a etapa com identificador '${idStageA}'`,
             });
-          if (!(await this.stageService.getStageById(idStageB)).dataValues)
+          if (!(await this.stageService.findOneByStageId(idStageB)).dataValues)
             return res.status(400).json({
               message: `Não existe a etapa com identificador '${idStageA}'`,
             });
