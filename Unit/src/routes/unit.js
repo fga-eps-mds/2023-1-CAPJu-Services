@@ -1,13 +1,15 @@
 import express from 'express';
-import { UnitController } from '../controllers/unit.js';
+import controllers from '../controllers/_index.js';
 
 const UnitRoutes = express.Router();
-const unitController = new UnitController();
 
-UnitRoutes.get('/units', unitController.getAllUnits);
-UnitRoutes.get('/unitAdmins/:idUnit', unitController.getAdminsByUnitId);
-UnitRoutes.post('/newUnit', unitController.store);
-UnitRoutes.put('/updateUnit', unitController.update);
-UnitRoutes.delete('/deleteUnit', unitController.delete);
+UnitRoutes.get('/', controllers.unitController.index);
+UnitRoutes.get(
+  '/unitAdmins/:idUnit',
+  controllers.unitController.showAdminsByUnitId,
+);
+UnitRoutes.post('/newUnit', controllers.unitController.store);
+UnitRoutes.put('/updateUnit', controllers.unitController.update);
+UnitRoutes.delete('/deleteUnit', controllers.unitController.delete);
 
 export default UnitRoutes;
