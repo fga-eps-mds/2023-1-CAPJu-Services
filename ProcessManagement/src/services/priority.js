@@ -2,7 +2,7 @@ class PriorityService {
   constructor(PriorityModel) {
     this.priority = PriorityModel;
   }
-  async getAllPriorities() {
+  async findAll() {
     return this.priority.findAll();
   }
 }
