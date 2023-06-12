@@ -130,7 +130,7 @@ export class FlowController {
   showUsersToNotify = async (req, res) => {
     const { idFlow } = req.params;
     try {
-      const result = await this.flowUserService.getUsersToNotify(idFlow);
+      const result = await this.flowUserService.findUsersToNotify(idFlow);
       res.status(200).json({ usersToNotify: result });
     } catch (error) {
       console.log(error);
