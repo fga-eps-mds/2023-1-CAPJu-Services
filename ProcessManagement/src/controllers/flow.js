@@ -16,8 +16,9 @@ export class FlowController {
       const flows = await this.flowService.findAll();
       let flowsWithSequences = [];
       for (const flow of flows) {
-        const flowStages =
-          await this.flowStageService.getAllFlowsStagesByIdFlow(flow.idFlow);
+        const flowStages = await this.flowStageService.findAllByIdFlow(
+          flow.idFlow,
+        );
         const { stages, sequences } =
           await this.flowService.stagesSequencesFromFlowStages(flowStages);
         const flowSequence = {
@@ -66,7 +67,7 @@ export class FlowController {
       if (!flow)
         return res.status(404).json({ message: `Não há fluxo '${idFlow}'` });
 
-      const flowStages = await this.flowStageService.getAllFlowsStagesByIdFlow(
+      const flowStages = await this.flowStageService.findAllByIdFlow(
         flow.idFlow,
       );
 
@@ -99,9 +100,7 @@ export class FlowController {
       if (!flow)
         return res.status(404).json({ message: `Fluxo ${idFlow} não existe` });
 
-      const flowStages = await this.flowStageService.getAllFlowsStagesByIdFlow(
-        idFlow,
-      );
+      const flowStages = await this.flowStageService.findAllByIdFlow(idFlow);
 
       if (flowStages.length === 0) {
         return res
@@ -295,7 +294,7 @@ export class FlowController {
           message: `Há ${processes.length} processos no fluxo`,
         });
       }
-      await this.flowStageService.deleteFlowStageById(idFlow);
+      await this.flowStageService.deleteFlowStageByIdFlow(idFlow);
       await this.flowUserService.deleteFlowUserById(idFlow);
 
       const flow = await this.flowService.deleteFlowById(idFlow);
