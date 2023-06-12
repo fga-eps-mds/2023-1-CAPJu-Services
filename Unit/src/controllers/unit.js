@@ -42,6 +42,36 @@ export class UnitController {
     }
   };
 
+  setUnitAdmin = async (req, res) => {
+    try {
+      const { idUnit, cpf } = req.body;
+      const userAdmin = await axios.get(
+        `${process.env.USER_URL_API}/user/${cpf}/unit/${idUnit}`,
+      );
+      if (!userAdmin.data) {
+        return res.status(404).json({
+          message: `Usuário aceito não existe nesta unidade`,
+        });
+      } else {
+        const postData = {
+          idRole: ROLE.ADMINISTRADOR,
+          cpf: cpf,
+        };
+        await axios.put(`${process.env.USER_URL_API}/updateUserRole`, postData);
+        const userUpdated = await axios.get(
+          `${process.env.USER_URL_API}/cpf/${cpf}`,
+        );
+        return res.status(200).json(userUpdated.data);
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        error,
+        message: 'Erro ao configurar usuário como administrador',
+      });
+    }
+  };
+
   store = async (req, res) => {
     try {
       const { name } = req.body;
