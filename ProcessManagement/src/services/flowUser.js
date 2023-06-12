@@ -6,7 +6,7 @@ class FlowUserService {
   constructor(FlowUserModel) {
     this.flowUser = FlowUserModel;
   }
-  async getAllFlowsUsers() {
+  async findAll() {
     return this.flowUser.findAll();
   }
 
@@ -18,7 +18,7 @@ class FlowUserService {
     return this.flowUser.destroy({ where: { idFlow } });
   }
 
-  async getUsersToNotify(idFlow) {
+  async findUsersToNotify(idFlow) {
     const query_results = await sequelizeConfig.query(
       'SELECT \
       "flowUser"."idFlow" AS "idFlow", "flowUser".cpf AS cpf, \

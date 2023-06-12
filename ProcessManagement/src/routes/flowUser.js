@@ -3,6 +3,6 @@ import controllers from '../controllers/_index.js';
 
 const FlowUserRoutes = express.Router();
 
-FlowUserRoutes.get('/', controllers.flowUserController.getAllFlowsUsers);
+FlowUserRoutes.get('/', controllers.flowUserController.index);
 
 export default FlowUserRoutes;

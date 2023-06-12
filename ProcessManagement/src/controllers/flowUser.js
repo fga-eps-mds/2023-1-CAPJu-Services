@@ -6,10 +6,9 @@ export class FlowUserController {
     this.flowUserService = services.flowUserService;
   }
 
-  getAllFlowsUsers = async (req, res) => {
+  index = async (req, res) => {
     try {
-      console.log('FlowUserController => getAllFlowsUsers => ');
-      const flowsUsers = await this.flowUserService.getAllFlowsUsers();
+      const flowsUsers = await this.flowUserService.findAll();
       if (!flowsUsers) {
         return res
           .status(401)
