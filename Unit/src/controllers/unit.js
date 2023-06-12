@@ -1,15 +1,14 @@
 import 'dotenv/config';
 import axios from 'axios';
-import models from '../models/index.js';
-import UnitService from '../services/unit.js';
+import services from '../services/_index.js';
 import { ROLE } from '../schemas/role.js';
 
 export class UnitController {
   constructor() {
-    this.unitService = new UnitService(models.Unit);
+    this.unitService = services.unitService;
   }
 
-  getAllUnits = async (req, res) => {
+  index = async (req, res) => {
     try {
       const units = await this.unitService.getAllUnits();
       if (!units) {
@@ -19,6 +18,27 @@ export class UnitController {
       }
     } catch (error) {
       return res.status(500).json({ message: 'Erro ao buscar unidades' });
+    }
+  };
+
+  showAdminsByUnitId = async (req, res) => {
+    try {
+      const { idUnit } = req.params;
+      const users_response = await axios.get(
+        `${process.env.USER_URL_API}/admins/unit/${idUnit}`,
+      );
+      if (users_response.data.length === 0) {
+        return res.status(401).json({
+          message: 'Não existem usuários adminstradores nessa unidade',
+        });
+      } else {
+        return res.status(200).json(users_response.data);
+      }
+      // return res.status(200).json(idUnit)
+    } catch (error) {
+      return res.status(500).json({
+        error: 'Erro ao buscar administradores',
+      });
     }
   };
 
@@ -73,26 +93,6 @@ export class UnitController {
       return res.status(500).json({
         error,
         message: 'Erro ao apagar unidade',
-      });
-    }
-  };
-
-  getAdminsByUnitId = async (req, res) => {
-    try {
-      const { idUnit } = req.params;
-      const users_response = await axios.get(
-        `${process.env.USER_URL_API}/admins/unit/${idUnit}`,
-      );
-      if (users_response.data.length === 0) {
-        return res.status(401).json({
-          message: 'Não existem usuários adminstradores nessa unidade',
-        });
-      } else {
-        return res.status(200).json(users_response.data);
-      }
-    } catch (error) {
-      return res.status(500).json({
-        error: 'Erro ao buscar administradores',
       });
     }
   };
