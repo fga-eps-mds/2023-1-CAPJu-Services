@@ -1,7 +1,7 @@
-import "dotenv/config";
+import 'dotenv/config';
 
 const dbConfig = {
-  dialect: process.env.DB_DIALECT,
+  dialect: 'postgres',
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   database: process.env.DB_NAME,
