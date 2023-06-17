@@ -13,10 +13,10 @@ jobs:
           cd ../ProcessManagement && yarn
       - name: Check code style
         run: |
-          cd Mailer && yarn prettier --check src
-          cd ../Unit && yarn prettier --check src
-          cd ../User && yarn prettier --check src
-          cd ../ProcessManagement && yarn prettier --check src
+          cd Mailer && yarn check-format
+          cd ../Unit && yarn check-format
+          cd ../User && yarn check-format
+          cd ../ProcessManagement && yarn check-format
       - name: Lint Analysis
         run: |
           cd Mailer && yarn eslint src
