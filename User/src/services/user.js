@@ -1,4 +1,4 @@
-import { cpfFilter } from "../utils/cpf.js";
+import { cpfFilter } from '../utils/cpf.js';
 
 class UserService {
   constructor(UserModel) {
@@ -7,7 +7,7 @@ class UserService {
   async getAllUsers() {
     return this.user.findAll({
       attributes: {
-        exclude: ["password"],
+        exclude: ['password'],
       },
     });
   }
@@ -16,7 +16,7 @@ class UserService {
     return this.user.findAll({
       where: { accepted: true },
       attributes: {
-        exclude: ["password"],
+        exclude: ['password'],
       },
     });
   }
@@ -25,7 +25,7 @@ class UserService {
     return this.user.findOne({
       where: { accepted: false, cpf: cpfFilter(cpf) },
       attributes: {
-        exclude: ["password"],
+        exclude: ['password'],
       },
     });
   }
@@ -34,7 +34,7 @@ class UserService {
     return this.user.findOne({
       where: { accepted: true, cpf: cpfFilter(cpf) },
       attributes: {
-        exclude: ["password"],
+        exclude: ['password'],
       },
     });
   }
@@ -43,7 +43,7 @@ class UserService {
     return this.user.findOne({
       where: { accepted: true, idUnit: idUnit, cpf: cpfFilter(cpf) },
       attributes: {
-        exclude: ["password"],
+        exclude: ['password'],
       },
     });
   }
@@ -52,7 +52,7 @@ class UserService {
     return this.user.findAll({
       where: { accepted: false },
       attributes: {
-        exclude: ["password"],
+        exclude: ['password'],
       },
     });
   }
@@ -61,7 +61,7 @@ class UserService {
     return this.user.findOne({
       where: { cpf: cpfFilter(cpf) },
       attributes: {
-        exclude: ["password"],
+        exclude: ['password'],
       },
     });
   }
