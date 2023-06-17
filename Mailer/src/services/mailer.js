@@ -9,7 +9,7 @@ config();
 
 class Mailer {
   constructor() {
-    const email_password = process.env.CAPJU_EMAIL_PASSWORD;
+    this.email_password = process.env.CAPJU_EMAIL_PASSWORD;
   }
 
   async #getMailContents() {
@@ -69,7 +69,7 @@ class Mailer {
         secure: false,
         auth: {
           user: process.env.EMAIL_USER,
-          pass: email_password,
+          pass: this.email_password,
         },
         tls: {
           rejectUnauthorized: false,
@@ -161,7 +161,7 @@ class Mailer {
                         <td>${flow.flow}</td>
                         <td>${flow.process_record}</td>
                         <td>${flow.stage}</td>
-                        <td>${formatDate(flow.start_date)}</td>
+                        <td>${this.#formatDate(flow.start_date)}</td>
                         <td>${flow.stage_duration}</td>
                         <td>${flow.delay_days}</td>
                       </tr>
