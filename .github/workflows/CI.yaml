@@ -6,13 +6,29 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Download dependencies
-        run: yarn
+        run: |
+          cd Mailer && yarn
+          cd ../Unit && yarn
+          cd ../User && yarn
+          cd ../ProcessManagement && yarn
       - name: Check code style
-        run: yarn prettier --check src
+        run: |
+          cd Mailer && yarn prettier --check src
+          cd ../Unit && yarn prettier --check src
+          cd ../User && yarn prettier --check src
+          cd ../ProcessManagement && yarn prettier --check src
       - name: Lint Analysis
-        run: yarn eslint src
+        run: |
+          cd Mailer && yarn eslint src
+          cd ../Unit && yarn eslint src
+          cd ../User && yarn eslint src
+          cd ../ProcessManagement && yarn eslint src
       - name: Tests
-        run: yarn test
+        run: |
+          cd Mailer && yarn test
+          cd ../Unit && yarn test
+          cd ../User && yarn test
+          cd ../ProcessManagement && yarn test
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-22.04
@@ -21,9 +37,17 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Install dependencies
-        run: yarn
+        run: |
+          cd Mailer && yarn
+          cd ../Unit && yarn
+          cd ../User && yarn
+          cd ../ProcessManagement && yarn
       - name: Test and coverage
-        run: yarn test
+        run: |
+          cd Mailer && yarn test
+          cd ../Unit && yarn test
+          cd ../User && yarn test
+          cd ../ProcessManagement && yarn test
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
