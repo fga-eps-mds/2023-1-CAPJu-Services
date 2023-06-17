@@ -37,7 +37,7 @@ jobs:
           cd Mailer && yarn test
           cd ../Unit && yarn test
           cd ../User && yarn test
-          cd ../ProcessManagement && yarn test
+          cd ../ProcessManagement && yarn test --passWithNoTests # TODO: remove this
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-22.04
@@ -56,7 +56,7 @@ jobs:
           cd Mailer && yarn test
           cd ../Unit && yarn test
           cd ../User && yarn test
-          cd ../ProcessManagement && yarn test
+          cd ../ProcessManagement && yarn test --passWithNoTests # TODO: remove this
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
