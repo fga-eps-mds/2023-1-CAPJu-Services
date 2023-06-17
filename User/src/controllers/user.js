@@ -1,5 +1,5 @@
-import services from '../services/_index.js';
-import { generateToken } from '../utils/jwt.js';
+import services from "../services/_index.js";
+import { generateToken } from "../utils/jwt.js";
 
 export class UserController {
   constructor() {
@@ -11,13 +11,13 @@ export class UserController {
       const { accepted } = req.query;
       let users = [];
       if (accepted) {
-        if (accepted === 'true') {
+        if (accepted === "true") {
           users = await this.userService.getAcceptedUsers();
-        } else if (accepted === 'false') {
+        } else if (accepted === "false") {
           users = await this.userService.getNoAcceptedUsers();
         } else {
           return res.status(400).json({
-            message: 'Parâmetro accepted deve ser \'true\' ou \'false\'',
+            message: "Parâmetro accepted deve ser 'true' ou 'false'",
           });
         }
         return res.status(200).json(users);
@@ -28,7 +28,7 @@ export class UserController {
     } catch (error) {
       return res.status(500).json({
         error,
-        message: 'Erro ao listar usuários aceitos ou não',
+        message: "Erro ao listar usuários aceitos ou não",
       });
     }
   };
@@ -38,11 +38,11 @@ export class UserController {
       const { idUnit } = req.params;
       const usersRaw = await this.userService.getUsersAdminByIdUnit(idUnit);
       if (!usersRaw) {
-        return res.status(404).json({ error: 'Usuários não existem' });
+        return res.status(404).json({ error: "Usuários não existem" });
       }
       return res.status(200).json(usersRaw);
     } catch (error) {
-      return res.status(500).json({ message: 'Erro ao buscar usuários' });
+      return res.status(500).json({ message: "Erro ao buscar usuários" });
     }
   };
 
@@ -51,11 +51,11 @@ export class UserController {
       const { cpf } = req.params;
       const userRaw = await this.userService.getUserByCpf(cpf);
       if (!userRaw) {
-        return res.status(404).json({ error: 'Usuário não existe' });
+        return res.status(404).json({ error: "Usuário não existe" });
       }
       return res.status(200).json(userRaw);
     } catch (error) {
-      return res.status(500).json({ message: 'Erro ao buscar usuário' });
+      return res.status(500).json({ message: "Erro ao buscar usuário" });
     }
   };
 
@@ -65,7 +65,7 @@ export class UserController {
       const user = await this.userService.getUserByUnit(cpf, Number(idUnit));
       return res.status(200).json(user);
     } catch (error) {
-      return res.status(500).json({ message: 'Erro ao buscar usuário' });
+      return res.status(500).json({ message: "Erro ao buscar usuário" });
     }
   };
 
@@ -75,13 +75,13 @@ export class UserController {
       const user = await this.userService.getUserByCpfWithPassword(cpf);
       if (!user) {
         return res.status(401).json({
-          error: 'Usuário inexistente',
-          message: 'Usuário inexistente',
+          error: "Usuário inexistente",
+          message: "Usuário inexistente",
         });
       }
       if (!user.accepted) {
         return res.status(401).json({
-          message: 'Usuário não aceito',
+          message: "Usuário não aceito",
         });
       }
       if (user.password === password) {
@@ -98,12 +98,12 @@ export class UserController {
         });
       } else {
         return res.status(401).json({
-          error: 'Impossível autenticar',
-          message: 'Senha ou usuário incorretos',
+          error: "Impossível autenticar",
+          message: "Senha ou usuário incorretos",
         });
       }
     } catch (error) {
-      return res.status(500).json({ error, message: 'erro inesperado' });
+      return res.status(500).json({ error, message: "erro inesperado" });
     }
   };
 
@@ -122,7 +122,7 @@ export class UserController {
       const user = await this.userService.createUser(data);
       return res.json(user);
     } catch (error) {
-      return res.status(500).json({ error, message: 'Erro ao criar usuário' });
+      return res.status(500).json({ error, message: "Erro ao criar usuário" });
     }
   };
 
@@ -131,17 +131,17 @@ export class UserController {
       const { cpf } = req.params;
       const user = await this.userService.getAcceptedUserByCpf(cpf);
       if (!user) {
-        return res.status(404).json({ error: 'Usuário não existe!' });
+        return res.status(404).json({ error: "Usuário não existe!" });
       } else {
         await user.destroy();
         return res.status(200).json({
-          message: 'Usuário apagado com sucesso',
+          message: "Usuário apagado com sucesso",
         });
       }
     } catch (error) {
       return res.status(500).json({
         error,
-        message: 'Erro ao apagar usuário',
+        message: "Erro ao apagar usuário",
       });
     }
   };
@@ -153,17 +153,17 @@ export class UserController {
       const updated = await this.userService.updateUserEmail(cpf, email);
       if (updated) {
         return res.status(200).json({
-          message: 'Email atualizado com sucesso',
+          message: "Email atualizado com sucesso",
         });
       } else {
         return res.status(400).json({
-          message: 'Email não atualizado',
+          message: "Email não atualizado",
         });
       }
     } catch (error) {
       return res
         .status(500)
-        .json({ error, message: 'Erro ao atualizar email' });
+        .json({ error, message: "Erro ao atualizar email" });
     }
   };
 
@@ -173,15 +173,15 @@ export class UserController {
       const updated = await this.userService.updateUserRole(cpf, idRole);
       if (updated) {
         return res.status(200).json({
-          message: 'Role atualizado com sucesso',
+          message: "Role atualizado com sucesso",
         });
       } else {
         return res.status(400).json({
-          message: 'Role não atualizada',
+          message: "Role não atualizada",
         });
       }
     } catch (error) {
-      return res.status(500).json({ error, message: 'Erro ao atualizar role' });
+      return res.status(500).json({ error, message: "Erro ao atualizar role" });
     }
   };
 
@@ -196,17 +196,17 @@ export class UserController {
       );
       if (updated) {
         return res.status(200).json({
-          message: 'Senha atualizada com sucesso',
+          message: "Senha atualizada com sucesso",
         });
       } else {
         return res.status(400).json({
-          message: 'Senha não atualizada!',
+          message: "Senha não atualizada!",
         });
       }
     } catch (error) {
       return res
         .status(500)
-        .json({ error, message: 'Erro ao atualizar senha' });
+        .json({ error, message: "Erro ao atualizar senha" });
     }
   };
 
@@ -215,18 +215,18 @@ export class UserController {
       const { cpf } = req.params;
       const user = await this.userService.getUserByCpf(cpf);
       if (!user) {
-        res.status(404).json({ error: 'Usuário não existe' });
+        res.status(404).json({ error: "Usuário não existe" });
       } else {
         user.set({ accepted: true });
         await user.save();
         return res.status(200).json({
-          message: 'Usuário aceito com sucesso',
+          message: "Usuário aceito com sucesso",
         });
       }
     } catch (error) {
       return res.status(500).json({
         error,
-        message: 'Falha ao aceitar usuário',
+        message: "Falha ao aceitar usuário",
       });
     }
   };
@@ -237,17 +237,17 @@ export class UserController {
       const user = await this.userService.getNoAcceptedUserByCpf(cpf);
 
       if (!user) {
-        res.status(404).json({ error: 'Usuário não existe' });
+        res.status(404).json({ error: "Usuário não existe" });
       } else {
         await user.destroy();
         return res.status(200).json({
-          message: 'Usuário não aceito foi excluído',
+          message: "Usuário não aceito foi excluído",
         });
       }
     } catch (error) {
       return res.status(500).json({
         error,
-        message: 'Erro ao negar pedido do usuário',
+        message: "Erro ao negar pedido do usuário",
       });
     }
   };
