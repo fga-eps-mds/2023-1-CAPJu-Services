@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "eslint": "^8.41.0",
+    "jest-sonar": "^0.2.16",
     "nodemon": "^2.0.22",
     "prettier": "^2.8.8"
   }
