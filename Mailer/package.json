@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "test": "jest",
+    "test": "NODE_ENV=test jest --config=jest.config.mjs --detectOpenHandles --coverage",
     "lint": "eslint src",
     "migration": "sequelize db:migrate",
     "seed": "sequelize db:seed:all",
