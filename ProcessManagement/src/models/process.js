@@ -10,6 +10,12 @@ class ProcessModel extends Model {
           primaryKey: true,
           allowNull: false,
         },
+        idFlow: {
+          type: DataTypes.INTEGER,
+          primaryKey: true,
+          foreignKey: true,
+          allowNull: false,
+        },
         nickname: {
           type: DataTypes.STRING(50),
           allowNull: true,
@@ -20,11 +26,6 @@ class ProcessModel extends Model {
         },
         effectiveDate: {
           type: DataTypes.DATE,
-          allowNull: false,
-        },
-        idFlow: {
-          type: DataTypes.INTEGER,
-          foreignKey: true,
           allowNull: false,
         },
         idUnit: {
