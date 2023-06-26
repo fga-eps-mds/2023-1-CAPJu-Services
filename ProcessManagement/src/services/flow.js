@@ -2,6 +2,7 @@ class FlowService {
   constructor(FlowModel) {
     this.flow = FlowModel;
   }
+
   async findAll() {
     return this.flow.findAll();
   }
@@ -12,8 +13,8 @@ class FlowService {
     });
   }
 
-  async createFlow(name, idUnit) {
-    return this.flow.create({ name, idUnit });
+  async createFlow(params) {
+    return this.flow.create(params);
   }
 
   async updateFlow(name, idFlow) {
