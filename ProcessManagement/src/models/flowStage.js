@@ -55,5 +55,6 @@ class FlowStageModel extends Model {
     });
   }
 }
+
 FlowStageModel.init(sequelizeConfig, Sequelize.DataTypes);
 export default FlowStageModel;

@@ -6,7 +6,7 @@ export class FlowStageController {
     this.flowStageService = services.flowStageService;
   }
 
-  index = async (req, res) => {
+  index = async (_req, res) => {
     try {
       const flowStages = await this.flowStageService.findAll();
 
