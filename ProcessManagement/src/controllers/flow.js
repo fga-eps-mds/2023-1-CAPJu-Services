@@ -178,7 +178,7 @@ export class FlowController {
           });
       }
 
-      const flow = await this.flowService.createFlow(name, idUnit);
+      const flow = await this.flowService.createFlow({ name, idUnit });
 
       for (const sequence of sequences) {
         const data = {
