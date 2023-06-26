@@ -4,6 +4,7 @@ class FlowStageService {
   constructor(FlowStageModel) {
     this.flowStage = FlowStageModel;
   }
+
   async findAll() {
     return this.flowStage.findAll();
   }
