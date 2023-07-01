@@ -15,7 +15,7 @@ module.exports = {
       },
       effectiveDate: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
       },
       finalised: {
         type: Sequelize.BOOLEAN,
@@ -48,8 +48,6 @@ module.exports = {
       idPriority: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        references: { model: 'priority', key: 'idPriority' },
-        onDelete: 'RESTRICT',
       },
       createdAt: {
         type: Sequelize.DATE,
