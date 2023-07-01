@@ -10,7 +10,7 @@ class ProcessService {
   async updateProcess(params, record) {
     const updatedRows = await this.process.update(
       { ...params },
-      { where: { record }},
+      { where: { record } },
     );
     if (updatedRows) {
       return await this.getProcessByRecord(record);
@@ -29,7 +29,7 @@ class ProcessService {
 
   async getPriorityProcess() {
     return await this.process.findAll({
-      where: { idPriority: [1, 2, 3, 4, 5, 6, 7, 8] }
+      where: { idPriority: [1, 2, 3, 4, 5, 6, 7, 8] },
     });
   }
 
@@ -50,7 +50,7 @@ class ProcessService {
   }
 
   validateRecord(record) {
-    const filteredRecord = record.replace(/[^\d]/g, "");
+    const filteredRecord = record.replace(/[^\d]/g, '');
     const regexFilter = /^\d{20}$/;
     const isRecordValid = regexFilter.test(filteredRecord);
 
@@ -58,7 +58,7 @@ class ProcessService {
       filteredRecord,
       valid: isRecordValid,
     };
-  };
+  }
 }
 
 export default ProcessService;

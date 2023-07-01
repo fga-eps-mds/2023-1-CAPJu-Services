@@ -30,8 +30,8 @@ export class ProcessController {
       const process = await this.processService.getProcessByRecord(record);
       if (!process) {
         return res.status(404).json({
-          error: "Esse processo não existe!",
-          message: "Esse processo não existe!",
+          error: 'Esse processo não existe!',
+          message: 'Esse processo não existe!',
         });
       } else {
         return res.status(200).json(process);
@@ -42,7 +42,7 @@ export class ProcessController {
         message: `Erro ao procurar processo`,
       });
     }
-  }
+  };
 
   getProcessByIdFlow = async (req, res) => {
     const idFlow = req.params.idFlow;
@@ -50,8 +50,8 @@ export class ProcessController {
       const process = await this.processService.getProcessByIdFlow(idFlow);
       if (!process) {
         return res.status(404).json({
-          error: "Processos não encontrados nesse fluxo!",
-          message: "Processos não encontrados nesse fluxo!",
+          error: 'Processos não encontrados nesse fluxo!',
+          message: 'Processos não encontrados nesse fluxo!',
         });
       } else {
         return res.status(200).json(process);
@@ -63,19 +63,19 @@ export class ProcessController {
         message: `Erro ao procurar processo.`,
       });
     }
-  }
+  };
 
   getProcessByUniqueKeys = async (req, res) => {
     const { record, idFlow } = req.params;
     try {
       const process = await this.processService.getProcessByUniqueKeys(
         record,
-        idFlow
+        idFlow,
       );
       if (!process) {
         return res.status(404).json({
-          error: "Esse processo não existe nesse fluxo!",
-          message: "Esse processo não existe nesse fluxo!",
+          error: 'Esse processo não existe nesse fluxo!',
+          message: 'Esse processo não existe nesse fluxo!',
         });
       } else {
         return res.status(200).json(process);
@@ -87,23 +87,17 @@ export class ProcessController {
         message: `Erro ao procurar processo nesse fluxo`,
       });
     }
-  }
+  };
 
   store = async (req, res) => {
     try {
-      let {
-        record,
-        nickname,
-        idPriority,
-        idFlow,
-        idStage
-      } = req.body;
+      let { record, nickname, idPriority, idFlow, idStage } = req.body;
 
       const recordStatus = this.processService.validateRecord(record);
 
       if (!recordStatus.valid) {
         return res.status(400).json({
-          error: "Registro fora do padrão CNJ",
+          error: 'Registro fora do padrão CNJ',
           message: `Registro '${req.body?.record}' está fora do padrão CNJ`,
         });
       }
@@ -116,7 +110,7 @@ export class ProcessController {
       } catch (error) {
         return res.status(500).json({
           error: `${error}`,
-          message: "Erro ao buscar fluxo por idFlow.",
+          message: 'Erro ao buscar fluxo por idFlow.',
         });
       }
 
@@ -133,7 +127,7 @@ export class ProcessController {
           });
 
           return res.status(200).json({
-            message: `Processo criado com sucesso.`
+            message: `Processo criado com sucesso.`,
           });
         }
       } catch (error) {
@@ -148,7 +142,7 @@ export class ProcessController {
         message: `Erro ao criar processo.`,
       });
     }
-  }
+  };
 
   getPriorityProcess = async (_req, res) => {
     try {
@@ -157,24 +151,26 @@ export class ProcessController {
       if (!priorityProcesses) {
         return res
           .status(404)
-          .json({ error: "Não há processos com prioridade legal." });
+          .json({ error: 'Não há processos com prioridade legal.' });
       } else {
         return res.status(200).json(priorityProcesses);
       }
     } catch (error) {
       return res.status(500).json(error);
     }
-  }
+  };
 
   updateProcess = async (req, res) => {
     try {
       const { nickname } = req.body;
 
-      const recordStatus = this.processService.validateRecord(req.params.record);
+      const recordStatus = this.processService.validateRecord(
+        req.params.record,
+      );
 
       if (!recordStatus.valid) {
         return res.status(400).json({
-          error: "Registro fora do padrão CNJ",
+          error: 'Registro fora do padrão CNJ',
           message: `Registro '${req.params.record}' está fora do padrão CNJ`,
         });
       }
@@ -185,40 +181,49 @@ export class ProcessController {
       try {
         process = await this.processService.getProcessByRecord(record);
       } catch (error) {
-        return res.status(500).json({ error: "Falha ao buscar processo." });
+        return res.status(500).json({ error: 'Falha ao buscar processo.' });
       }
 
-      const flowStages = await this.flowStageService.findAllByIdFlow(process.idFlow);
+      const flowStages = await this.flowStageService.findAllByIdFlow(
+        process.idFlow,
+      );
       if (flowStages.length === 0) {
-        return res.status(404).json({ error: "Não há etapas neste fluxo" });
+        return res.status(404).json({ error: 'Não há etapas neste fluxo' });
       }
 
       const startingProcess =
-        process.status === "notStarted" && req.body.status === "inProgress"
+        process.status === 'notStarted' && req.body.status === 'inProgress'
           ? {
-            idStage: flowStages[0].idStageA || process.idStage,
-            effectiveDate: new Date(),
-            status: "inProgress",
-          }
+              idStage: flowStages[0].idStageA || process.idStage,
+              effectiveDate: new Date(),
+              status: 'inProgress',
+            }
           : {};
 
-      const updatedProcess = await this.processService.updateProcess({
-        nickname,
-        ...startingProcess,
-      }, process.record);
+      const updatedProcess = await this.processService.updateProcess(
+        {
+          nickname,
+          ...startingProcess,
+        },
+        process.record,
+      );
 
       if (updatedProcess) {
         return res.status(200).json(updatedProcess);
       }
-      return res.status(500).json({ message: "Não foi possível atualizar o processo." });
+      return res
+        .status(500)
+        .json({ message: 'Não foi possível atualizar o processo.' });
     } catch (error) {
       return res.status(500).json({ error: `${error}` });
     }
-  }
+  };
 
   deleteProcess = async (req, res) => {
     try {
-      const result = await this.processService.deleteProcessByRecord(req.params.record);
+      const result = await this.processService.deleteProcessByRecord(
+        req.params.record,
+      );
 
       if (result === 0) {
         return res
@@ -226,11 +231,13 @@ export class ProcessController {
           .json({ error: `Não há registro ${req.params.record}.` });
       }
 
-      return res.status(200).json({ message: "Processo apagado." });
+      return res.status(200).json({ message: 'Processo apagado.' });
     } catch (error) {
-      return res.status(500).json({ error, message: "Erro ao apagar processo." });
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao apagar processo.' });
     }
-  }
+  };
 
   updateProcessStage = async (req, res) => {
     const { record, from, to, idFlow } = req.body;
@@ -241,7 +248,7 @@ export class ProcessController {
       isNaN(parseInt(idFlow))
     ) {
       return res.status(400).json({
-        error: "Identificadores inválidos",
+        error: 'Identificadores inválidos',
         message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`,
       });
     }
@@ -265,26 +272,29 @@ export class ProcessController {
 
       if (!canAdvance) {
         return res.status(409).json({
-          error: "Transição impossível",
+          error: 'Transição impossível',
           message: `Não há a transição da etapa '${to}' para '${from}' no fluxo '${idFlow}'`,
         });
       }
-      const result = await this.processService.updateProcess({
-        idStage: to,
-        effectiveDate: new Date(),
-      }, record);
+      const result = await this.processService.updateProcess(
+        {
+          idStage: to,
+          effectiveDate: new Date(),
+        },
+        record,
+      );
       if (result) {
         return res.status(200).json({
-          message: "Etapa atualizada com sucesso.",
+          message: 'Etapa atualizada com sucesso.',
         });
       }
 
-      return res.status(400).json({ message: "Erro ao atualizar processo." });
+      return res.status(400).json({ message: 'Erro ao atualizar processo.' });
     } catch (error) {
       return res.status(500).json({
         error: `${error}`,
         message: `Erro ao atualizar processo '${record}' para etapa '${to}`,
       });
     }
-  }
+  };
 }
