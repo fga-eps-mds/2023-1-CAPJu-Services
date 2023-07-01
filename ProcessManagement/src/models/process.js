@@ -26,7 +26,7 @@ class ProcessModel extends Model {
         },
         effectiveDate: {
           type: DataTypes.DATE,
-          allowNull: false,
+          allowNull: true,
         },
         idUnit: {
           type: DataTypes.INTEGER,
@@ -40,7 +40,6 @@ class ProcessModel extends Model {
         },
         idPriority: {
           type: DataTypes.INTEGER,
-          foreignKey: true,
           allowNull: false,
         },
         status: {

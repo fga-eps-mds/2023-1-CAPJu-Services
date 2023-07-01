@@ -11,7 +11,7 @@ export class FlowController {
     this.processService = services.processService;
   }
 
-  index = async (req, res) => {
+  index = async (_req, res) => {
     try {
       const flows = await this.flowService.findAll();
       let flowsWithSequences = [];

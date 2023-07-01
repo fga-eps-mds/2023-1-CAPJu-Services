@@ -7,8 +7,16 @@ class ProcessService {
     return await this.process.create(params);
   }
 
-  async updateProcess(params) {
-    return await this.process.update(params);
+  async updateProcess(params, record) {
+    const updatedRows = await this.process.update(
+      { ...params },
+      { where: { record }},
+    );
+    if (updatedRows) {
+      return await this.getProcessByRecord(record);
+    } else {
+      return false;
+    }
   }
 
   async deleteProcessByRecord(record) {
@@ -19,12 +27,22 @@ class ProcessService {
     return await this.process.findAll();
   }
 
+  async getPriorityProcess() {
+    return await this.process.findAll({
+      where: { idPriority: [1, 2, 3, 4, 5, 6, 7, 8] }
+    });
+  }
+
   async getProcessByUniqueKeys(record, idFlow) {
-    return await this.process.findAll({ where: { record, idFlow } });
+    return await this.process.findOne({
+      where: { record, idFlow },
+    });
   }
 
   async getProcessByRecord(record) {
-    return await this.process.findAll({ where: { record } });
+    return await this.process.findOne({
+      where: { record },
+    });
   }
 
   async getProcessByIdFlow(idFlow) {
@@ -32,21 +50,14 @@ class ProcessService {
   }
 
   validateRecord(record) {
-    const filtered = filterRecord(record);
+    const filteredRecord = record.replace(/[^\d]/g, "");
+    const regexFilter = /^\d{20}$/;
+    const isRecordValid = regexFilter.test(filteredRecord);
+
     return {
-      filtered,
-      valid: isRecordValid(filtered),
+      filteredRecord,
+      valid: isRecordValid,
     };
-  };
-
-  filterRecord(record) {
-    const regex = /[^\d]/g;
-    return record.replace(regex, "");
-  };
-
-  isRecordValid(record) {
-    const regex = /^\d{20}$/;
-    return regex.test(record);
   };
 }
 
