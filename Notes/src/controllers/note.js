@@ -8,14 +8,12 @@ export class NoteController {
   index = async (req, res) => {
     const { record } = req.params;
     try {
-      if (note) {
-        return res.status(200).json(note);
-      } else {
-        return res.status(204).json([]);
-      }
       const note = await this.noteService.findAllByRecord(record);
+      return res.status(200).json(note);
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao buscar obervação." });
+      return res
+        .status(500)
+        .json({ message: `Erro ao buscar observação: ${error}` });
     }
   };
 
@@ -46,7 +44,7 @@ export class NoteController {
         await this.noteService.deleteNoteById(idNote);
         return res
           .status(200)
-          .json({ message: "Observação deletada com sucesso." });
+          .json({ message: 'Observação deletada com sucesso.' });
       }
     } catch (error) {
       return res
@@ -66,7 +64,7 @@ export class NoteController {
       }
       return res
         .status(200)
-        .json({ message: "Observação atualizada com sucesso." });
+        .json({ message: 'Observação atualizada com sucesso.' });
     } catch (error) {
       return res
         .status(500)
