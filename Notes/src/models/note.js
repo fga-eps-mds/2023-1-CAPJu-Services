@@ -27,8 +27,8 @@ class NoteModel extends Model {
       },
       {
         sequelize,
-        tableName: "note",
-      }
+        tableName: 'note',
+      },
     );
   }
 }
