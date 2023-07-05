@@ -2,7 +2,7 @@ import supertest from "supertest";
 import { app } from "../TestApp.js";
 import { Note } from "../../src/models/_index.js";
 
-jest.mock("../../src/models/Notes.js");
+jest.mock("../../src/models/note.js");
 
 describe("role endpoints", () => {
   beforeEach(() => {

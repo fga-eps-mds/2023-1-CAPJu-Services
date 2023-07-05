@@ -18,5 +18,7 @@ sequelizeConfig.sync().then(() => {
 });
 
 app.listen(port, () => {
-  console.info(`Escutando na porta ${port}! \n`);
+  console.info(
+    `Serviço de Observação entre Etapas - Escutando na porta ${port}! \n`,
+  );
 });
