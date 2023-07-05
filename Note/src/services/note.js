@@ -13,7 +13,7 @@ class NoteService {
     });
   }
 
-  async findOneByID(idNote) {
+  async findOneById(idNote) {
     return this.note.findOne({
       where: { idNote: idNote },
     });
@@ -29,7 +29,7 @@ class NoteService {
       { where: { idNote } },
     );
     if (updatedRows) {
-      const updatedNote = await this.findOneByFlowId(idNote);
+      const updatedNote = await this.findOneById(idNote);
       return updatedNote;
     } else {
       return false;
