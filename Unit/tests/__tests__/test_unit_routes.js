@@ -1,7 +1,5 @@
 import 'dotenv/config';
 import axios from 'axios';
-import Unit from '../../src/models/unit.js';
-import { ROLE } from '../../src/schemas/role.js';
 import { UnitController } from '../../src/controllers/unit.js';
 
 jest.mock('axios');
