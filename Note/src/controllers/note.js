@@ -53,7 +53,7 @@ export class NoteController {
     }
   };
 
-  async update(req, res) {
+  update = async (req, res) => {
     const { commentary } = req.body;
     const { idNote } = req.params;
 
