@@ -1,8 +1,8 @@
 import supertest from "supertest";
-import { app } from "../TestApp";
-import Note from "../../models/Notes.js";
+import { app } from "../TestApp.js";
+import { Note } from "../../src/models/_index.js";
 
-jest.mock("../../models/Notes.js");
+jest.mock("../../src/models/Notes.js");
 
 describe("role endpoints", () => {
   beforeEach(() => {
