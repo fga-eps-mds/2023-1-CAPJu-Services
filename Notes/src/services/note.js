@@ -7,8 +7,8 @@ class NoteService {
     return this.note.create(note);
   }
 
-  async findOneByRecord(record) {
-    return this.note.findOne({
+  async findAllByRecord(record) {
+    return this.note.findAll({
       where: { record: record },
     });
   }
