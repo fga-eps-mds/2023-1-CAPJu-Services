@@ -27,7 +27,7 @@ describe("role endpoints", () => {
       idStageB: 2,
     };
 
-    noteController.noteService.create = jest
+    noteController.noteService.createNote = jest
       .fn()
       .mockResolvedValue(testNote);
 
@@ -47,7 +47,7 @@ describe("role endpoints", () => {
     };
 
     const errorMessage = "Database error";
-    noteController.noteService.create = jest
+    noteController.noteService.createNote = jest
       .fn()
       .mockRejectedValue(new Error(errorMessage));
 
@@ -154,7 +154,7 @@ describe("role endpoints", () => {
       idStageB: 2,
     };
 
-    noteController.noteService.findOneByID = jest
+    noteController.noteService.findOneById = jest
       .fn()
       .mockResolvedValue(testNote);
     noteController.noteService.deleteNoteById = jest
@@ -170,7 +170,7 @@ describe("role endpoints", () => {
 
   test("delete - failed to remove note", async () => {
     const errorMessage = "Database error";
-    noteController.noteService.findOneByID = jest
+    noteController.noteService.findOneById = jest
       .fn()
       .mockRejectedValue(new Error(errorMessage));
 
@@ -184,7 +184,7 @@ describe("role endpoints", () => {
   });
 
   test("delete - note not found", async () => {
-    noteController.noteService.findOneByID = jest
+    noteController.noteService.findOneById = jest
       .fn()
       .mockResolvedValue(false);
 

@@ -20,7 +20,7 @@ export class NoteController {
   newNote = async (req, res) => {
     const { commentary, record, idStageA, idStageB } = req.body;
     try {
-      const note = await this.noteService.create({
+      const note = await this.noteService.createNote({
         commentary,
         record,
         idStageA,
@@ -37,7 +37,7 @@ export class NoteController {
   delete = async (req, res) => {
     const { idNote } = req.params;
     try {
-      const note = await this.noteService.findOneByID(idNote);
+      const note = await this.noteService.findOneById(idNote);
       if (!note) {
         return res.status(400).json({ error: `idNote ${idNote} não existe!` });
       } else {
