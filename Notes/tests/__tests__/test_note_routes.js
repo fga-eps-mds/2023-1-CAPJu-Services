@@ -18,7 +18,7 @@ describe("role endpoints", () => {
     };
 
     Note.create.mockResolvedValue(testNote);
-    Note.findOne.mockResolvedValue(testNote);
+    Note.findAll.mockResolvedValue(testNote);
 
     const response = await supertest(app).post("/newNote").send(testNote);
     expect(response.status).toBe(200);
