@@ -8,7 +8,7 @@ const resMock = {
   json: jest.fn(),
 };
 
-describe("role endpoints", () => {
+describe("note endpoints", () => {
   let noteController;
 
   beforeEach(() => {
