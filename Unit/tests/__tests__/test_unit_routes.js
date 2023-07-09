@@ -1,8 +1,8 @@
-import 'dotenv/config';
-import axios from 'axios';
-import { UnitController } from '../../src/controllers/unit.js';
+import controllers from "../../src/controllers/_index.js";
+import services from "../../src/services/_index.js";
+import axios from "axios";
 
-jest.mock('axios');
+jest.mock("axios");
 
 const reqMock = {};
 const resMock = {
@@ -10,252 +10,397 @@ const resMock = {
   json: jest.fn(),
 };
 
-describe('UnitController', () => {
-  let unitController;
-
-  beforeEach(() => {
-    unitController = new UnitController();
-  });
-
+describe("unit endpoints", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('getAllUnits', () => {
-    it('should return all units when they exist', async () => {
-      const units = [
-        { id: 1, name: 'Unit 1' },
-        { id: 2, name: 'Unit 2' },
-      ];
-      unitController.unitService.getAllUnits = jest
-        .fn()
-        .mockResolvedValue(units);
+  test("index - list all units (200)", async () => {
+    services.unitService.getAllUnits = jest.fn().mockResolvedValue([]);
+    services.unitService.countRows = jest.fn().mockResolvedValue(0);
 
-      await unitController.index(reqMock, resMock);
+    reqMock.query = {
+      limit: 1,
+      offset: 0,
+      filter: 0,
+    };
+    await controllers.unitController.index(reqMock, resMock);
 
-      expect(resMock.status).toHaveBeenCalledWith(200);
-      expect(resMock.json).toHaveBeenCalledWith(units);
-    });
-
-    it('should return a 401 status and message when no units exist', async () => {
-      unitController.unitService.getAllUnits = jest
-        .fn()
-        .mockResolvedValue(null);
-
-      await unitController.index(reqMock, resMock);
-
-      expect(resMock.status).toHaveBeenCalledWith(401);
-      expect(resMock.json).toHaveBeenCalledWith({
-        message: 'Não Existe unidades',
-      });
-    });
-
-    it('should return a 500 status and error message when an error occurs', async () => {
-      const errorMessage = 'Erro ao buscar unidades';
-      unitController.unitService.getAllUnits = jest
-        .fn()
-        .mockRejectedValue(new Error(errorMessage));
-
-      await unitController.index(reqMock, resMock);
-
-      expect(resMock.status).toHaveBeenCalledWith(500);
-      expect(resMock.json).toHaveBeenCalledWith({
-        message: 'Erro ao buscar unidades',
-      });
-    });
+    expect(resMock.json).toHaveBeenCalledWith({ units: [], totalPages: 0 });
+    expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  describe('store', () => {
-    it('should create a new unit and return it', async () => {
-      const unitName = 'New Unit';
-      const createdUnit = { id: 1, name: unitName };
-      unitController.unitService.createUnit = jest
-        .fn()
-        .mockResolvedValue(createdUnit);
-      reqMock.body = { name: unitName };
-
-      await unitController.store(reqMock, resMock);
-
-      expect(resMock.json).toHaveBeenCalledWith(createdUnit);
+  test("index - failed to list (500)", async () => {
+    const error = new Error("Internal Error");
+    services.unitService.getAllUnits = jest.fn().mockRejectedValue(error);
+    await controllers.unitController.index(reqMock, resMock);
+    expect(resMock.json).toHaveBeenCalledWith({
+      error,
+      message: "Erro ao listar unidades",
     });
-
-    it('should return a 500 status and error message when an error occurs', async () => {
-      const unitName = 'New Unit';
-      const errorMessage = 'Erro ao criar unidade';
-      unitController.unitService.createUnit = jest
-        .fn()
-        .mockRejectedValue(new Error(errorMessage));
-      reqMock.body = { name: unitName };
-
-      await unitController.store(reqMock, resMock);
-
-      expect(resMock.status).toHaveBeenCalledWith(500);
-      expect(resMock.json).toHaveBeenCalledWith({
-        error: expect.any(Error),
-        message: 'Erro ao criar unidade',
-      });
-    });
+    expect(resMock.status).toHaveBeenCalledWith(500);
   });
 
-  describe('update', () => {
-    it('should update a unit and return a success message when update is successful', async () => {
-      unitController.unitService.updateUnit = jest.fn().mockResolvedValue(true);
-      const unitName = 'New Unit Name';
-      reqMock.body = { name: unitName };
+  test("store - create unit (200)", async () => {
+    const newUnit = {
+      idUnit: 1,
+      name: "New unit",
+    };
+    services.unitService.createUnit = jest.fn().mockResolvedValue(newUnit);
 
-      await unitController.update(reqMock, resMock);
+    reqMock.body = newUnit.name;
+    await controllers.unitController.store(reqMock, resMock);
 
-      expect(resMock.status).toHaveBeenCalledWith(200);
-      expect(resMock.json).toHaveBeenCalledWith({
-        message: 'Unidade atualizado com sucesso',
-      });
-    });
-
-    it('should return a failure message with status 400 when unit update fails', async () => {
-      unitController.unitService.updateUnit = jest
-        .fn()
-        .mockResolvedValue(false);
-      const unitName = 'New Unit Name';
-      reqMock.body = { name: unitName };
-
-      await unitController.update(reqMock, resMock);
-
-      expect(resMock.status).toHaveBeenCalledWith(400);
-      expect(resMock.json).toHaveBeenCalledWith({
-        message: 'Unidade não atualizada',
-      });
-    });
-
-    it('should return a 500 status and error message when an error occurs', async () => {
-      const errorMessage = 'Error updating unit';
-      unitController.unitService.updateUnit = jest
-        .fn()
-        .mockRejectedValue(new Error(errorMessage));
-      const unitName = 'New Unit Name';
-      reqMock.body = { name: unitName };
-
-      await unitController.update(reqMock, resMock);
-
-      expect(resMock.status).toHaveBeenCalledWith(500);
-      expect(resMock.json).toHaveBeenCalledWith({
-        error: new Error(errorMessage),
-        message: 'Erro ao atualizar unidade',
-      });
-    });
+    expect(resMock.json).toHaveBeenCalledWith(newUnit);
+    expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  describe('delete', () => {
-    it('should delete a unit and return a success message when deletion is successful', async () => {
-      const unitId = 1;
-      reqMock.body = { idUnit: unitId };
-      const unitMock = {
-        destroy: jest.fn(),
-      };
-      unitController.unitService.getUnitById = jest
-        .fn()
-        .mockResolvedValue(unitMock);
+  test("store - failed to create unit (500)", async () => {
+    const error = new Error("Internal Error");
+    services.unitService.createUnit = jest.fn().mockRejectedValue(error);
 
-      await unitController.delete(reqMock, resMock);
+    reqMock.body = { name: "Unidade" };
+    await controllers.unitController.store(reqMock, resMock);
 
-      expect(unitController.unitService.getUnitById).toHaveBeenCalledWith(
-        unitId,
-      );
-      expect(unitMock.destroy).toHaveBeenCalled();
-      expect(resMock.status).toHaveBeenCalledWith(200);
-      expect(resMock.json).toHaveBeenCalledWith({
-        message: 'Unidade apagada com sucesso',
-      });
+    expect(resMock.json).toHaveBeenCalledWith({
+      error,
+      message: "Erro ao criar unidade",
     });
-
-    it('should return a 404 status and error message when unit does not exist', async () => {
-      const unitId = 1;
-      reqMock.body = { idUnit: unitId };
-      unitController.unitService.getUnitById = jest
-        .fn()
-        .mockResolvedValue(null);
-
-      await unitController.delete(reqMock, resMock);
-
-      expect(unitController.unitService.getUnitById).toHaveBeenCalledWith(
-        unitId,
-      );
-      expect(resMock.status).toHaveBeenCalledWith(404);
-      expect(resMock.json).toHaveBeenCalledWith({
-        error: 'Unidade não existe!',
-      });
-    });
-
-    it('should return a 500 status and error message when an error occurs', async () => {
-      const unitId = 1;
-      reqMock.body = { idUnit: unitId };
-      const errorMessage = 'Error deleting unit';
-      unitController.unitService.getUnitById = jest
-        .fn()
-        .mockRejectedValue(new Error(errorMessage));
-
-      await unitController.delete(reqMock, resMock);
-
-      expect(unitController.unitService.getUnitById).toHaveBeenCalledWith(
-        unitId,
-      );
-      expect(resMock.status).toHaveBeenCalledWith(500);
-      expect(resMock.json).toHaveBeenCalledWith({
-        error: new Error(errorMessage),
-        message: 'Erro ao apagar unidade',
-      });
-    });
+    expect(resMock.status).toHaveBeenCalledWith(500);
   });
 
-  describe('getAdminsByUnitId', () => {
-    it('should return admins of a unit when the request is successful', async () => {
-      const idUnit = 1;
-      const admins = [
-        { id: 1, name: 'Admin 1' },
-        { id: 2, name: 'Admin 2' },
-      ];
-      reqMock.params = { idUnit };
-      axios.get.mockResolvedValue({ data: admins });
+  test("update - set new name (200)", async () => {
+    const unit = {
+      idUnit: 1,
+      name: "New unit",
+      set: jest.fn(),
+      save: jest.fn(),
+    };
+    services.unitService.getUnitById = jest.fn().mockResolvedValue(unit);
 
-      await unitController.showAdminsByUnitId(reqMock, resMock);
+    reqMock.body = {
+      idUnit: 1,
+      name: "Unidade",
+    };
+    await controllers.unitController.update(reqMock, resMock);
 
-      expect(axios.get).toHaveBeenCalledWith(
-        `${process.env.USER_URL_API}/admins/unit/${idUnit}`,
-      );
-      expect(resMock.status).toHaveBeenCalledWith(200);
-      expect(resMock.json).toHaveBeenCalledWith(admins);
-    });
-
-    it('should return a 401 status and message when there are no admins in the unit', async () => {
-      const idUnit = 1;
-      reqMock.params = { idUnit };
-      axios.get.mockResolvedValue({ data: [] });
-
-      await unitController.showAdminsByUnitId(reqMock, resMock);
-
-      expect(axios.get).toHaveBeenCalledWith(
-        `${process.env.USER_URL_API}/admins/unit/${idUnit}`,
-      );
-      expect(resMock.status).toHaveBeenCalledWith(401);
-      expect(resMock.json).toHaveBeenCalledWith({
-        message: 'Não existem usuários adminstradores nessa unidade',
-      });
-    });
-
-    it('should return a 500 status and error message when an error occurs', async () => {
-      const idUnit = 1;
-      reqMock.params = { idUnit };
-      const errorMessage = 'Erro ao buscar administradores';
-      axios.get.mockRejectedValue(new Error(errorMessage));
-
-      await unitController.showAdminsByUnitId(reqMock, resMock);
-
-      expect(axios.get).toHaveBeenCalledWith(
-        `${process.env.USER_URL_API}/admins/unit/${idUnit}`,
-      );
-      expect(resMock.status).toHaveBeenCalledWith(500);
-      expect(resMock.json).toHaveBeenCalledWith({
-        error: 'Erro ao buscar administradores',
-      });
-    });
+    expect(resMock.json).toHaveBeenCalledWith({ message: 'Unidade atualizado com sucesso' });
+    expect(resMock.status).toHaveBeenCalledWith(200);
   });
+
+  test("update - failed to update unit (404)", async () => {
+    services.unitService.getUnitById = jest.fn().mockResolvedValue(false);
+
+    reqMock.body = {
+      idUnit: 1,
+      name: "Unidade",
+    };
+    await controllers.unitController.update(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Essa unidade não existe!",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(404);
+  });
+
+  test("update - failed to update unit (500)", async () => {
+    const error = new Error("Internal Error");
+    services.unitService.getUnitById = jest.fn().mockRejectedValue(error);
+
+    await controllers.unitController.update(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error,
+      message: 'Erro ao atualizar unidade',
+    });
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
+  test("delete - unit removed (200)", async () => {
+    const unit = {
+      idUnit: 1,
+      name: "New unit",
+      destroy: jest.fn(),
+    };
+    services.unitService.getAllUnits = jest.fn().mockResolvedValue([]);
+    services.unitService.getUnitById = jest.fn().mockResolvedValue(unit);
+
+    const users_response =
+    {
+      data: []
+    }
+    axios.get.mockResolvedValueOnce(users_response);
+
+    reqMock.body = { idUnit: unit.idUnit };
+    await controllers.unitController.delete(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({ message: 'Unidade apagada com sucesso', });
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("delete - unit does not exist (204)", async () => {
+    services.unitService.getAllUnits = jest.fn().mockResolvedValue([]);
+    services.unitService.getUnitById = jest.fn().mockResolvedValue(false);
+
+    reqMock.body = { idUnit: 1 };
+    await controllers.unitController.delete(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Essa unidade não existe!",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(204);
+  });
+
+  test("delete - unit has users (409)", async () => {
+    const testUser = {
+      fullName: "nome",
+      cpf: "12345678912",
+      email: "aa@bb.com",
+      password: "pw123456",
+      idUnit: 1,
+      idRole: 3,
+    };
+
+    services.unitService.getUnitById = jest.fn().mockResolvedValue(testUser);
+    const users_response =
+    {
+      data: [{
+        cpf: '12345678901',
+        fullName: 'Usuário Administrador Inicial',
+        email: 'email@emaill.com',
+        password: '123Teste',
+        accepted: true,
+        idUnit: 1,
+        idRole: 5,
+      }]
+    }
+    axios.get.mockResolvedValueOnce(users_response);
+    reqMock.body = { idUnit: 1 };
+    await controllers.unitController.delete(reqMock, resMock);
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Há usuários na unidade",
+      message: `Há 1 usuários nesta unidade.`,
+    });
+    expect(resMock.status).toHaveBeenCalledWith(409);
+  });
+
+  test("delete - failed to delete unit (500)", async () => {
+    const error = new Error("Internal Error");
+    services.unitService.getUnitById = jest.fn().mockRejectedValue(error);
+
+    await controllers.unitController.delete(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error,
+      message: 'Erro ao apagar unidade',
+    });
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
+  test("showAdminsByUnitId - there are admins (200)", async () => {
+    const users_response =
+    {
+      data: [{
+        cpf: '12345678901',
+        fullName: 'Usuário Administrador Inicial',
+        email: 'email@emaill.com',
+        password: '123Teste',
+        accepted: true,
+        idUnit: 1,
+        idRole: 5,
+      }]
+    }
+    axios.get.mockResolvedValueOnce(users_response);
+
+    reqMock.params = { id: 1 };
+    await controllers.unitController.showAdminsByUnitId(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith(users_response.data);
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("showAdminsByUnitId - there are no admins (204)", async () => {
+    const users_response =
+    {
+      data: []
+    }
+    axios.get.mockResolvedValueOnce(users_response);
+
+    reqMock.params = { id: 1 };
+    await controllers.unitController.showAdminsByUnitId(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Não há administradores para essa unidade",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(204);
+  });
+
+  test("showAdminsByUnitId - Failed to show units admin (500)", async () => {
+    const error = new Error("Internal Error");
+    services.unitService.getUnitById = jest.fn().mockRejectedValue(error);
+
+    await controllers.unitController.showAdminsByUnitId(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: 'Erro ao buscar administradores',
+    });
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
+  test("setUnitAdmin - Set accepted user as admin (200)", async () => {
+    const userAdmin =
+    {
+      data: {
+        cpf: '12345678901',
+        fullName: 'Usuário Administrador Inicial',
+        email: 'email@emaill.com',
+        password: '123Teste',
+        accepted: true,
+        idUnit: 1,
+        idRole: 5,
+      }
+    }
+    axios.get.mockResolvedValueOnce(userAdmin);
+    const userUpdated =
+    {
+      data: {
+        cpf: '12345678901',
+        fullName: 'Usuário Administrador Inicial',
+        email: 'email@emaill.com',
+        password: '123Teste',
+        accepted: true,
+        idUnit: 1,
+        idRole: 5,
+      }
+    }
+    axios.get.mockResolvedValueOnce(userUpdated);
+    reqMock.body = {
+      idUnit: userAdmin.data.idUnit,
+      cpf: userAdmin.data.cpf,
+    };
+    await controllers.unitController.setUnitAdmin(reqMock, resMock);
+    expect(resMock.json).toHaveBeenCalledWith({
+      cpf: '12345678901',
+      fullName: 'Usuário Administrador Inicial',
+      email: 'email@emaill.com',
+      password: '123Teste',
+      accepted: true,
+      idUnit: 1,
+      idRole: 5,
+    });
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("setUnitAdmin - There are no accepted users for the unit (404)", async () => {
+    const userAdmin = {}
+    axios.get.mockResolvedValueOnce(userAdmin);
+
+    reqMock.body = {
+      idUnit: 1,
+      cpf: "12345678912",
+    };
+    await controllers.unitController.setUnitAdmin(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Usuário aceito não existe nesta unidade",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(404);
+  });
+
+  test("setUnitAdmin - Failed to set new admin (500)", async () => {
+    const error = new Error("Internal Error");
+    services.unitService.getUnitById = jest.fn().mockRejectedValue(error);
+
+    await controllers.unitController.setUnitAdmin(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: 'Erro ao configurar usuário como administrador',
+    });
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
+  test("removeUnitAdmin - user not found (404)", async () => {
+    const userAdmin =
+    {
+
+    }
+    axios.get.mockResolvedValueOnce(userAdmin);
+
+    const userUpdated =
+    {
+      data: {
+        cpf: '12345678901',
+        fullName: 'Usuário Administrador Inicial',
+        email: 'email@emaill.com',
+        password: '123Teste',
+        accepted: true,
+        idUnit: 1,
+        idRole: 5,
+      }
+    }
+    axios.get.mockResolvedValueOnce(userUpdated);
+
+    reqMock.body = {
+      idUnit: 1,
+      cpf: "12345678912",
+    };
+    await controllers.unitController.removeUnitAdmin(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: "Usuário não existe nesta unidade",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(404);
+  });
+
+  test("removeUnitAdmin - user removed (200)", async () => {
+    const userAdmin =
+    {
+      data: {
+        cpf: '12345678901',
+        fullName: 'Usuário Administrador Inicial',
+        email: 'email@emaill.com',
+        password: '123Teste',
+        accepted: true,
+        idUnit: 1,
+        idRole: 5,
+      }
+    }
+    axios.get.mockResolvedValueOnce(userAdmin);
+
+    const userUpdated =
+    {
+      data: {
+        cpf: '12345678901',
+        fullName: 'Usuário Administrador Inicial',
+        email: 'email@emaill.com',
+        password: '123Teste',
+        accepted: true,
+        idUnit: 1,
+        idRole: 5,
+      }
+    }
+    axios.get.mockResolvedValueOnce(userUpdated);
+
+    reqMock.body = {
+      idUnit: userAdmin.data.idUnit,
+      cpf: userAdmin.data.cpf,
+    };
+    await controllers.unitController.removeUnitAdmin(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith(userUpdated.data);
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("removeUnitAdmin - Failed to remove admin (500)", async () => {
+    const error = new Error("Internal Error");
+    services.unitService.getUnitById = jest.fn().mockRejectedValue(error);
+
+    await controllers.unitController.removeUnitAdmin(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: 'Erro ao remover usuário como administrador'
+    });
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
 });
