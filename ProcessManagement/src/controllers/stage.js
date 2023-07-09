@@ -1,18 +1,17 @@
-import 'dotenv/config';
-import services from '../services/_index.js';
+import { StageService } from '../services/_index.js';
 
 export class StageController {
   constructor() {
-    this.stageService = services.stageService;
+    this.stageService = new StageService();
   }
 
   index = async (req, res) => {
     try {
-      const stages = await this.stageService.findAll();
-      if (!stages) {
-        return res
-          .status(401)
-          .json({ message: 'Não existem etapas cadatradas' });
+      const { offset, limit } = req.query;
+      const stages = await this.stageService.findAll(offset, limit);
+
+      if (!stages || stages.length === 0) {
+        return res.status(401).json([]);
       } else {
         return res.status(200).json(stages);
       }

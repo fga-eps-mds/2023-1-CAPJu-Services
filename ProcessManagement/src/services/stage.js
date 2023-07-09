@@ -2,8 +2,13 @@ class StageService {
   constructor(StageModel) {
     this.stage = StageModel;
   }
-  async findAll() {
-    return this.stage.findAll();
+
+  async findAll(offset = 0, limit = 10) {
+    return this.stage.findAll({
+      where,
+      offset,
+      limit,
+    });
   }
 
   async findOneByStageId(idStage) {
