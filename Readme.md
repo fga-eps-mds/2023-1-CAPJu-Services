@@ -30,7 +30,7 @@ Este repositório contém o código-fonte do backend do projeto CAPJu, seguindo 
 ## Arquitetura
 
 <div align="center">
-<img src="./assets/arquitetura.jpeg" width=600px />
+<img src="./assets/DAS-CAPJU.png" width=600px />
 </div>
 ## Instalação
 
