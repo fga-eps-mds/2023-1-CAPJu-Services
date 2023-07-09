@@ -18,7 +18,6 @@ export class FlowStageController {
 
       return res.status(200).json(flowStages);
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: 'Erro ao ler fluxos ligados a etapas' });
@@ -38,7 +37,7 @@ export class FlowStageController {
 
       if (deletedFlowStage === 0) {
         return res.status(404).json({
-          message: `Não há relacionameto entre o fluxo '${idFlow}' e as etapas '${idStageA}' e '${idStageB}'`,
+          message: `Não há relacionamento entre o fluxo '${idFlow}' e as etapas '${idStageA}' e '${idStageB}'`,
         });
       }
 
