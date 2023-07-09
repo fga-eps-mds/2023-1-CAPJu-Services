@@ -2,8 +2,17 @@ class UnitService {
   constructor(UnitModel) {
     this.unit = UnitModel;
   }
-  async getAllUnits() {
-    return this.unit.findAll();
+
+  async getAllUnits(where, offset, limit) {
+    return this.unit.findAll({
+      where,
+      offset: offset,
+      limit: limit,
+    });
+  }
+
+  async countRows({ where }) {
+    return this.unit.count({ where });
   }
 
   async createUnit(name) {

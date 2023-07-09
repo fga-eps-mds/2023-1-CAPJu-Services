@@ -9,6 +9,7 @@ UnitRoutes.get(
   controllers.unitController.showAdminsByUnitId,
 );
 UnitRoutes.post('/setUnitAdmin', controllers.unitController.setUnitAdmin);
+UnitRoutes.post('/removeUnitAdmin', controllers.unitController.removeUnitAdmin);
 UnitRoutes.post('/newUnit', controllers.unitController.store);
 UnitRoutes.put('/updateUnit', controllers.unitController.update);
 UnitRoutes.delete('/deleteUnit', controllers.unitController.delete);
