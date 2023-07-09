@@ -11,7 +11,7 @@ export class FlowUserController {
       const flowsUsers = await this.flowUserService.findAll();
       if (!flowsUsers) {
         return res
-          .status(401)
+          .status(404)
           .json({ message: 'Não existem fluxos de usuários cadatradas' });
       } else {
         return res.status(200).json(flowsUsers);
