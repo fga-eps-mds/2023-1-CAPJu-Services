@@ -30,13 +30,13 @@ describe('PriorityController', () => {
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  test("index - return message (204)", async () => {
+  test("index - return message (404)", async () => {
     priorityController.priorityService.findAll = jest.fn().mockResolvedValue(false);
 
     await priorityController.index(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({ message: "Não existem prioridades cadatradas" });
-    expect(resMock.status).toHaveBeenCalledWith(204);
+    expect(resMock.status).toHaveBeenCalledWith(404);
   });
 
   test("index - internal server error (500)", async () => {

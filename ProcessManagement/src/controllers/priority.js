@@ -11,7 +11,7 @@ export class PriorityController {
       const priorities = await this.priorityService.findAll();
       if (!priorities) {
         return res
-          .status(204)
+          .status(404)
           .json({ message: 'Não existem prioridades cadatradas' });
       } else {
         return res.status(200).json(priorities);
