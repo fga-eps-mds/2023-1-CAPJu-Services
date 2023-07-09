@@ -11,24 +11,28 @@ jobs:
           cd ../Unit && yarn
           cd ../User && yarn
           cd ../ProcessManagement && yarn
+          cd ../Note && yarn
       - name: Check code style
         run: |
           cd Mailer && yarn check-format
           cd ../Unit && yarn check-format
           cd ../User && yarn check-format
           cd ../ProcessManagement && yarn check-format
+          cd ../Note && yarn check-format
       - name: Lint Analysis
         run: |
           cd Mailer && yarn eslint src
           cd ../Unit && yarn eslint src
           cd ../User && yarn eslint src
           cd ../ProcessManagement && yarn eslint src
+          cd ../Note && yarn eslint src
       - name: Tests
         run: |
           cd Mailer && yarn test
           cd ../Unit && yarn test
           cd ../User && yarn test
           cd ../ProcessManagement && yarn test --passWithNoTests # TODO: remove this
+          cd ../Notes && yarn test
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-22.04
@@ -42,14 +46,52 @@ jobs:
           cd ../Unit && yarn
           cd ../User && yarn
           cd ../ProcessManagement && yarn
+          cd ../Notes && yarn
       - name: Test and coverage
         run: |
           cd Mailer && yarn test
           cd ../Unit && yarn test
           cd ../User && yarn test
           cd ../ProcessManagement && yarn test --passWithNoTests # TODO: remove this
-      - name: SonarCloud Scan
+          cd ../Note && yarn test
+      - name: Mailer -  SonarCloud Scan 
+        run: |
+          cd Mailer && yarn test
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.MAILER_SONAR_TOKEN }}
+      - name: Unit - SonarCloud Scan
+        run: |
+          cd Unit && yarn test
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.UNIT_SONAR_TOKEN }}
+      - name: User - SonarCloud Scan
+        run: |
+          cd User && yarn test
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.USER_SONAR_TOKEN }}
+      - name: Note - SonarCloud Scan
+        run: |
+          cd Note && yarn test
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.NOTE_SONAR_TOKEN }}
+      - name: ProcessMangement - SonarCloud Scan
+        run: |
+          cd ProcessManagement && yarn test
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.PRCESSMANEGEMENT_SONAR_TOKEN }}
+      - name: Services Geral - SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SERVICES_SONAR_TOKEN }}
+      
