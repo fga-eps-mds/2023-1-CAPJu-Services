@@ -70,7 +70,7 @@ class UserService {
     return this.user.findAll({
       where: {
         idUnit: idUnit,
-        idRole: 1,
+        idRole: 5,
       },
     });
   }

@@ -35,8 +35,6 @@ jobs:
           git commit -m "Métricas SonarCloud Services Mailer - ${{ github.event.repository.name }} ${{ github.ref_name }}"
           git push
           echo "Arquivos de métricas gerado com sucesso."
-
-jobs:
   generate-release-unit:
     runs-on: ubuntu-latest
     steps:
@@ -66,8 +64,6 @@ jobs:
           git commit -m "Métricas SonarCloud  Services Unit - ${{ github.event.repository.name }} ${{ github.ref_name }}"
           git push
           echo "Arquivos de métricas gerado com sucesso."
-
-jobs:
   generate-release-User:
     runs-on: ubuntu-latest
     steps:
@@ -97,8 +93,6 @@ jobs:
           git commit -m "Métricas SonarCloud Services USER - ${{ github.event.repository.name }} ${{ github.ref_name }}"
           git push
           echo "Arquivos de métricas gerado com sucesso."
-
-jobs:
   generate-release-note:
     runs-on: ubuntu-latest
     steps:
@@ -128,8 +122,6 @@ jobs:
           git commit -m "Métricas SonarCloud Services Note - ${{ github.event.repository.name }} ${{ github.ref_name }}"
           git push
           echo "Arquivos de métricas gerado com sucesso."
-
-jobs:
   generate-release-processmanagement:
     runs-on: ubuntu-latest
     steps:
@@ -159,8 +151,6 @@ jobs:
           git commit -m "Métricas SonarCloud Processmanagement- ${{ github.event.repository.name }} ${{ github.ref_name }}"
           git push
           echo "Arquivos de métricas gerado com sucesso."
-
-jobs:
   generate-release-services:
     runs-on: ubuntu-latest
     steps:
