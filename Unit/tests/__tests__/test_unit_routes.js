@@ -70,13 +70,7 @@ describe("unit endpoints", () => {
   });
 
   test("update - set new name (200)", async () => {
-    const unit = {
-      idUnit: 1,
-      name: "New unit",
-      set: jest.fn(),
-      save: jest.fn(),
-    };
-    services.unitService.getUnitById = jest.fn().mockResolvedValue(unit);
+    services.unitService.updateUnit = jest.fn().mockResolvedValue(true);
 
     reqMock.body = {
       idUnit: 1,
@@ -89,7 +83,7 @@ describe("unit endpoints", () => {
   });
 
   test("update - failed to update unit (404)", async () => {
-    services.unitService.getUnitById = jest.fn().mockResolvedValue(false);
+    services.unitService.updateUnit = jest.fn().mockResolvedValue(false);
 
     reqMock.body = {
       idUnit: 1,
@@ -105,7 +99,7 @@ describe("unit endpoints", () => {
 
   test("update - failed to update unit (500)", async () => {
     const error = new Error("Internal Error");
-    services.unitService.getUnitById = jest.fn().mockRejectedValue(error);
+    services.unitService.updateUnit = jest.fn().mockRejectedValue(error);
 
     await controllers.unitController.update(reqMock, resMock);
 
