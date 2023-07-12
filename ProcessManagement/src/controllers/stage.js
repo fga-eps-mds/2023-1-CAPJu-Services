@@ -50,6 +50,32 @@ export class StageController {
     }
   };
 
+  update = async (req, res) => {
+    try {
+      const { idStage, name, duration } = req.body;
+      const updated = await this.stageService.updateStage(
+        idStage,
+        name,
+        duration,
+      );
+      console.log(updated);
+      if (updated) {
+        return res.status(200).json({
+          message: 'Etapa atualizada com sucesso',
+        });
+      } else {
+        return res.status(404).json({
+          message: 'Essa etapa não existe!',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        error,
+        message: 'Erro ao atualizar etapa',
+      });
+    }
+  };
+
   delete = async (req, res) => {
     const { idStage } = req.params;
     try {
