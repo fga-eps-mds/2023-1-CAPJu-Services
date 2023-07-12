@@ -1,5 +1,7 @@
+
 import 'dotenv/config';
 import services from '../services/_index.js';
+import { filterByName } from '../utils/filters.js';
 
 export class StageController {
   constructor() {
@@ -8,13 +10,23 @@ export class StageController {
 
   index = async (req, res) => {
     try {
-      const stages = await this.stageService.findAll();
-      if (!stages) {
-        return res
-          .status(401)
-          .json({ message: 'Não existem etapas cadastradas' });
+      const { idUnit, idRole } = req.body;
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByName(req),
+        ...unitFilter,
+      };
+
+      const data = { where, offset: req.query.offset, limit: req.query.limit };
+      const stages = await this.stageService.findByUnit(data);
+      const totalCount = await this.stageService.countStage(where);
+      const totalPages = Math.ceil(totalCount / parseInt(limit, 10));
+  
+
+      if (!stages || stages.length === 0) {
+        return res.status(204).json([]);
       } else {
-        return res.status(200).json(stages);
+        return res.status(200).json({ stages: stages || [], totalPages });
       }
     } catch (error) {
       return res.status(500).json({ message: 'Erro ao buscar etapas' });
