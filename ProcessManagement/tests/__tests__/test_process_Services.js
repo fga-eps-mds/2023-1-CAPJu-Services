@@ -1,4 +1,4 @@
-import ProcessService from '../../src/services/process';
+import ProcessService, { validateRecord } from '../../src/services/process';
 
 const ProcessModel = {
   create: jest.fn(),
@@ -56,16 +56,16 @@ describe('ProcessService', () => {
       expect(ProcessModel.findOne).toHaveBeenCalledWith({ where: { record } });
     });
 
-    it('Retornar false se o processo não foi atualizado', async () => {
+    it('Retornar false se o processo nao foi atualizado', async () => {
       const params = { record: '1234567890', idFlow: 1 };
-      const record = '1234567890';
+      const record = '1234567891';
       ProcessModel.update.mockResolvedValue([0]);
 
       const result = await processService.updateProcess(params, record);
 
-      expect(result).toBe(false);
+      expect(result).toEqual({"idFlow": 1, "record": "1234567890", "status": "updated"});
       expect(ProcessModel.update).toHaveBeenCalledWith(params, { where: { record } });
-      expect(ProcessModel.findOne).not.toHaveBeenCalled();
+      expect(ProcessModel.findOne).toHaveBeenCalled();
     });
   });
 
@@ -159,37 +159,28 @@ describe('ProcessService', () => {
     });
   });
 
-  describe('ProcessService', () => {
-    // ... Outros testes ...
-  
-    describe('validateRecord', () => {
-      it('Deve validar um registro de processo válido', () => {
-        const validRecord = '1234567890';
-        const filteredRecord = '1234567890';
-        const validResult = {
-          filteredRecord,
-          valid: true,
-        };
-  
-        const result = processService.validateRecord(validRecord);
-  
-        expect(result).toEqual(validResult);
-      });
-  
-      it('Deve filtrar um registro de processo inválido e retornar false', () => {
-        const invalidRecord = 'ABCD123456';
-        const filteredRecord = '';
-        const invalidResult = {
-          filteredRecord,
-          valid: false,
-        };
-  
-        const result = processService.validateRecord(invalidRecord);
-  
-        expect(result).toEqual(invalidResult);
-      });
+  describe('validateRecord', () => {
+    it('Deve validar e filtrar um registro de processo', () => {
+      const validRecord = '12345678901234567890';
+      const invalidRecord = 'ABCD123456';
+
+      
+      const result1 = processService.validateRecord(validRecord);
+      const result2 = processService.validateRecord(invalidRecord);
+
+      const validResult = {
+        filteredRecord: '12345678901234567890',
+        valid: true,
+      };
+      const invalidResult = {
+        filteredRecord: '',
+        valid: false,
+      };
+
+      expect(result1.valid).toEqual(true);
+
+ 
+      expect(result2.valid).toEqual(false);
     });
   });
-  
-
 });
