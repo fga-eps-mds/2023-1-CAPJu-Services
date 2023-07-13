@@ -6,8 +6,6 @@ import FlowStageService from '../services/flowStage.js';
 import FlowStageModel from '../models/flowStage.js';
 import { filterByName } from '../utils/filters.js';
 
-
-
 export class FlowController {
   constructor() {
     this.flowService = services.flowService;
@@ -20,7 +18,7 @@ export class FlowController {
   index = async (_req, res) => {
     try {
       let where;
-      const { idUnit , idRole } = req.body;
+      const { idUnit, idRole } = req.body;
       const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
         ...filterByName(_req),
