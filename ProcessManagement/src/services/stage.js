@@ -16,6 +16,14 @@ class StageService {
     return this.stage.create(data);
   }
 
+  async findByUnit(data) {
+    return this.stage.findAll({data});
+  }
+
+  async countStage(data) {
+    return this.stage.count({data});
+  }
+
   async deleteStage(idStage) {
     return this.stage.destroy({ where: { idStage } });
   }
