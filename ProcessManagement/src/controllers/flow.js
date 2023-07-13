@@ -1,6 +1,12 @@
 import 'dotenv/config';
 import axios from 'axios';
 import services from '../services/_index.js';
+import FlowModel from '../models/flow.js';
+import FlowStageService from '../services/flowStage.js';
+import FlowStageModel from '../models/flowStage.js';
+import { filterByName } from '../utils/filters.js';
+
+
 
 export class FlowController {
   constructor() {
@@ -13,14 +19,37 @@ export class FlowController {
 
   index = async (_req, res) => {
     try {
-      const flows = await this.flowService.findAll();
+      let where;
+      const { idUnit , idRole } = req.body;
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByName(_req),
+        ...unitFilter,
+      };
+
+      const { limit, offset } = req.query;
+
+      const flows = limit
+        ? await FlowModel.findAll({
+            where,
+            offset: parseInt(offset),
+            limit: parseInt(limit),
+          })
+        : await FlowModel.findAll({
+            where,
+          });
+      const totalCount = await FlowModel.count({ where });
+      const totalPages = Math.ceil(totalCount / limit);
+
       let flowsWithSequences = [];
       for (const flow of flows) {
-        const flowStages = await this.flowStageService.findAllByIdFlow(
-          flow.idFlow,
-        );
+        const flowStages = await FlowStageModel.findAll({
+          where: { idFlow: flow.idFlow },
+        });
+
         const { stages, sequences } =
-          await this.flowService.stagesSequencesFromFlowStages(flowStages);
+          FlowStageService.stagesSequencesFromFlowStages(flowStages);
+
         const flowSequence = {
           idFlow: flow.idFlow,
           name: flow.name,
@@ -28,14 +57,14 @@ export class FlowController {
           stages,
           sequences,
         };
+
         flowsWithSequences.push(flowSequence);
       }
-      return res.status(200).json(flowsWithSequences);
-    } catch (error) {
-      console.log(error);
       return res
-        .status(500)
-        .json({ error, message: 'Impossível obter fluxos' });
+        .status(200)
+        .json({ flows: flowsWithSequences || [], totalPages });
+    } catch (error) {
+      return res.status(500).json(error);
     }
   };
 
