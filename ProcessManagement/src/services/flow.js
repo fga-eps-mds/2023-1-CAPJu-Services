@@ -3,8 +3,16 @@ class FlowService {
     this.flow = FlowModel;
   }
 
-  async findAll() {
-    return this.flow.findAll();
+  async findAll(where, offset, limit) {
+    return this.flow.findAll({
+      where,
+      offset: offset,
+      limit: limit,
+    });
+  }
+
+  async countRows({ where }) {
+    return this.flow.count({ where });
   }
 
   async findOneByFlowId(idFlow) {
