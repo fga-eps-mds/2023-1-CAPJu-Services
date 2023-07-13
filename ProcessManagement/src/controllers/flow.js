@@ -18,32 +18,26 @@ export class FlowController {
   index = async (_req, res) => {
     try {
       let where;
-      const { idUnit, idRole } = req.body;
+      const { idUnit, idRole } = _req.body;
       const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
         ...filterByName(_req),
         ...unitFilter,
       };
 
-      const { limit, offset } = req.query;
+      const { limit, offset } = _req.query;
 
-      const flows = limit
-        ? await FlowModel.findAll({
-            where,
-            offset: parseInt(offset),
-            limit: parseInt(limit),
-          })
-        : await FlowModel.findAll({
-            where,
-          });
-      const totalCount = await FlowModel.count({ where });
-      const totalPages = Math.ceil(totalCount / limit);
+      const flows = await this.flowService.findAll(where, offset, limit);
+      const totalCount = await this.flowService.countRows({ where });
+      const totalPages = Math.ceil(totalCount / parseInt(_req.query.limit, 10));
 
+      console.info('oioioi');
+      console.log(test);
       let flowsWithSequences = [];
       for (const flow of flows) {
-        const flowStages = await FlowStageModel.findAll({
-          where: { idFlow: flow.idFlow },
-        });
+        const flowStages = await this.flowStageService.findAllByIdFlow(
+          flow.idFlow,
+        );
 
         const { stages, sequences } =
           FlowStageService.stagesSequencesFromFlowStages(flowStages);
@@ -62,6 +56,7 @@ export class FlowController {
         .status(200)
         .json({ flows: flowsWithSequences || [], totalPages });
     } catch (error) {
+      console.log(error);
       return res.status(500).json(error);
     }
   };
