@@ -1,5 +1,8 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
+import ProcessModel from '../models/process.js';
+import FlowProcessModel from '../models/FlowProcess.js';
+import { filterByNicknameAndRecord } from '../utils/filters.js';
 
 export class ProcessController {
   constructor() {
@@ -11,16 +14,62 @@ export class ProcessController {
 
   index = async (_req, res) => {
     try {
-      const process = await this.processService.getAllProcess();
-      if (!process) {
-        return res
-          .status(404)
-          .json({ message: 'Não Existem processos cadatrados' });
+      let where;
+      const { idUnit, idRole } = _req.body;
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByNicknameAndRecord(_req),
+        ...unitFilter,
+      };
+      const offset = parseInt(_req.query.offset) || 0;
+      const limit = parseInt(_req.query.limit) || 10;
+
+      const processes = await this.processService.getAllProcess({
+        where,
+        limit,
+        offset,
+      });
+
+      if (!processes || processes.length === 0) {
+        return res.status(204).json([]);
       } else {
-        return res.status(200).json(process);
+        const processesWithFlows = [];
+        for (const process of processes) {
+          const flowProcesses = await FlowProcessModel.findAll({
+            where: {
+              record: process.record,
+            },
+          });
+
+          const flowProcessesIdFlows = flowProcesses.map(flowProcess => {
+            return flowProcess.idFlow;
+          });
+
+          processesWithFlows.push({
+            record: process.record,
+            nickname: process.nickname,
+            effectiveDate: process.effectiveDate,
+            idUnit: process.idUnit,
+            idStage: process.idStage,
+            idPriority: process.idPriority,
+            idFlow: flowProcessesIdFlows,
+            status: process.status,
+            progress: process.progress,
+          });
+        }
+
+        const totalCount = await ProcessModel.count({ where });
+        const totalPages = Math.ceil(totalCount / limit) || 0;
+
+        return res
+          .status(200)
+          .json({ processes: processesWithFlows, totalPages });
       }
     } catch (error) {
-      return res.status(500).json({ message: 'Erro ao buscar processos' });
+      return res.status(500).json({
+        error,
+        message: 'Erro ao buscar processos',
+      });
     }
   };
 
