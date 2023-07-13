@@ -12,7 +12,7 @@ export class StageController {
       if (!stages) {
         return res
           .status(401)
-          .json({ message: 'Não existem etapas cadatradas' });
+          .json({ message: 'Não existem etapas cadastradas' });
       } else {
         return res.status(200).json(stages);
       }

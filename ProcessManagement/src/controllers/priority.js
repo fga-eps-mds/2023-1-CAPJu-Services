@@ -12,7 +12,7 @@ export class PriorityController {
       if (!priorities) {
         return res
           .status(401)
-          .json({ message: 'Não existem prioridades cadatradas' });
+          .json({ message: 'Não existem prioridades cadastradas' });
       } else {
         return res.status(200).json(priorities);
       }
