@@ -1,5 +1,7 @@
 import 'dotenv/config';
 import { StageController } from '../../src/controllers/stage.js';
+import controllers from "../../src/controllers/_index.js";
+import services from "../../src/services/_index.js";
 import axios from 'axios';
 
 jest.mock('axios');
@@ -142,6 +144,47 @@ describe('StageController', () => {
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
+  test("update - set new name (200)", async () => {
+    services.stageService.updateStage = jest.fn().mockResolvedValue(true);
+
+    reqMock.body = {
+      idStage: 1,
+      name: "Etapa",
+    };
+    await controllers.stageController.update(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({ message: 'Etapa atualizada com sucesso' });
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test("update - failed to update stage (404)", async () => {
+    services.stageService.updateStage = jest.fn().mockResolvedValue(false);
+
+    reqMock.body = {
+      idStage: 1,
+      name: "Etapa",
+    };
+    await controllers.stageController.update(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: "Essa etapa não existe!",
+    });
+    expect(resMock.status).toHaveBeenCalledWith(404);
+  });
+
+  test("update - failed to update stage (500)", async () => {
+    const error = new Error("Internal Error");
+    services.stageService.updateStage = jest.fn().mockRejectedValue(error);
+
+    await controllers.stageController.update(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({
+      error,
+      message: 'Erro ao atualizar etapa',
+    });
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
+
   //checa se é possível deletar a etapa através do seu id e nome
   //caso der certo, retorna status 200
   test('delete - delete stage (200)', async () => {
@@ -197,3 +240,4 @@ describe('StageController', () => {
     expect(resMock.status).toHaveBeenCalledWith(500);
   });
 });
+
