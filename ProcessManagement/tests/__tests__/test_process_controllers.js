@@ -188,5 +188,111 @@ describe('ProcessController', () => {
       expect(resMock.status).toHaveBeenCalledWith(500);
     });
   });
+  describe('store', () => {
+    test('create process successfully (200)', async () => {
+      const mockFlow = { idFlow: 1, idUnit: 1 };
+      const mockRecordStatus = { valid: true, filteredRecord: '123' };
+
+      processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
+      processController.flowService.findOneByFlowId = jest.fn().mockResolvedValue(mockFlow);
+      processController.processService.createProcess = jest.fn();
+
+      reqMock.body = {
+        record: '123',
+        nickname: 'John Doe',
+        idPriority: 1,
+        idFlow: 1,
+        idStage: 1,
+      };
+
+      await processController.store(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: `Processo criado com sucesso.`,
+      });
+      expect(resMock.status).toHaveBeenCalledWith(200);
+    });
+
+    test('invalid record format (400)', async () => {
+      const mockRecordStatus = { valid: false, filteredRecord: 'abc' };
+
+      processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
+
+      reqMock.body = {
+        record: 'abc',
+        nickname: 'John Doe',
+        idPriority: 1,
+        idFlow: 1,
+        idStage: 1,
+      };
+
+      await processController.store(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: 'Registro fora do padrão CNJ',
+        message: `Registro 'abc' está fora do padrão CNJ`,
+      });
+      expect(resMock.status).toHaveBeenCalledWith(400);
+    });
+
+    test('flow not found (500)', async () => {
+      const mockRecordStatus = { valid: true, filteredRecord: '123' };
+
+      processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
+      processController.flowService.findOneByFlowId = jest.fn().mockRejectedValue(new Error('Flow not found'));
+
+      reqMock.body = {
+        record: '123',
+        nickname: 'John Doe',
+        idPriority: 1,
+        idFlow: 1,
+        idStage: 1,
+      };
+
+      await processController.store(reqMock, resMock);
+      
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: 'Error: Flow not found',
+        message: 'Erro ao buscar fluxo por idFlow.',
+      });
+      
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+
+  describe('getPriorityProcess', () => {
+    test('list priority processes (200)', async () => {
+      const mockPriorityProcesses = [{ id: 1, name: 'Process 1' }, { id: 2, name: 'Process 2' }];
+
+      processController.processService.getPriorityProcess = jest
+        .fn()
+        .mockResolvedValue(mockPriorityProcesses);
+
+      await processController.getPriorityProcess(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith(mockPriorityProcesses);
+      expect(resMock.status).toHaveBeenCalledWith(200);
+    });
+
+    test('no priority processes found (404)', async () => {
+      processController.processService.getPriorityProcess = jest.fn().mockResolvedValue(null);
+
+      await processController.getPriorityProcess(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({ error: 'Não há processos com prioridade legal.' });
+      expect(resMock.status).toHaveBeenCalledWith(404);
+    });
+
+    test('internal server error (500)', async () => {
+      const error = new Error('Internal Server Error');
+      processController.processService.getPriorityProcess = jest.fn().mockRejectedValue(error);
+
+      await processController.getPriorityProcess(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith(error);
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+});
 
 });
