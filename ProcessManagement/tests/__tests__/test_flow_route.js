@@ -103,5 +103,136 @@ describe("flow endpoints", () => {
       // expect(resMock.json).toHaveBeenCalledWith({ flows: [], totalPages: 0 });
       expect(resMock.status).toHaveBeenCalledWith(200);
     });
+    // faça teste para showByProcessRecord
+    test("showByProcessRecord - show flow by process record (500)", async () => {
+      services.flowService.findAll = jest.fn().mockResolvedValue([]);
+      services.flowService.countRows = jest.fn().mockResolvedValue(0);
+
+      const flows =  [{idFlow: 1, name: 'flow x'}, {idFlow: 2, name: 'flow y'}]
+      flowServiceMock.findAll = jest.fn().mockResolvedValue(flows);
+      flowServiceMock.findAllByIdFlow  = jest.fn().mockResolvedValue([]);
+      reqMock.query = {
+        limit: 1,
+        offset: 0,
+        filter: 0,
+      };
+
+      await controllers.flowController.showByProcessRecord(reqMock, resMock);
+  
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+    //faça teste showByFlowId
+    test("showByFlowId - show flow by flow id (500)", async () => {
+      services.flowService.findAll = jest.fn().mockResolvedValue([]);
+      services.flowService.countRows = jest.fn().mockResolvedValue(0);
+
+      const flows =  [{idFlow: 1, name: 'flow x'}, {idFlow: 2, name: 'flow y'}]
+      flowServiceMock.findAll = jest.fn().mockResolvedValue(flows);
+      flowServiceMock.findAllByIdFlow  = jest.fn().mockResolvedValue([]);
+      reqMock.query = {
+        limit: 1,
+        offset: 0,
+        filter: 0,
+      };
+
+      await controllers.flowController.showByFlowId(reqMock, resMock);
+  
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    }
+    );
+    //faça teste para quando o showByFlowId de 404 ou 200 com error usando o it('should...')
+    it('should return 404 when flow is not found', async () => {
+      const flowId = 1;
+      const flow = null;
+      flowServiceMock.findOneByFlowId = jest.fn().mockResolvedValue(flow);
+      await flowController.showByFlowId(reqMock, resMock);
+      expect(resMock.status).toHaveBeenCalledWith(404);
+    });
+
+    it('should return 200 when flow is found', async () => {
+      const flowId = 1;
+      const flow = {idFlow: 1, name: 'flow x'};
+      flowServiceMock.findOneByFlowId = jest.fn().mockResolvedValue(flow);
+      await flowController.showByFlowId(reqMock, resMock);
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+    //faça teste para update
+    test("update - update flow (500)", async () => {
+      services.flowService.findAll = jest.fn().mockResolvedValue([]);
+      services.flowService.countRows = jest.fn().mockResolvedValue(0);
+
+      const flows =  [{idFlow: 1, name: 'flow x'}, {idFlow: 2, name: 'flow y'}]
+      flowServiceMock.findAll = jest.fn().mockResolvedValue(flows);
+      flowServiceMock.findAllByIdFlow  = jest.fn().mockResolvedValue([]);
+      reqMock.query = {
+        limit: 1,
+        offset: 0,
+        filter: 0,
+      };
+
+      await controllers.flowController.update(reqMock, resMock);
+  
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+    it ('should return 404 when flow is not found', async () => {
+      const flowId = 1;
+      const flow = null;
+      flowServiceMock.findOneByFlowId = jest.fn().mockResolvedValue(flow);
+      await flowController.update(reqMock, resMock);
+      expect(resMock.status).toHaveBeenCalledWith(404);
+    });
+    it ('should return 200 when flow is found', async () => {
+      const flowId = 1;
+      const flow = {idFlow: 1, name: 'flow x'};
+      flowServiceMock.findOneByFlowId = jest.fn().mockResolvedValue(flow);
+      await flowController.update(reqMock, resMock);
+      expect(resMock.status).toHaveBeenCalledWith(404);
+    });
+    //faça teste para delete
+    test("delete - delete flow (500)", async () => {
+      services.flowService.findAll = jest.fn().mockResolvedValue([]);
+      services.flowService.countRows = jest.fn().mockResolvedValue(0);
+
+      const flows =  [{idFlow: 1, name: 'flow x'}, {idFlow: 2, name: 'flow y'}]
+      flowServiceMock.findAll = jest.fn().mockResolvedValue(flows);
+      flowServiceMock.findAllByIdFlow  = jest.fn().mockResolvedValue([]);
+      reqMock.query = {
+        limit: 1,
+        offset: 0,
+        filter: 0,
+      };
+
+      await controllers.flowController.delete(reqMock, resMock);
+  
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    }
+    );
+    //faça teste para showByFlowIdWithSequence
+    test("showByFlowIdWithSequence - show flow by flow id with sequence (500)", async () => {
+      services.flowService.findAll = jest.fn().mockResolvedValue([]);
+      services.flowService.countRows = jest.fn().mockResolvedValue(0);
+
+      const flows =  [{idFlow: 1, name: 'flow x'}, {idFlow: 2, name: 'flow y'}]
+      flowServiceMock.findAll = jest.fn().mockResolvedValue(flows);
+      flowServiceMock.findAllByIdFlow  = jest.fn().mockResolvedValue([]);
+      reqMock.query = {
+        limit: 1,
+        offset: 0,
+        filter: 0,
+      };
+
+      await controllers.flowController.showByFlowIdWithSequence(reqMock, resMock);
+  
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    }
+    );
+    it ('should return 404 when flow is not found', async () => {
+      const flowId = 1;
+      const flow = null;
+      flowServiceMock.findOneByFlowId = jest.fn().mockResolvedValue(flow);
+      await flowController.showByFlowIdWithSequence(reqMock, resMock);
+      expect(resMock.status).toHaveBeenCalledWith(404);
+    }
+    );
   });
 });
