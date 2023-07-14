@@ -292,7 +292,101 @@ describe('ProcessController', () => {
       expect(resMock.status).toHaveBeenCalledWith(500);
     });
   });
+  describe('updateProcess', () => {
+    test('update process successfully (200)', async () => {
+      const mockRecordStatus = { valid: true, filteredRecord: '123' };
+      const mockProcess = { id: 1, record: '123', nickname: 'John Doe', status: 'notStarted' };
+      const mockFlowStages = [{ idStageA: 1 }];
+      const mockUpdatedProcess = { id: 1, record: '123', nickname: 'John Doe', status: 'inProgress' };
 
+      processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
+      processController.processService.getProcessByRecord = jest.fn().mockResolvedValue(mockProcess);
+      processController.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue(mockFlowStages);
+      processController.processService.updateProcess = jest.fn().mockResolvedValue(mockUpdatedProcess);
+
+      reqMock.params = { record: '123' };
+      reqMock.body = { nickname: 'Jane Doe', status: 'inProgress' };
+
+      await processController.updateProcess(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith(mockUpdatedProcess);
+      expect(resMock.status).toHaveBeenCalledWith(200);
+    });
+
+    test('invalid record format (400)', async () => {
+      const mockRecordStatus = { valid: false, filteredRecord: 'abc' };
+
+      processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
+
+      reqMock.params = { record: 'abc' };
+      reqMock.body = { nickname: 'John Doe', status: 'inProgress' };
+
+      await processController.updateProcess(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: 'Registro fora do padrão CNJ',
+        message: `Registro 'abc' está fora do padrão CNJ`,
+      });
+      expect(resMock.status).toHaveBeenCalledWith(400);
+    });
+
+    test('process not found (500)', async () => {
+      const mockRecordStatus = { valid: true, filteredRecord: '123' };
+
+      processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
+      processController.processService.getProcessByRecord = jest.fn().mockRejectedValue(new Error('Process not found'));
+
+      reqMock.params = { record: '123' };
+      reqMock.body = { nickname: 'John Doe', status: 'inProgress' };
+
+      await processController.updateProcess(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({ error: 'Falha ao buscar processo.' });
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+
+    test('no stages in flow (404)', async () => {
+      const mockRecordStatus = { valid: true, filteredRecord: '123' };
+      const mockProcess = { id: 1, record: '123', nickname: 'John Doe', status: 'notStarted' };
+      const mockFlowStages = [];
+
+      processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
+      processController.processService.getProcessByRecord = jest.fn().mockResolvedValue(mockProcess);
+      processController.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue(mockFlowStages);
+
+      reqMock.params = { record: '123' };
+      reqMock.body = { nickname: 'John Doe', status: 'inProgress' };
+
+      await processController.updateProcess(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({ error: 'Não há etapas neste fluxo' });
+      expect(resMock.status).toHaveBeenCalledWith(404);
+    });
+
+    test('starting process not valid (200)', async () => {
+      const mockRecordStatus = { valid: true, filteredRecord: '123' };
+      const mockProcess = { id: 1, record: '123', nickname: 'John Doe', status: 'inProgress' };
+      const mockFlowStages = [{ idStageA: 1 }];
+
+      processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
+      processController.processService.getProcessByRecord = jest.fn().mockResolvedValue(mockProcess);
+      processController.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue(mockFlowStages);
+
+      reqMock.params = { record: '123' };
+      reqMock.body = { nickname: 'John Doe', status: 'inProgress' };
+
+      await processController.updateProcess(reqMock, resMock);
+      
+      expect(resMock.json).toHaveBeenCalledWith({
+        id: 1,
+        nickname: 'John Doe',
+        record: '123',
+        status: 'inProgress',
+      });
+      
+      expect(resMock.status).toHaveBeenCalledWith(200);
+    });
+  });
 });
 
 });
