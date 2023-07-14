@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 export function filterByName(req) {
   return req.query.filter
     ? {
