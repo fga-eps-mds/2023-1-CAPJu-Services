@@ -376,7 +376,6 @@ describe('ProcessController', () => {
       reqMock.body = { nickname: 'John Doe', status: 'inProgress' };
 
       await processController.updateProcess(reqMock, resMock);
-
       expect(resMock.json).toHaveBeenCalledWith({
         id: 1,
         nickname: 'John Doe',
