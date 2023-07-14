@@ -4,6 +4,8 @@ import axios from "axios";
 import models from '../../src/models/_index.js';
 import { FlowController } from '../../src/controllers/flow.js';
 import FlowService from '../../src/services/flow.js';
+import FlowStageService from '../../src/services/flowStage.js'
+import { FlowStageController } from '../../src/controllers/flowStage.js';
 
 jest.mock("axios");
 
@@ -30,6 +32,7 @@ describe("flow endpoints", () => {
 
   let flowController;
   let flowServiceMock;
+  let flowStageServiceMock;
   const reqMock = {
     body: {idUnit: 1, idRole: 1},
     params: {},
@@ -42,19 +45,52 @@ describe("flow endpoints", () => {
 
   beforeEach(() => {
     flowServiceMock = new FlowService(models.Flow);
+    flowStageServiceMock = new FlowStageService(models.FlowStage)
     flowController = new FlowController();
     flowController.flowService = flowServiceMock;
+    
+    // flowStageController.flowStageService = new FlowStageController();
+    // flowStageController.flowStageService = flowServiceMock;
+
+
   });
 
   
     test("index - list all flows (500)", async () => {
-      services.flowService.findAll = jest.fn().mockResolvedValue([]);
-      services.flowService.countRows = jest.fn().mockResolvedValue(0);
+
+      const mockFlows = [
+        { idFlow: 1, name: 'Flow 1', idUnit: 1 },
+        { idFlow: 2, name: 'Flow 2', idUnit: 1 },
+      ];
+
+      const mockFlow = {}
+      const mockFlowStages = [
+        { idFlow: 1, idStageA: 1, idStageB: 2 },
+        { idFlow: 1, idStageA: 2, idStageB: 3 },
+      ];
+      const mockStages = [
+        { idStage: 1, name: 'Stage 1' },
+        { idStage: 2, name: 'Stage 2' },
+        { idStage: 3, name: 'Stage 3' },
+        { idStage: 4, name: 'Stage 4' },
+      ];
+      const mockSequences = [
+        { from: 1, to: 2 },
+        { from: 2, to: 3 },
+      ];
+
+      services.flowService.findAll = jest.fn().mockResolvedValue(mockFlows);
+      services.flowService.countRows = jest.fn().mockResolvedValue(2);
 
 
       const flows =  [{idFlow: 1, name: 'flow x'}, {idFlow: 2, name: 'flow y'}]
-      flowServiceMock.findAll = jest.fn().mockResolvedValue(flows);
-      flowServiceMock.findAllByIdFlow  = jest.fn().mockResolvedValue([]);
+      flowServiceMock.findAll = jest.fn().mockResolvedValue(mockFlows);
+      flowStageServiceMock.findAllByIdFlow  = jest.fn().mockResolvedValue(mockFlowStages);
+      // flowStageServiceMock.findAllByIdFlow  = jest.fn().mockResolvedValue(mockFlowStages);
+      flowServiceMock.stagesSequencesFromFlowStages = jest.fn().mockResolvedValue({ stages: mockStages, sequences: mockSequences })
+      // flowController.flowService.stagesSequencesFromFlowStages = jest
+      // .fn()
+      // .mockResolvedValue({ stages: mockStages, sequences: mockSequences });
 
   
       reqMock.query = {

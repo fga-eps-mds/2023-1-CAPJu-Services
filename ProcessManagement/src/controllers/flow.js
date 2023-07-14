@@ -31,8 +31,6 @@ export class FlowController {
       const totalCount = await this.flowService.countRows({ where });
       const totalPages = Math.ceil(totalCount / parseInt(_req.query.limit, 10));
 
-      console.info('oioioi');
-      console.log(test);
       let flowsWithSequences = [];
       for (const flow of flows) {
         const flowStages = await this.flowStageService.findAllByIdFlow(
@@ -40,7 +38,7 @@ export class FlowController {
         );
 
         const { stages, sequences } =
-          FlowStageService.stagesSequencesFromFlowStages(flowStages);
+          await this.flowService.stagesSequencesFromFlowStages(flowStages);
 
         const flowSequence = {
           idFlow: flow.idFlow,
