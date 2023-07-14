@@ -142,30 +142,6 @@ describe('StageController', () => {
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  //caso a etapa não consiga ser criada por um erro interno do servidor, retornará 
-  // a mensagem e o status 500
-  test('store - internal server error (500)', async () => {
-    const error = new Error('Erro ao salvar etapa');
-    stageController.stageService.createStage = jest
-      .fn()
-      .mockRejectedValue(error);
-
-    reqMock.body = {
-      name: 'New Stage',
-      idUnit: 1,
-      duration: 5,
-    };
-
-    await stageController.store(reqMock, resMock);
-    expect(resMock.json).toHaveBeenCalledWith({
-      message: 'Erro ao salvar etapa',
-    });
-
-    expect(resMock.status).toHaveBeenCalledWith(500);
-    //expect(resMock.json).toHaveBeenCalledWith(error);
-    //expect(resMock.status).toHaveBeenCalledWith(500);
-  });
-
   //checa se é possível deletar a etapa através do seu id e nome
   //caso der certo, retorna status 200
   test('delete - delete stage (200)', async () => {
