@@ -201,5 +201,214 @@ describe('FlowController', () => {
       expect(resMock.json).toHaveBeenCalledWith({ message: `Não há fluxo '1'` });
       expect(resMock.status).toHaveBeenCalledWith(404);
     });
+    
+    test('error retrieving flow (500)', async () => {
+      flowController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockRejectedValue(new Error('Error retrieving flow'));
+
+      reqMock.params = { idFlow: 1 };
+
+      await flowController.showByFlowId(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: new Error('Error retrieving flow'),
+        message: 'Impossível obter fluxo 1',
+      });
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe('showByFlowIdWithSequence', () => {
+    test('flow with sequences found (200)', async () => {
+      const mockFlow = { idFlow: 1, name: 'Flow 1', idUnit: 1 };
+      const mockFlowStages = [
+        { idStageA: 1, idStageB: 2, commentary: 'Commentary 1' },
+        { idStageA: 2, idStageB: 3, commentary: 'Commentary 2' },
+      ];
+
+      flowController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue(mockFlow);
+      flowController.flowStageService.findAllByIdFlow = jest
+        .fn()
+        .mockResolvedValue(mockFlowStages);
+
+      reqMock.params = { idFlow: 1 };
+
+      await flowController.showByFlowIdWithSequence(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({
+        idFlow: 1,
+        name: 'Flow 1',
+        idUnit: 1,
+        sequences: [
+          { from: 1, commentary: 'Commentary 1', to: 2 },
+          { from: 2, commentary: 'Commentary 2', to: 3 },
+        ],
+      });
+      expect(resMock.status).toHaveBeenCalledWith(200);
+    });
+
+    test('flow not found (404)', async () => {
+      flowController.flowService.findOneByFlowId = jest.fn().mockResolvedValue(null);
+
+      reqMock.params = { idFlow: 1 };
+
+      await flowController.showByFlowIdWithSequence(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({ message: `Fluxo 1 não existe` });
+      expect(resMock.status).toHaveBeenCalledWith(404);
+    });
+
+    test('flow with no sequences (404)', async () => {
+      flowController.flowService.findOneByFlowId = jest.fn().mockResolvedValue({ idFlow: 1 });
+
+      flowController.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue([]);
+
+      reqMock.params = { idFlow: 1 };
+
+      await flowController.showByFlowIdWithSequence(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({ message: `Fluxo 1 não tem sequências` });
+      expect(resMock.status).toHaveBeenCalledWith(404);
+    });
+
+    test('error retrieving sequences (500)', async () => {
+      flowController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockRejectedValue(new Error('Error retrieving flow'));
+
+      reqMock.params = { idFlow: 1 };
+
+      await flowController.showByFlowIdWithSequence(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: new Error('Error retrieving flow'),
+        message: 'Impossível ler sequências',
+      });
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe('showUsersToNotify', () => {
+    test('get users to notify successfully (200)', async () => {
+      const mockResult = ['user1', 'user2'];
+
+      flowController.flowUserService.findUsersToNotify = jest
+        .fn()
+        .mockResolvedValue(mockResult);
+
+      reqMock.params = { idFlow: 1 };
+
+      await flowController.showUsersToNotify(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({ usersToNotify: mockResult });
+      expect(resMock.status).toHaveBeenCalledWith(200);
+    });
+
+    test('error retrieving users to notify (500)', async () => {
+      flowController.flowUserService.findUsersToNotify = jest
+        .fn()
+        .mockRejectedValue(new Error('Error retrieving users to notify'));
+
+      reqMock.params = { idFlow: 1 };
+
+      await flowController.showUsersToNotify(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: new Error('Error retrieving users to notify'),
+        message: 'Impossível obter usuários que devem ser notificados no fluxo',
+      });
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe('store', () => {
+    test('create flow successfully (200)', async () => {
+      const mockRequestBody = {
+        name: 'Flow 1',
+        idUnit: 1,
+        sequences: [
+          { from: 1, to: 2, commentary: 'Commentary 1' },
+          { from: 2, to: 3, commentary: 'Commentary 2' },
+        ],
+        idUsersToNotify: ['user1', 'user2'],
+      };
+
+      const mockFlow = { idFlow: 1, name: 'Flow 1' };
+
+      flowController.flowService.createFlow = jest.fn().mockResolvedValue(mockFlow);
+
+      flowController.flowStageService.createFlowStage = jest.fn();
+
+      flowController.flowUserService.createFlowUser = jest.fn();
+
+      axios.get = jest.fn().mockResolvedValue({ data: {} });
+
+      reqMock.body = mockRequestBody;
+
+      await flowController.store(reqMock, resMock);
+
+      expect(flowController.flowService.createFlow).toHaveBeenCalledWith({
+        name: 'Flow 1',
+        idUnit: 1,
+      });
+
+      expect(flowController.flowStageService.createFlowStage).toHaveBeenCalledTimes(2);
+      expect(flowController.flowStageService.createFlowStage).toHaveBeenCalledWith({
+        idFlow: 1,
+        idStageA: 1,
+        idStageB: 2,
+        commentary: 'Commentary 1',
+      });
+      expect(flowController.flowStageService.createFlowStage).toHaveBeenCalledWith({
+        idFlow: 1,
+        idStageA: 2,
+        idStageB: 3,
+        commentary: 'Commentary 2',
+      });
+
+      expect(flowController.flowUserService.createFlowUser).toHaveBeenCalledTimes(2);
+      expect(flowController.flowUserService.createFlowUser).toHaveBeenCalledWith('user1', 1);
+      expect(flowController.flowUserService.createFlowUser).toHaveBeenCalledWith('user2', 1);
+
+      expect(resMock.json).toHaveBeenCalledWith({
+        idFlow: 1,
+        name: 'Flow 1',
+        idUnit: 1,
+        sequences: [
+          { from: 1, to: 2, commentary: 'Commentary 1' },
+          { from: 2, to: 3, commentary: 'Commentary 2' },
+        ],
+        usersToNotify: ['user1', 'user2'],
+      });
+      expect(resMock.status).toHaveBeenCalledWith(200);
+    });
+
+    test('user does not exist in unit (404)', async () => {
+      const mockRequestBody = {
+        name: 'Flow 1',
+        idUnit: 1,
+        sequences: [
+          { from: 1, to: 2, commentary: 'Commentary 1' },
+          { from: 2, to: 3, commentary: 'Commentary 2' },
+        ],
+        idUsersToNotify: ['user1', 'user2'],
+      };
+
+      flowController.flowService.createFlow = jest.fn().mockResolvedValue({ idFlow: 1 });
+
+      axios.get = jest.fn().mockResolvedValue({ data: null });
+
+      reqMock.body = mockRequestBody;
+
+      await flowController.store(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: "Usuário 'user1' não existe na unidade '1'",
+      });
+      expect(resMock.status).toHaveBeenCalledWith(404);
+    });
   });
 });
