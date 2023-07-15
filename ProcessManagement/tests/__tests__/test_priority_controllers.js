@@ -60,17 +60,3 @@ describe('PriorityController', () => {
     expect(resMock.status).toHaveBeenCalledWith(500);
   });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
