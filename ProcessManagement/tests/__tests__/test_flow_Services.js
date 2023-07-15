@@ -16,14 +16,6 @@ describe('FlowController', () => {
   update: jest.fn(),
   destroy: jest.fn(),
 };
-let FlowModel = {
-  findAll: jest.fn(),
-  findOne: jest.fn(),
-  create: jest.fn(),
-  update: jest.fn(),
-  destroy: jest.fn(),
-};
-
 
   beforeEach(() => {
     flowServiceMock = new FlowService(models.Flow);
