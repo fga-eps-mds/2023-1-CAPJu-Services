@@ -1,4 +1,3 @@
-
 import 'dotenv/config';
 import services from '../services/_index.js';
 import { filterByName } from '../utils/filters.js';
@@ -10,7 +9,7 @@ export class StageController {
 
   index = async (req, res) => {
     try {
-      let limit
+      let limit;
       const { idUnit, idRole } = req.body;
       const unitFilter = idRole === 5 ? {} : { idUnit };
       let where = {
@@ -22,7 +21,6 @@ export class StageController {
       const stages = await this.stageService.findByUnit(data);
       const totalCount = await this.stageService.countStage(where);
       const totalPages = Math.ceil(totalCount / parseInt(limit, 10));
-  
 
       if (!stages || stages.length === 0) {
         return res.status(204).json([]);
