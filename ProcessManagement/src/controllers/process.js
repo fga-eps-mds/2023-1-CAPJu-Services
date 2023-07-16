@@ -1,7 +1,5 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
-import ProcessModel from '../models/process.js';
-import FlowProcessModel from '../models/FlowProcess.js';
 import { filterByNicknameAndRecord } from '../utils/filters.js';
 
 export class ProcessController {
@@ -10,12 +8,13 @@ export class ProcessController {
     this.priorityService = services.priorityService;
     this.flowStageService = services.flowStageService;
     this.flowService = services.flowService;
+    this.flowProcessService = services.flowProcessService;
   }
 
   index = async (_req, res) => {
     try {
       let where;
-     const { idUnit , idRole } = _req.body;
+      const { idUnit, idRole } = _req.body;
       const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
         ...filterByNicknameAndRecord(_req),
@@ -23,25 +22,25 @@ export class ProcessController {
       };
       const offset = parseInt(_req.query.offset) || 0;
       const limit = parseInt(_req.query.limit) || 10;
-      
+
       const processes = await this.processService.getAllProcess({
-          where,
-          limit,
-          offset,
+        where,
+        limit,
+        offset,
       });
-      
+
       if (!processes || processes.length === 0) {
         return res.status(204).json([]);
       } else {
         const processesWithFlows = [];
         for (const process of processes) {
-          const flowProcesses = await FlowProcessModel.findAll({
+          const flowProcesses = await this.flowProcessService.findAll({
             where: {
               record: process.record,
             },
           });
 
-          const flowProcessesIdFlows = flowProcesses.map((flowProcess) => {
+          const flowProcessesIdFlows = flowProcesses.map(flowProcess => {
             return flowProcess.idFlow;
           });
 
@@ -58,7 +57,7 @@ export class ProcessController {
           });
         }
 
-        const totalCount = await ProcessModel.count({ where });
+        const totalCount = await this.processService.countRows({ where });
         const totalPages = Math.ceil(totalCount / limit) || 0;
 
         return res
@@ -68,7 +67,7 @@ export class ProcessController {
     } catch (error) {
       return res.status(500).json({
         error,
-        message: "Erro ao buscar processos",
+        message: 'Erro ao buscar processos',
       });
     }
   };
