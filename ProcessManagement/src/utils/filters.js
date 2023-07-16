@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import { Op } from 'sequelize';
-=======
-import { Op } from "sequelize";
->>>>>>> Atualiza process do processManagement e cria seed de usuario
 
 export function filterByNicknameAndRecord(req) {
   return req.query.filter
@@ -13,7 +9,6 @@ export function filterByNicknameAndRecord(req) {
         ],
       }
     : {};
-<<<<<<< HEAD
 }
 
 export function filterByName(req) {
@@ -31,6 +26,3 @@ export function filterByFullName(req) {
       }
     : {};
 }
-=======
-}
->>>>>>> Atualiza process do processManagement e cria seed de usuario
