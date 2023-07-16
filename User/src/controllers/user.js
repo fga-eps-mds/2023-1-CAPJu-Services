@@ -1,5 +1,9 @@
 import services from '../services/_index.js';
+import jwt from 'jsonwebtoken';
 import { generateToken } from '../utils/jwt.js';
+import UserModel from '../models/user.js';
+import { filterByFullName } from '../utils/filters.js';
+import { Op } from 'sequelize';
 
 export class UserController {
   constructor() {
@@ -8,22 +12,80 @@ export class UserController {
 
   index = async (req, res) => {
     try {
-      const { accepted } = req.query;
-      let users = [];
-      if (accepted) {
+      let where;
+
+      const { idUnit, idRole } = req.body;
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByFullName(req),
+        ...unitFilter,
+      };
+
+      if (req.query.accepted) {
+        const { accepted } = req.query;
+        let users;
+        let totalCount;
+        let totalPages;
         if (accepted === 'true') {
-          users = await this.userService.getAcceptedUsers();
+          users = await this.userService.getAllUsers({
+            where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where },
+            offset: req.query.offset,
+            limit: req.query.limit,
+          });
+          totalCount = await this.userService.countRows({
+            // fazer o count
+            where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where },
+          });
+          totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
         } else if (accepted === 'false') {
-          users = await this.userService.getNoAcceptedUsers();
+          users = await this.userService.getAllUsers({
+            where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
+            offset: req.query.offset,
+            limit: req.query.limit,
+          });
+          totalCount = await this.userService.countRows({
+            // fazer o count
+            where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
+          });
+          totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
         } else {
           return res.status(400).json({
-            message: "Parâmetro accepted deve ser 'true' ou 'false'",
+            message: "O parâmetro accepted deve ser 'true' ou 'false'",
           });
         }
-        return res.status(200).json(users);
+
+        users = users.map(user => {
+          return {
+            cpf: user.cpf,
+            fullName: user.fullName,
+            email: user.email,
+            accepted: user.accepted,
+            idUnit: user.idUnit,
+            idRole: user.idRole,
+          };
+        });
+
+        return res.status(200).json({ users: users || [], totalPages });
       } else {
-        users = await this.userService.getAllUsers();
-        return res.status(200).json(users);
+        const users = await this.userService.getAllUsers({
+          where: {
+            idRole: { [Op.ne]: 5 },
+            ...where,
+          },
+        });
+
+        const mappedUsers = users.map(user => {
+          return {
+            cpf: user.cpf,
+            fullName: user.fullName,
+            email: user.email,
+            accepted: user.accepted,
+            idUnit: user.idUnit,
+            idRole: user.idRole,
+          };
+        });
+
+        return res.status(200).json({ users: mappedUsers || [] });
       }
     } catch (error) {
       return res.status(500).json({
@@ -249,6 +311,34 @@ export class UserController {
         error,
         message: 'Erro ao negar pedido do usuário',
       });
+    }
+  };
+
+  tokenToUser = async (req, res) => {
+    let token;
+
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith('Bearer')
+    ) {
+      try {
+        // Get token from header
+        token = req.headers.authorization.split(' ')[1];
+
+        // Verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // Get user from the token
+        req.user = await UserModel.findByPk(decoded.id);
+        if (req.user.accepted === false) {
+          throw new Error();
+        }
+
+        return req.user;
+      } catch (error) {
+        console.log(error);
+        return res.status(401).send();
+      }
     }
   };
 }

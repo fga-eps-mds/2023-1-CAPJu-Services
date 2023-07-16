@@ -4,6 +4,11 @@ class UserService {
   constructor(UserModel) {
     this.user = UserModel;
   }
+
+  async countRows({ where }) {
+    return this.user.count({ where });
+  }
+
   async getAllUsers() {
     return this.user.findAll({
       attributes: {
