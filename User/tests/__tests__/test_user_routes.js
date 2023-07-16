@@ -17,7 +17,10 @@ describe('UserController', () => {
     reqMock = {
       params: {},
       query: {},
-      body: {},
+      body: {
+        idRole: 1,
+        idUnit: 1
+      },
     };
     resMock = {
       status: jest.fn().mockReturnThis(),
