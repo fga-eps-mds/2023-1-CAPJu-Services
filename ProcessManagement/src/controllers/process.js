@@ -9,6 +9,7 @@ export class ProcessController {
     this.priorityService = services.priorityService;
     this.flowStageService = services.flowStageService;
     this.flowService = services.flowService;
+    this.flowProcessService = services.flowProcessService;
   }
 
   index = async (_req, res) => {
