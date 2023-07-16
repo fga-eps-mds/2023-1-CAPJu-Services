@@ -1,7 +1,5 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
-import ProcessModel from '../models/process.js';
-import FlowProcessModel from '../models/FlowProcess.js';
 import { filterByNicknameAndRecord } from '../utils/filters.js';
 
 export class ProcessController {
@@ -10,6 +8,7 @@ export class ProcessController {
     this.priorityService = services.priorityService;
     this.flowStageService = services.flowStageService;
     this.flowService = services.flowService;
+    this.flowProcessService = services.flowProcessService;
   }
 
   index = async (_req, res) => {
@@ -35,7 +34,7 @@ export class ProcessController {
       } else {
         const processesWithFlows = [];
         for (const process of processes) {
-          const flowProcesses = await FlowProcessModel.findAll({
+          const flowProcesses = await this.flowProcessService.findAll({
             where: {
               record: process.record,
             },
@@ -58,7 +57,7 @@ export class ProcessController {
           });
         }
 
-        const totalCount = await ProcessModel.count({ where });
+        const totalCount = await this.processService.countRows({ where });
         const totalPages = Math.ceil(totalCount / limit) || 0;
 
         return res
