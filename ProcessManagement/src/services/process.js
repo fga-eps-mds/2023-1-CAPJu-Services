@@ -59,6 +59,10 @@ class ProcessService {
       valid: isRecordValid,
     };
   }
+
+  async countRows({ where }) {
+    return this.process.count({ where });
+  }
 }
 
 export default ProcessService;

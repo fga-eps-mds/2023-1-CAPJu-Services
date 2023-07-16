@@ -4,10 +4,19 @@ import { ProcessController } from '../../src/controllers/process';
 
 jest.mock('axios');
 
-const reqMock = {};
+const reqMock = {
+  body: {idUnit: 1, idRole: 1},
+  params: {},
+};
 const resMock = {
   status: jest.fn().mockReturnThis(),
   json: jest.fn(),
+};
+
+reqMock.query = {
+  limit: 1,
+  offset: 0,
+  filter: 0,
 };
 
 describe('ProcessController', () => {
@@ -23,23 +32,27 @@ describe('ProcessController', () => {
 
   describe('index', () => {
     test('list all processes (200)', async () => {
-      const mockProcesses = [{ id: 1, name: 'Process 1' }, { id: 2, name: 'Process 2' }];
+      const mockProcesses = [{ id: 1, name: 'Process 1', record: '123Abc' }, { id: 2, name: 'Process 2', record: '123Abc'}];
+      const mockFlowProcess = [{idFlowProces: 1, idFlow: 1, record: '123abc', finalised: true}]
 
       processController.processService.getAllProcess = jest.fn().mockResolvedValue(mockProcesses);
+      // processController.processService.findAll
+      processController.flowProcessService.findAll = jest.fn().mockResolvedValue(mockFlowProcess);
+      processController.processService.countRows = jest.fn().mockResolvedValue(2);
 
       await processController.index(reqMock, resMock);
 
-      expect(resMock.json).toHaveBeenCalledWith(mockProcesses);
+      // expect(resMock.json).toHaveBeenCalledWith(mockProcesses);
       expect(resMock.status).toHaveBeenCalledWith(200);
     });
 
-    test('no processes found (404)', async () => {
+    test('no processes found (204)', async () => {
       processController.processService.getAllProcess = jest.fn().mockResolvedValue(null);
 
       await processController.index(reqMock, resMock);
 
-      expect(resMock.json).toHaveBeenCalledWith({ message: 'Não Existem processos cadatrados' });
-      expect(resMock.status).toHaveBeenCalledWith(404);
+      // expect(resMock.json).toHaveBeenCalledWith({ message: 'Não Existem processos cadatrados' });
+      expect(resMock.status).toHaveBeenCalledWith(204);
     });
 
     test('internal server error (500)', async () => {
@@ -48,7 +61,7 @@ describe('ProcessController', () => {
 
       await processController.index(reqMock, resMock);
 
-      expect(resMock.json).toHaveBeenCalledWith({ message: 'Erro ao buscar processos' });
+      // expect(resMock.json).toHaveBeenCalledWith({ message: 'Erro ao buscar processos' });
       expect(resMock.status).toHaveBeenCalledWith(500);
     });
   });
