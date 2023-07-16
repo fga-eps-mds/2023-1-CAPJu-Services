@@ -9,13 +9,13 @@ class NoteService {
 
   async findAllByRecord(record) {
     return this.note.findAll({
-      where: { record: record },
+      where: { record },
     });
   }
 
   async findOneById(idNote) {
     return this.note.findOne({
-      where: { idNote: idNote },
+      where: { idNote },
     });
   }
 

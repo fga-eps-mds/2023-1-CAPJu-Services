@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "jest-sonar": "^0.2.16"
+  }
+}

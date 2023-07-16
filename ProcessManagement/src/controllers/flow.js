@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import axios from 'axios';
 import services from '../services/_index.js';
+import { filterByName } from '../utils/filters.js';
 
 export class FlowController {
   constructor() {
@@ -13,14 +14,29 @@ export class FlowController {
 
   index = async (_req, res) => {
     try {
-      const flows = await this.flowService.findAll();
+      let where;
+      const { idUnit, idRole } = _req.body;
+      const unitFilter = idRole === 5 ? {} : { idUnit };
+      where = {
+        ...filterByName(_req),
+        ...unitFilter,
+      };
+
+      const { limit, offset } = _req.query;
+
+      const flows = await this.flowService.findAll(where, offset, limit);
+      const totalCount = await this.flowService.countRows({ where });
+      const totalPages = Math.ceil(totalCount / parseInt(_req.query.limit, 10));
+
       let flowsWithSequences = [];
       for (const flow of flows) {
         const flowStages = await this.flowStageService.findAllByIdFlow(
           flow.idFlow,
         );
+
         const { stages, sequences } =
           await this.flowService.stagesSequencesFromFlowStages(flowStages);
+
         const flowSequence = {
           idFlow: flow.idFlow,
           name: flow.name,
@@ -28,14 +44,15 @@ export class FlowController {
           stages,
           sequences,
         };
+
         flowsWithSequences.push(flowSequence);
       }
-      return res.status(200).json(flowsWithSequences);
+      return res
+        .status(200)
+        .json({ flows: flowsWithSequences || [], totalPages });
     } catch (error) {
       console.log(error);
-      return res
-        .status(500)
-        .json({ error, message: 'Impossível obter fluxos' });
+      return res.status(500).json(error);
     }
   };
 
