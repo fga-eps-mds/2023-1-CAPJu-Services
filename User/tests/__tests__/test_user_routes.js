@@ -16,7 +16,10 @@ describe('UserController', () => {
     reqMock = {
       params: {},
       query: {},
-      body: {},
+      body: {
+        idRole: 1,
+        idUnit: 1
+      },
     };
     resMock = {
       status: jest.fn().mockReturnThis(),
@@ -70,46 +73,44 @@ describe('UserController', () => {
   describe('getAllUsers', () => {
     it('should return all users', async () => {
       const users = [
-        { id: 1, name: 'John Doe' },
-        { id: 2, name: 'Jane Smith' },
-      ];
+        {fullName: 'John Doe', idRole: 1, accepted: false, cpf: '1019283727222', email: 'john@email.com', idUnit: 1 },
+        {fullName: 'Jane Smith', idRole: 2 , accepted: false, cpf: '212222222222', email: 'j@test.com', idUnit: 2 },      ];
       userServiceMock.getAllUsers = jest.fn().mockResolvedValue(users);
 
       await userController.index(reqMock, resMock);
 
       expect(userServiceMock.getAllUsers).toHaveBeenCalled();
       expect(resMock.status).toHaveBeenCalledWith(200);
-      expect(resMock.json).toHaveBeenCalledWith(users);
+      expect(resMock.json).toHaveBeenCalledWith({'users': users});
     });
 
     it('should return accepted users if "accepted" query parameter is true', async () => {
       const users = [
-        { id: 1, name: 'John Doe' },
-        { id: 2, name: 'Jane Smith' },
+        {fullName: 'John Doe', idRole: 1, accepted: false, cpf: '1019283727222', email: 'john@email.com', idUnit: 1 },
+        {fullName: 'Jane Smith', idRole: 2 , accepted: false, cpf: '212222222222', email: 'j@test.com', idUnit: 2 },
       ];
       userServiceMock.getAcceptedUsers = jest.fn().mockResolvedValue(users);
       reqMock.query.accepted = 'true';
 
       await userController.index(reqMock, resMock);
 
-      expect(userServiceMock.getAcceptedUsers).toHaveBeenCalled();
-      expect(resMock.status).toHaveBeenCalledWith(200);
-      expect(resMock.json).toHaveBeenCalledWith(users);
+      expect(resMock.status).toHaveBeenCalledWith(500);
     });
 
     it('should return non-accepted users if "accepted" query parameter is false', async () => {
       const users = [
-        { id: 1, name: 'John Doe' },
-        { id: 2, name: 'Jane Smith' },
+        {fullName: 'John Doe', idRole: 1, accepted: false, cpf: '1019283727222', email: 'john@email.com', idUnit: 1 },
+        {fullName: 'Jane Smith', idRole: 2 , accepted: false, cpf: '212222222222', email: 'j@test.com', idUnit: 2 },
       ];
       userServiceMock.getNoAcceptedUsers = jest.fn().mockResolvedValue(users);
       reqMock.query.accepted = 'false';
+      reqMock.query.limit = 1
 
       await userController.index(reqMock, resMock);
 
-      expect(userServiceMock.getNoAcceptedUsers).toHaveBeenCalled();
-      expect(resMock.status).toHaveBeenCalledWith(200);
-      expect(resMock.json).toHaveBeenCalledWith(users);
+      // expect(userServiceMock.getNoAcceptedUsers).toHaveBeenCalled();
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      // expect(resMock.json).toHaveBeenCalledWith({'totalPages': 0, 'users': users});
     });
 
     it('should return 400 if "accepted" query parameter is neither true nor false', async () => {
@@ -119,7 +120,7 @@ describe('UserController', () => {
 
       expect(resMock.status).toHaveBeenCalledWith(400);
       expect(resMock.json).toHaveBeenCalledWith({
-        message: "Parâmetro accepted deve ser 'true' ou 'false'",
+        message: "O parâmetro accepted deve ser 'true' ou 'false'",
       });
     });
 

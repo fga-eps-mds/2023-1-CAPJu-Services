@@ -27,7 +27,7 @@ export class UserController {
         let totalCount;
         let totalPages;
         if (accepted === 'true') {
-          users = await this.userService.getAllUsers({
+          users = await this.userService.getAcceptedUsers({
             where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where },
             offset: req.query.offset,
             limit: req.query.limit,
@@ -38,11 +38,13 @@ export class UserController {
           });
           totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
         } else if (accepted === 'false') {
-          users = await this.userService.getAllUsers({
+          console.log('pega false');
+          users = await this.userService.getNoAcceptedUsers({
             where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
             offset: req.query.offset,
             limit: req.query.limit,
           });
+          console.log(users);
           totalCount = await this.userService.countRows({
             // fazer o count
             where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
