@@ -132,12 +132,18 @@ services:
       - db
 
   db:
-    image: postgres
+    image: postgres:15-alpine
     container_name: db
     volumes:
       - ./data/db:/var/lib/postgresql/data
       - ./setup.sql:/docker-entrypoint-initdb.d/setup.sql
     ports:
-      - "5432:5432"
+      - 5432:5432
+    networks:
+      - capju
     env_file:
       - .env
+
+networks:
+  capju:
+    name: capju
