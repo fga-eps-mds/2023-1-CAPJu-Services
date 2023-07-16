@@ -10,9 +10,10 @@ export class StageController {
 
   index = async (req, res) => {
     try {
+      let limit
       const { idUnit, idRole } = req.body;
       const unitFilter = idRole === 5 ? {} : { idUnit };
-      where = {
+      let where = {
         ...filterByName(req),
         ...unitFilter,
       };
