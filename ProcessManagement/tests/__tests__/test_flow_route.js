@@ -1,11 +1,10 @@
 import controllers from '../../src/controllers/_index.js'
 import services from '../../src/services/_index.js';
-import axios from "axios";
 import models from '../../src/models/_index.js';
 import { FlowController } from '../../src/controllers/flow.js';
 import FlowService from '../../src/services/flow.js';
 import FlowStageService from '../../src/services/flowStage.js'
-import { FlowStageController } from '../../src/controllers/flowStage.js';
+import * as middleware from '../../middleware/authMiddleware.js'
 
 jest.mock("axios");
 
@@ -34,7 +33,7 @@ describe("flow endpoints", () => {
   let flowServiceMock;
   let flowStageServiceMock;
   const reqMock = {
-    body: {idUnit: 1, idRole: 1},
+    body: {},
     params: {},
   };
   
@@ -51,6 +50,11 @@ describe("flow endpoints", () => {
   });
 
   test("index - list all flows with sequences (200)", async () => {
+    jest.spyOn(middleware, "tokenToUser").mockReturnValue({
+      idUnit: 1,
+      idRole: 1,
+    });
+
     const mockFlows = [
       { idFlow: 1, name: 'Flow 1', idUnit: 1 },
       { idFlow: 2, name: 'Flow 2', idUnit: 1 },
