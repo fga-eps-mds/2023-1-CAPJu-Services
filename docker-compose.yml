@@ -1,6 +1,22 @@
 version: "3.3"
 
 services:
+  proxy:
+    image: nginx:1.15-alpine
+    container_name: proxy
+    ports:
+      - 3000:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - process_management
+      - note
+      - role
+      - unit
+      - user
+    networks:
+      - capju
+
   process_management:
     build:
       context: ./ProcessManagement/
@@ -146,4 +162,5 @@ services:
 
 networks:
   capju:
-    name: capju
+    external: true
+    driver: bridge
