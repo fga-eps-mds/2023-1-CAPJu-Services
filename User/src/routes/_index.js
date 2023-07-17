@@ -3,6 +3,6 @@ import UserRoutes from './user.js';
 
 const applicationRoutes = express.Router();
 
-applicationRoutes.use('/users', UserRoutes);
+applicationRoutes.use('/', UserRoutes);
 
 export default applicationRoutes;

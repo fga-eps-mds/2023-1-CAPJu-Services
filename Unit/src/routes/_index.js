@@ -3,6 +3,6 @@ import UnitRoutes from './unit.js';
 
 const applicationRoutes = express.Router();
 
-applicationRoutes.use('/units', UnitRoutes);
+applicationRoutes.use('/', UnitRoutes);
 
 export default applicationRoutes;
