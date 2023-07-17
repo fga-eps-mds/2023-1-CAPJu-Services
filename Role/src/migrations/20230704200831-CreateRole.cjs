@@ -3,26 +3,22 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('note', {
-      idNote: {
+      idRole: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
       },
-      commentary: {
-        type: Sequelize.STRING(100),
-        allowNull: true,
+      name: {
+        type: Sequelize.STRING,
+        allownull: false,
       },
-      record: {
-        type: Sequelize.STRING(20),
+      accessLevel: {
+        type: Sequelize.SMALLINT,
         allowNull: false,
       },
-      idStageA: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      idStageB: {
-        type: Sequelize.INTEGER,
+      allowedActions: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: false,
       },
       createdAt: {
