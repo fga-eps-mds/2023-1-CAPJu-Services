@@ -33,16 +33,14 @@ describe('ProcessController', () => {
   describe('index', () => {
     test('list all processes (200)', async () => {
       const mockProcesses = [{ id: 1, name: 'Process 1', record: '123Abc' }, { id: 2, name: 'Process 2', record: '123Abc'}];
-      const mockFlowProcess = [{idFlowProces: 1, idFlow: 1, record: '123abc', finalised: true}]
+      const mockFlowStages = [{idFlowProces: 1, idFlow: 1, record: '123abc', finalised: true}]
 
       processController.processService.getAllProcess = jest.fn().mockResolvedValue(mockProcesses);
-      // processController.processService.findAll
-      processController.flowProcessService.findAll = jest.fn().mockResolvedValue(mockFlowProcess);
+      processController.flowStageService.findAll = jest.fn().mockResolvedValue(mockFlowStages);
       processController.processService.countRows = jest.fn().mockResolvedValue(2);
 
       await processController.index(reqMock, resMock);
 
-      // expect(resMock.json).toHaveBeenCalledWith(mockProcesses);
       expect(resMock.status).toHaveBeenCalledWith(200);
     });
 
@@ -51,7 +49,6 @@ describe('ProcessController', () => {
 
       await processController.index(reqMock, resMock);
 
-      // expect(resMock.json).toHaveBeenCalledWith({ message: 'Não Existem processos cadatrados' });
       expect(resMock.status).toHaveBeenCalledWith(204);
     });
 
@@ -61,7 +58,6 @@ describe('ProcessController', () => {
 
       await processController.index(reqMock, resMock);
 
-      // expect(resMock.json).toHaveBeenCalledWith({ message: 'Erro ao buscar processos' });
       expect(resMock.status).toHaveBeenCalledWith(500);
     });
   });
