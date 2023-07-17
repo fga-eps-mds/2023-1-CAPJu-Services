@@ -8,7 +8,6 @@ export class ProcessController {
     this.priorityService = services.priorityService;
     this.flowStageService = services.flowStageService;
     this.flowService = services.flowService;
-    this.flowProcessService = services.flowProcessService;
   }
 
   index = async (_req, res) => {
@@ -34,7 +33,7 @@ export class ProcessController {
       } else {
         const processesWithFlows = [];
         for (const process of processes) {
-          const flowProcesses = await this.flowProcessService.findAll({
+          const flowProcesses = await this.flowStageService.findAll({
             where: {
               record: process.record,
             },
