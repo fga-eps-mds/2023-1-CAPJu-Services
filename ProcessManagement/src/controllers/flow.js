@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import axios from 'axios';
 import services from '../services/_index.js';
+import { tokenToUser } from '../../middleware/authMiddleware.js';
 import { filterByName } from '../utils/filters.js';
 
 export class FlowController {
@@ -15,7 +16,7 @@ export class FlowController {
   index = async (_req, res) => {
     try {
       let where;
-      const { idUnit, idRole } = _req.body;
+      const { idRole, idUnit } = await tokenToUser(_req);
       const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
         ...filterByName(_req),
