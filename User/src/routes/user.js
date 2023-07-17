@@ -8,10 +8,7 @@ UserRoutes.get(
   controllers.userController.indexUsersAdminByUnitId,
 );
 UserRoutes.get('/cpf/:cpf', controllers.userController.showUserByCpf);
-UserRoutes.get(
-  '/user/:cpf/unit/:idUnit',
-  controllers.userController.showUserByUnit,
-);
+UserRoutes.get('/:cpf/unit/:idUnit', controllers.userController.showUserByUnit);
 UserRoutes.post('/login', controllers.userController.loginUser);
 UserRoutes.post('/newUser', controllers.userController.store);
 UserRoutes.post(
@@ -20,7 +17,7 @@ UserRoutes.post(
 );
 UserRoutes.put('/updateUser/:cpf', controllers.userController.updateUserEmail);
 UserRoutes.put('/updateUserRole', controllers.userController.updateUserRole);
-UserRoutes.post(
+UserRoutes.put(
   '/updateUserPassword/:cpf',
   controllers.userController.updateUserPassword,
 );

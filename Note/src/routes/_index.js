@@ -3,6 +3,6 @@ import NoteRoutes from './note.js';
 
 const applicationRoutes = express.Router();
 
-applicationRoutes.use('/notes', NoteRoutes);
+applicationRoutes.use('/', NoteRoutes);
 
 export default applicationRoutes;
