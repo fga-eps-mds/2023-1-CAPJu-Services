@@ -5,7 +5,6 @@ import FlowStageService from './flowStage.js';
 import FlowUserService from './flowUser.js';
 import ProcessService from './process.js';
 import StageService from './stage.js';
-import FlowProcessService from './flowProcess.js';
 
 const flowService = new FlowService(models.Flow);
 const priorityService = new PriorityService(models.Priority);
@@ -13,7 +12,6 @@ const flowStageService = new FlowStageService(models.FlowStage);
 const flowUserService = new FlowUserService(models.FlowUser);
 const processService = new ProcessService(models.Process);
 const stageService = new StageService(models.Stage);
-const flowProcessService = new FlowProcessService(models.FlowProcess);
 
 const services = {
   flowService,
@@ -22,7 +20,6 @@ const services = {
   flowUserService,
   processService,
   stageService,
-  flowProcessService,
 };
 
 export default services;
