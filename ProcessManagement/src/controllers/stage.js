@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
 import { filterByName } from '../utils/filters.js';
+import { tokenToUser } from '../../middleware/authMiddleware.js';
 
 export class StageController {
   constructor() {
@@ -10,7 +11,8 @@ export class StageController {
   index = async (req, res) => {
     try {
       let limit;
-      const { idUnit, idRole } = req.body;
+      const { idRole, idUnit } = await tokenToUser(req);
+      console.log(idUnit);
       const unitFilter = idRole === 5 ? {} : { idUnit };
       let where = {
         ...filterByName(req),
