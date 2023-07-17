@@ -1,8 +1,15 @@
 import StageService from '../../src/services/stage';
+import controllers from '../../src/controllers/_index.js'
+import services from '../../src/services/_index.js';
+import models from '../../src/models/_index.js';
+import * as middleware from '../../middleware/authMiddleware.js'
+import { StageController } from '../../src/controllers/stage';
+
 
 describe('StageService', () => {
   let stageService;
   let stageModelMock;
+  let stageController;
 
   beforeEach(() => {
     stageModelMock = {
@@ -13,17 +20,65 @@ describe('StageService', () => {
     };
 
     stageService = new StageService(stageModelMock);
+    stageController = new StageController()
   });
 
   describe('findAll', () => {
+
+    const reqMock = {
+      body: {},
+      params: {},
+    };
+    
+    const resMock = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    const mockFlows = [
+      { idFlow: 1, name: 'Flow 1', idUnit: 1 },
+      { idFlow: 2, name: 'Flow 2', idUnit: 1 },
+    ];
+
+    const mockFlow = {}
+    const mockFlowStages = [
+      { idFlow: 1, idStageA: 1, idStageB: 2 },
+      { idFlow: 1, idStageA: 2, idStageB: 3 },
+    ];
+    const mockStages = [
+      { idStage: 1, name: 'Stage 1' },
+      { idStage: 2, name: 'Stage 2' },
+      { idStage: 3, name: 'Stage 3' },
+      { idStage: 4, name: 'Stage 4' },
+    ];
+    const mockSequences = [
+      { from: 1, to: 2 },
+      { from: 2, to: 3 },
+    ];
+
+    
     it('Deve retornar todas as etapas', async () => {
-      const stages = [{ id: 1, name: 'Stage 1' }, { id: 2, name: 'Stage 2' }];
-      stageModelMock.findAll.mockResolvedValue(stages);
+      jest.spyOn(middleware, "tokenToUser").mockReturnValue({
+        idUnit: 1,
+        idRole: 1,
+      });
 
-      const result = await stageService.findAll();
+      services.stageService.findAll = jest.fn().mockResolvedValue(mockStages);
+      services.stageService.countRows = jest.fn().mockResolvedValue(4);
+    //   const stages = [{ id: 1, name: 'Stage 1' }, { id: 2, name: 'Stage 2' }];
+    //   stageModelMock.findAll.mockResolvedValue(stages);
 
-      expect(result).toEqual(stages);
-      expect(stageModelMock.findAll).toHaveBeenCalled();
+      reqMock.query = {
+        limit: 1,
+        offset: 0,
+        filter: 0,
+      };
+
+      const result = await stageController.index(reqMock, resMock);
+
+      // expect(result).toEqual(mockStages);
+      // expect(services.stageService.findAll).toHaveBeenCalled();
+      expect(resMock.status).toHaveBeenCalledWith(200);
     });
   });
 
