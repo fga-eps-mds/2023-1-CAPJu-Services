@@ -4,6 +4,7 @@ import { generateToken } from '../utils/jwt.js';
 import UserModel from '../models/user.js';
 import { filterByFullName } from '../utils/filters.js';
 import { Op } from 'sequelize';
+import { tokenToUser } from '../../middleware/authMiddleware.js';
 
 export class UserController {
   constructor() {
@@ -14,7 +15,7 @@ export class UserController {
     try {
       let where;
 
-      const { idUnit, idRole } = req.body;
+      const { idRole, idUnit } = await tokenToUser(req);
       const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
         ...filterByFullName(req),
