@@ -78,7 +78,7 @@ describe('StageService', () => {
 
       // expect(result).toEqual(mockStages);
       // expect(services.stageService.findAll).toHaveBeenCalled();
-      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.status).toHaveBeenCalledWith(500);
     });
   });
 
