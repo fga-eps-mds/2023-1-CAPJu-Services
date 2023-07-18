@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
 import { filterByNicknameAndRecord } from '../utils/filters.js';
+import { tokenToUser } from '../../middleware/authMiddleware.js';
 
 export class ProcessController {
   constructor() {
@@ -13,7 +14,7 @@ export class ProcessController {
   index = async (_req, res) => {
     try {
       let where;
-      const { idUnit, idRole } = _req.body;
+      const { idRole, idUnit } = await tokenToUser(_req);
       const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
         ...filterByNicknameAndRecord(_req),

@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import axios from 'axios';
 import { ProcessController } from '../../src/controllers/process';
+import * as middleware from '../../middleware/authMiddleware'
 
 jest.mock('axios');
 
@@ -32,6 +33,11 @@ describe('ProcessController', () => {
 
   describe('index', () => {
     test('list all processes (200)', async () => {
+      jest.spyOn(middleware, "tokenToUser").mockReturnValue({
+        idUnit: 1,
+        idRole: 1,
+      });
+
       const mockProcesses = [{ id: 1, name: 'Process 1', record: '123Abc' }, { id: 2, name: 'Process 2', record: '123Abc'}];
       const mockFlowStages = [{idFlowProces: 1, idFlow: 1, record: '123abc', finalised: true}]
 
