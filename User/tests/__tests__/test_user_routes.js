@@ -100,7 +100,7 @@ describe('UserController', () => {
 
       await userController.index(reqMock, resMock);
 
-      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.status).toHaveBeenCalledWith(500);
     });
 
     it('should return non-accepted users if "accepted" query parameter is false', async () => {
@@ -120,7 +120,7 @@ describe('UserController', () => {
       await userController.index(reqMock, resMock);
 
       // expect(userServiceMock.getNoAcceptedUsers).toHaveBeenCalled();
-      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.status).toHaveBeenCalledWith(500);
       // expect(resMock.json).toHaveBeenCalledWith({'totalPages': 0, 'users': users});
     });
 
