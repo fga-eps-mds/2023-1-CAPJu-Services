@@ -30,13 +30,8 @@ async function tokenToUser(req, res) {
       return userData[0]; 
       
     } catch (error) {
-      console.log(error);
-      return res.status(401).send();
+      return res.status(401);
     }
-  }
-  
-  if (!token) {
-    return res.status(401).send();
   }
 }
 export { tokenToUser };
