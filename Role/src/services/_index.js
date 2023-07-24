@@ -3,7 +3,7 @@ import RoleService from './role.js';
 
 const roleService = new RoleService(models.Role);
 const services = {
-  roleService: roleService,
+  roleService,
 };
 
 export default services;

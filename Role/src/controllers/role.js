@@ -1,13 +1,9 @@
 import services from '../services/_index.js';
 
 export class RoleController {
-  constructor() {
-    this.roleService = services.roleService;
-  }
-
   async index(_req, res) {
     try {
-      const role = await this.roleService.findAll();
+      const role = await services.roleService.findAll();
 
       if (!role) {
         return res.status(204).json({ message: 'Não Existe cargo' });
@@ -23,7 +19,7 @@ export class RoleController {
     const idRole = req.params.id;
 
     try {
-      const role = await this.roleService.findOneById(idRole);
+      const role = await services.roleService.findOneById(idRole);
       if (!role) {
         return res.status(204).json([]);
       } else {
@@ -38,11 +34,11 @@ export class RoleController {
     const { name, idRole } = req.body;
 
     try {
-      const role = await this.roleService.findOneById(idRole);
+      const role = await services.roleService.findOneById(idRole);
       if (!role || role === null) {
         return res.status(204).json([]);
       } else {
-        await this.roleService.updateRoleName(
+        await services.roleService.updateRoleName(
           name,
           role.allowedActions,
           idRole,
@@ -59,11 +55,11 @@ export class RoleController {
     const { idRole } = req.params;
 
     try {
-      const role = await this.roleService.findOneById(idRole);
+      const role = await services.roleService.findOneById(idRole);
       if (!role || role === null) {
         return res.status(204).json([]);
       } else {
-        await this.roleService.updateRoleName(
+        await services.roleService.updateRoleName(
           role.name,
           allowedActions,
           idRole,
@@ -79,11 +75,11 @@ export class RoleController {
     const { idRole } = req.body;
 
     try {
-      const role = await this.roleService.findOneById(idRole);
+      const role = await services.roleService.findOneById(idRole);
       if (!role) {
         return res.status(404);
       } else {
-        await this.roleService.deleteNoteById(idRole);
+        await services.roleService.deleteNoteById(idRole);
         return res.status(200).json(role);
       }
     } catch (error) {
@@ -95,7 +91,7 @@ export class RoleController {
     const { name, accessLevel, allowedActions } = req.body;
 
     try {
-      const role = await this.roleService.createRole({
+      const role = await services.roleService.createRole({
         name,
         accessLevel,
         allowedActions,
