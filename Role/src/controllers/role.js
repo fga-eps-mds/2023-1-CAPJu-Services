@@ -30,28 +30,8 @@ export class RoleController {
     }
   }
 
-  async updateRoleName(req, res) {
-    const { name, idRole } = req.body;
-
-    try {
-      const role = await services.roleService.findOneById(idRole);
-      if (!role || role === null) {
-        return res.status(204).json([]);
-      } else {
-        await services.roleService.updateRoleName(
-          name,
-          role.allowedActions,
-          idRole,
-        );
-        return res.status(200).json(role);
-      }
-    } catch (error) {
-      return res.status(500).json(error);
-    }
-  }
-
-  async updateRoleAllowedActions(req, res) {
-    const { allowedActions } = req.body;
+  async updateRole(req, res) {
+    const params = req.body;
     const { idRole } = req.params;
 
     try {
@@ -59,11 +39,7 @@ export class RoleController {
       if (!role || role === null) {
         return res.status(204).json([]);
       } else {
-        await services.roleService.updateRoleName(
-          role.name,
-          allowedActions,
-          idRole,
-        );
+        await services.roleService.updateRole(params, idRole);
         return res.status(200).json(role);
       }
     } catch (error) {
@@ -79,7 +55,7 @@ export class RoleController {
       if (!role) {
         return res.status(404);
       } else {
-        await services.roleService.deleteNoteById(idRole);
+        await services.roleService.deleteRoleById(idRole);
         return res.status(200).json(role);
       }
     } catch (error) {

@@ -17,13 +17,13 @@ class RoleService {
     });
   }
 
-  async deleteNoteById(idRole) {
+  async deleteRoleById(idRole) {
     return await this.role.destroy({ where: { idRole } });
   }
 
-  async updateNote(name, allowedActions, idRole) {
+  async updateRole(params, idRole) {
     const [updatedRows] = await this.role.update(
-      { name, allowedActions },
+      params,
       { where: { idRole } },
     );
     if (updatedRows) {
