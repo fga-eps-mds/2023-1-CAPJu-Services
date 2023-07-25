@@ -16,7 +16,7 @@ export class RoleController {
   }
 
   async getById(req, res) {
-    const idRole = req.params.id;
+    const { idRole } = req.params;
 
     try {
       const role = await services.roleService.findOneById(idRole);
