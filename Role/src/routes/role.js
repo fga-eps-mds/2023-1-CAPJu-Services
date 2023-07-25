@@ -7,6 +7,6 @@ RoleRoutes.post('/newRole', controllers.roleController.store);
 RoleRoutes.get('/', controllers.roleController.index);
 RoleRoutes.get('/roleAdmins/:idRole', controllers.roleController.getById);
 RoleRoutes.put('/updateRole/:idRole', controllers.roleController.updateRole);
-RoleRoutes.delete('/deleteRole', controllers.roleController.delete);
+RoleRoutes.delete('/deleteRole/:idRole', controllers.roleController.delete);
 
 export default RoleRoutes;

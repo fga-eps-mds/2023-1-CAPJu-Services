@@ -48,7 +48,7 @@ export class RoleController {
   }
 
   async delete(req, res) {
-    const { idRole } = req.body;
+    const { idRole } = req.params;
 
     try {
       const role = await services.roleService.findOneById(idRole);
