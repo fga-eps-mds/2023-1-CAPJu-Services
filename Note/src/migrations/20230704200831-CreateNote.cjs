@@ -10,7 +10,7 @@ module.exports = {
         allowNull: false,
       },
       commentary: {
-        type: Sequelize.STRING(100),
+        type: Sequelize.STRING(500),
         allowNull: true,
       },
       record: {
