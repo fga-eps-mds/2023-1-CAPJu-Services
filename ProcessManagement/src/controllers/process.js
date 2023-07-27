@@ -1,6 +1,10 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
-import { filterByNicknameAndRecord, filterByStatus } from '../utils/filters.js';
+import {
+  filterByLegalPriority,
+  filterByNicknameAndRecord,
+  filterByStatus,
+} from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
 
 export class ProcessController {
@@ -19,6 +23,7 @@ export class ProcessController {
       where = {
         ...filterByNicknameAndRecord(req),
         ...filterByStatus(req),
+        ...filterByLegalPriority(req),
         ...unitFilter,
       };
       const offset = parseInt(req.query.offset) || 0;

@@ -42,3 +42,14 @@ export function filterByStatus(req) {
         ],
       };
 }
+
+export function filterByLegalPriority(req) {
+  return JSON.parse(req.query.filterByLegalPriority)
+    ? {
+        [Op.or]: [
+          { idPriority: { [Op.is]: null } },
+          { idPriority: { [Op.is]: 0 } },
+        ],
+      }
+    : {};
+}
