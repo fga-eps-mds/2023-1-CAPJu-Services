@@ -26,3 +26,19 @@ export function filterByFullName(req) {
       }
     : {};
 }
+
+export function filterByStatus(req) {
+  return JSON.parse(req.query.showArchivedAndFinished)
+    ? {
+        [Op.or]: [
+          { status: { [Op.like]: 'archived' } },
+          { status: { [Op.like]: 'finished' } },
+        ],
+      }
+    : {
+        [Op.or]: [
+          { status: { [Op.like]: 'inProgress' } },
+          { status: { [Op.like]: 'notStarted' } },
+        ],
+      };
+}

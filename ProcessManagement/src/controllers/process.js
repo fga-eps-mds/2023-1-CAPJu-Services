@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
-import { filterByNicknameAndRecord } from '../utils/filters.js';
+import { filterByNicknameAndRecord, filterByStatus } from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
 
 export class ProcessController {
@@ -11,17 +11,18 @@ export class ProcessController {
     this.flowService = services.flowService;
   }
 
-  index = async (_req, res) => {
+  index = async (req, res) => {
     try {
       let where;
-      const { idRole, idUnit } = await tokenToUser(_req);
+      const { idRole, idUnit } = await tokenToUser(req);
       const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
-        ...filterByNicknameAndRecord(_req),
+        ...filterByNicknameAndRecord(req),
+        ...filterByStatus(req),
         ...unitFilter,
       };
-      const offset = parseInt(_req.query.offset) || 0;
-      const limit = parseInt(_req.query.limit) || 10;
+      const offset = parseInt(req.query.offset) || 0;
+      const limit = parseInt(req.query.limit) || 10;
 
       const processes = await this.processService.getAllProcess({
         where,
@@ -192,7 +193,7 @@ export class ProcessController {
     }
   };
 
-  getPriorityProcess = async (_req, res) => {
+  getPriorityProcess = async (req, res) => {
     try {
       const priorityProcesses = await this.processService.getPriorityProcess();
 
