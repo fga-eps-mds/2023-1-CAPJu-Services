@@ -145,7 +145,7 @@ export class ProcessController {
 
   store = async (req, res) => {
     try {
-      let { record, nickname, idPriority, idFlow, idStage } = req.body;
+      let { record, nickname, idPriority, idFlow } = req.body;
 
       const recordStatus = this.processService.validateRecord(record);
 
@@ -175,7 +175,6 @@ export class ProcessController {
             idUnit: flow.idUnit,
             nickname,
             idFlow,
-            idStage,
             idPriority,
             finalised: false,
           });
