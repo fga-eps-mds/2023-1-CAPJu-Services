@@ -164,9 +164,11 @@ export class FlowController {
       const { name, idUnit, sequences, idUsersToNotify } = req.body;
 
       for (const cpf of idUsersToNotify) {
+        console.log('oi');
         const user = await axios.get(
           `${process.env.USER_URL_API}/user/${cpf}/unit/${idUnit}`,
         );
+        console.log(user);
 
         if (!user.data) {
           return res.status(404).json({
@@ -220,6 +222,7 @@ export class FlowController {
         usersToNotify: idUsersToNotify,
       });
     } catch (error) {
+      // console.log(error)
       return res.status(500).json({ message: 'Erro ao criar fluxo' });
     }
   };

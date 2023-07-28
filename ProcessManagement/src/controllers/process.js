@@ -22,10 +22,11 @@ export class ProcessController {
       const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
         ...filterByNicknameAndRecord(req),
-        ...filterByStatus(req),
-        ...filterByLegalPriority(req),
+        // ...filterByStatus(req),
+        // ...filterByLegalPriority(req),
         ...unitFilter,
       };
+      console.log('oioioioioio?');
       const offset = parseInt(req.query.offset) || 0;
       const limit = parseInt(req.query.limit) || 10;
 
@@ -34,7 +35,7 @@ export class ProcessController {
         limit,
         offset,
       });
-
+      console.log(processes);
       if (!processes || processes.length === 0) {
         return res.status(204).json([]);
       } else {
@@ -145,7 +146,8 @@ export class ProcessController {
 
   store = async (req, res) => {
     try {
-      let { record, nickname, idPriority, idFlow } = req.body;
+      let { record, nickname, priority, idFlow } = req.body;
+      let idPriority = priority;
 
       const recordStatus = this.processService.validateRecord(record);
 

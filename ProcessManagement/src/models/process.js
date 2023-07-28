@@ -33,6 +33,12 @@ class ProcessModel extends Model {
           foreignKey: true,
           allowNull: false,
         },
+        idStage: {
+          type: DataTypes.INTEGER,
+          foreignKey: true,
+          allowNull: true,
+          defaultValue: 0,
+        },
         idPriority: {
           type: DataTypes.INTEGER,
           allowNull: false,
