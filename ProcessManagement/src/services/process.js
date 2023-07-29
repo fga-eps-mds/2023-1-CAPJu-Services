@@ -23,8 +23,8 @@ class ProcessService {
     return await this.process.destroy({ where: { record } });
   }
 
-  async getAllProcess() {
-    return await this.process.findAll();
+  async getAllProcess(where) {
+    return await this.process.findAll(where);
   }
 
   async getPriorityProcess() {

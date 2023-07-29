@@ -6,6 +6,7 @@ import {
   filterByStatus,
 } from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
+import { Op } from 'sequelize';
 
 export class ProcessController {
   constructor() {
@@ -21,12 +22,11 @@ export class ProcessController {
       const { idRole, idUnit } = await tokenToUser(req);
       const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
+        ...filterByLegalPriority(req),
         ...filterByNicknameAndRecord(req),
-        // ...filterByStatus(req),
-        // ...filterByLegalPriority(req),
+        ...filterByStatus(req),
         ...unitFilter,
       };
-      console.log('oioioioioio?');
       const offset = parseInt(req.query.offset) || 0;
       const limit = parseInt(req.query.limit) || 10;
 
@@ -35,7 +35,6 @@ export class ProcessController {
         limit,
         offset,
       });
-      console.log(processes);
       if (!processes || processes.length === 0) {
         return res.status(204).json([]);
       } else {

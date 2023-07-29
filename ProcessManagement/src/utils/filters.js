@@ -11,26 +11,14 @@ export function filterByNicknameAndRecord(req) {
     : {};
 }
 
-export function filterByStatusArchivedAndFinished(req) {
+export function filterByStatus(req) {
   return JSON.parse(req.query.showArchivedAndFinished)
     ? {
-        [Op.or]: [
-          { status: { [Op.like]: `archived` } },
-          { status: { [Op.like]: `finished` } },
-        ],
+        [Op.or]: [{ status: `archived` }, { status: `finished` }],
       }
-    : {};
-}
-
-export function filterByStatusInProgressNotStarted(req) {
-  return req.query.showInProgressAndNotStarted
-    ? {
-        [Op.or]: [
-          { status: { [Op.like]: `inProgress` } },
-          { status: { [Op.like]: `notStarted` } },
-        ],
-      }
-    : {};
+    : {
+        [Op.or]: [{ status: 'notStarted' }, { status: 'inProgress' }],
+      };
 }
 
 export function filterByName(req) {
@@ -49,47 +37,10 @@ export function filterByFullName(req) {
     : {};
 }
 
-export function filterByStatus(req) {
-  return req.query.showArchivedAndFinished
-    ? {
-        [Op.or]: [
-          { status: { [Op.like]: `%finished%` } },
-          { status: { [Op.like]: `%archived%` } },
-        ],
-      }
-    : {};
-}
-
 export function filterByLegalPriority(req) {
-  return req.query.filter
-    ? {
-        [Op.or]: [{ legalPriority: { [Op.like]: ` %${req.query.filter}%` } }],
-      }
-    : {};
+  if (req.query.filterByLegalPriority == 'true') {
+    return { idPriority: { [Op.not]: 0 } };
+  } else {
+    return { idPriority: { [Op.not]: null } };
+  }
 }
-
-// export function filterByStatus(req) {
-//   console('filtrando por status');
-//   return req.query.filter
-//     ? {
-//         [Op.or]: [
-//           { record: { [Op.like]: `%${req.query.filter}%` } },
-//           { nickname: { [Op.like]: `%${req.query.filter}%` } },
-//         ],
-//       }
-//     : {};
-// }
-
-// export function filterByLegalPriority(req) {
-//   return req.query.filterByLegalPriority
-//     ? {
-//         [Op.or]: [
-//           { idPriority: { [Op.not]: null } },
-//         ],
-//       }
-//     : {
-//       [Op.or]: [
-//         { idPriority: { [Op.not]: 1 } },
-//       ],
-//     };
-// }
