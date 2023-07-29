@@ -5,6 +5,7 @@ import UserModel from '../models/user.js';
 import { filterByFullName } from '../utils/filters.js';
 import { Op } from 'sequelize';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
+import { cpfFilter } from '../utils/cpf.js';
 
 export class UserController {
   constructor() {
@@ -177,7 +178,7 @@ export class UserController {
       const { fullName, cpf, email, password, idUnit, idRole } = req.body;
       const data = {
         fullName,
-        cpf,
+        cpf: cpfFilter(cpf),
         email,
         password,
         accepted: false,
@@ -185,7 +186,9 @@ export class UserController {
         idRole,
       };
       const user = await this.userService.createUser(data);
-      return res.json(user);
+      return res
+        .json({ user, message: 'Usuario cadastrado com sucesso' })
+        .status(200);
     } catch (error) {
       return res.status(500).json({ error, message: 'Erro ao criar usuário' });
     }

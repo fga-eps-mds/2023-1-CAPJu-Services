@@ -41,9 +41,10 @@ module.exports = {
       },
       idStage: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: { model: 'stage', key: 'idStage' },
         onDelete: 'RESTRICT',
+        defaultValue: 0,
       },
       idPriority: {
         type: Sequelize.INTEGER,
