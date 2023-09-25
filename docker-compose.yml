@@ -18,10 +18,10 @@ services:
     ports:
       - 8082:8082
     networks:
-      - 2023-2-capju-config_capju
+      - capju
     env_file:
       - .env
 
 networks:
-  2023-2-capju-config_capju:
+  capju:
     external: true
