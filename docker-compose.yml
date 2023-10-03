@@ -1,167 +1,22 @@
 version: "3.3"
 
 services:
-  proxy:
-    image: nginx:1.15-alpine
-    container_name: proxy
-    ports:
-      - 5000:80
-    restart: always
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - process_management
-      - note
-      - role
-      - unit
-      - user
-    networks:
-      - capju
-
-  process_management:
-    build:
-      context: ./ProcessManagement/
-      dockerfile: Dockerfile
-    container_name: process_management
-    command:
-      [
-        "/tmp/wait-for-it.sh",
-        "db:5432",
-        "--",
-        "npm",
-        "run",
-        "start",
-      ]
-    restart: always
-    volumes:
-      - ./ProcessManagement/:/app
-      - ./wait-fot-it.sh:/tmp/wait-for-it.sh
-    ports:
-      - 8082:8082
-    networks:
-      - capju
-    env_file:
-      - ./ProcessManagement/.env
-    depends_on:
-      - db
-
-  note:
-    build:
-      context: ./Note/
-      dockerfile: Dockerfile
-    container_name: note
-    command:
-      [
-        "/tmp/wait-for-it.sh",
-        "db:5432",
-        "--",
-        "npm",
-        "run",
-        "start",
-      ]
-    restart: always
-    volumes:
-      - ./Note/:/app
-      - ./wait-fot-it.sh:/tmp/wait-for-it.sh
-    ports:
-      - 8083:8083
-    networks:
-      - capju
-    env_file:
-      - ./Note/.env
-    depends_on:
-      - db
-        
-  role:
-    build:
-      context: ./Role/
-      dockerfile: Dockerfile
-    container_name: role
-    command:
-      [
-        "/tmp/wait-for-it.sh",
-        "db:5432",
-        "--",
-        "npm",
-        "run",
-        "start",
-      ]
-    restart: always
-    volumes:
-      - ./Role/:/app
-      - ./wait-fot-it.sh:/tmp/wait-for-it.sh
-    ports:
-      - 8084:8084
-    networks:
-      - capju
-    env_file:
-      - ./Role/.env
-    depends_on:
-      - db
-
-  unit:
-    build:
-      context: ./Unit/
-      dockerfile: Dockerfile
-    container_name: unit
-    command:
-      [
-        "/tmp/wait-for-it.sh",
-        "db:5432",
-        "--",
-        "npm",
-        "run",
-        "start",
-      ]
-    restart: always
-    volumes:
-      - ./Unit/:/app
-      - ./wait-fot-it.sh:/tmp/wait-for-it.sh
-    ports:
-      - 8085:8085
-    networks:
-      - capju
-    env_file:
-      - ./Unit/.env
-    depends_on:
-      - db
-
   user:
     build:
-      context: ./User/
+      context: ./
       dockerfile: Dockerfile
     container_name: user
     command:
       [
-        "/tmp/wait-for-it.sh",
-        "db:5432",
-        "--",
         "npm",
         "run",
         "start",
       ]
     restart: always
     volumes:
-      - ./User/:/app
-      - ./wait-fot-it.sh:/tmp/wait-for-it.sh
+      - ./:/app
     ports:
       - 8080:8080
-    networks:
-      - capju
-    env_file:
-      - ./User/.env
-    depends_on:
-      - db
-
-  db:
-    image: postgres:15-alpine
-    container_name: db
-    volumes:
-      - ./data/db:/var/lib/postgresql/data
-      - ./setup.sql:/docker-entrypoint-initdb.d/setup.sql
-    restart: always
-    ports:
-      - 5432:5432
     networks:
       - capju
     env_file:
