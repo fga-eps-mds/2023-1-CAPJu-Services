@@ -5,6 +5,7 @@ import StageRoutes from './stage.js';
 import FlowStageRoutes from './flowStage.js';
 import ProcessRoutes from './process.js';
 import FlowUserRoutes from './flowUser.js';
+import StatisticsRoutes from './statistics.js'
 
 const applicationRoutes = express.Router();
 
@@ -14,5 +15,6 @@ applicationRoutes.use('/stage', StageRoutes);
 applicationRoutes.use('/flowStage', FlowStageRoutes);
 applicationRoutes.use('/process', ProcessRoutes);
 applicationRoutes.use('/flowUser', FlowUserRoutes);
+applicationRoutes.use('/statistics', StatisticsRoutes);
 
 export default applicationRoutes;

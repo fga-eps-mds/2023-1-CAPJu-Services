@@ -6,12 +6,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: process_management
-    command:
-      [
-        "npm",
-        "run",
-        "start",
-      ]
+    entrypoint: ["/bin/bash", "./entrypoint.sh"]
     restart: always
     volumes:
       - ./:/app
