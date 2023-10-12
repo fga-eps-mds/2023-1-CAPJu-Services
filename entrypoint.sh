@@ -1,3 +1,5 @@
-npm install
-npx sequelize-cli db:migrate
-npm start
+#!/bin/bash
+
+npm run migration
+npm run start
+
