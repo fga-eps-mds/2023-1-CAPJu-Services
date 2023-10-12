@@ -6,7 +6,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: user
-    entrypoint: ./entrypoint.sh
+    entrypoint: ["/bin/sh", "-c", "./entrypoint.sh"]
     restart: always
     volumes:
       - ./:/app
