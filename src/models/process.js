@@ -37,7 +37,7 @@ class ProcessModel extends Model {
           type: DataTypes.INTEGER,
           foreignKey: true,
           allowNull: true,
-          defaultValue: 0,
+          defaultValue: null,
         },
         idPriority: {
           type: DataTypes.INTEGER,

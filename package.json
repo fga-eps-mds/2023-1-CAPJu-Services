@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "nodemon src/server.js",
+    "start": "nodemon --legacy-watch src/server.js",
     "test": "NODE_ENV=test jest --config=jest.config.mjs --detectOpenHandles --coverage",
     "lint": "eslint src",
     "migration": "npx sequelize-cli db:migrate",
