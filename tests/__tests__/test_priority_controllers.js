@@ -2,7 +2,6 @@ import 'dotenv/config';
 import { PriorityController } from '../../src/controllers/priority';
 import axios from 'axios';
 
-
 jest.mock('axios');
 
 const reqMock = {};
