@@ -38,21 +38,29 @@ describe('ProcessService', () => {
       const result = await processService.updateProcess(params, record);
 
       expect(result).toEqual(updatedProcess);
-      expect(ProcessModel.update).toHaveBeenCalledWith(params, { where: { record } });
+      expect(ProcessModel.update).toHaveBeenCalledWith(params, {
+        where: { record },
+      });
       expect(ProcessModel.findOne).toHaveBeenCalledWith({ where: { record } });
     });
 
     it('Retornar o processo atualizado se o processo foi atualizado com sucesso', async () => {
       const params = { record: '1234567890', idFlow: 1 };
       const record = '1234567890';
-      const updatedProcess = { idFlow: 1, record: '1234567890', status: 'updated' };
+      const updatedProcess = {
+        idFlow: 1,
+        record: '1234567890',
+        status: 'updated',
+      };
       ProcessModel.update.mockResolvedValue([1]);
       ProcessModel.findOne.mockResolvedValue(updatedProcess);
 
       const result = await processService.updateProcess(params, record);
 
       expect(result).toEqual(updatedProcess);
-      expect(ProcessModel.update).toHaveBeenCalledWith(params, { where: { record } });
+      expect(ProcessModel.update).toHaveBeenCalledWith(params, {
+        where: { record },
+      });
       expect(ProcessModel.findOne).toHaveBeenCalledWith({ where: { record } });
     });
 
@@ -63,8 +71,14 @@ describe('ProcessService', () => {
 
       const result = await processService.updateProcess(params, record);
 
-      expect(result).toEqual({"idFlow": 1, "record": "1234567890", "status": "updated"});
-      expect(ProcessModel.update).toHaveBeenCalledWith(params, { where: { record } });
+      expect(result).toEqual({
+        idFlow: 1,
+        record: '1234567890',
+        status: 'updated',
+      });
+      expect(ProcessModel.update).toHaveBeenCalledWith(params, {
+        where: { record },
+      });
       expect(ProcessModel.findOne).toHaveBeenCalled();
     });
   });
@@ -110,7 +124,9 @@ describe('ProcessService', () => {
         { record: '1234567890', idFlow: 1, idPriority: 1 },
         { record: '0987654321', idFlow: 2, idPriority: 2 },
       ]);
-      expect(ProcessModel.findAll).toHaveBeenCalledWith({ where: { idPriority: [1, 2, 3, 4, 5, 6, 7, 8] } });
+      expect(ProcessModel.findAll).toHaveBeenCalledWith({
+        where: { idPriority: [1, 2, 3, 4, 5, 6, 7, 8] },
+      });
     });
   });
 
@@ -121,10 +137,15 @@ describe('ProcessService', () => {
       const process = { record, idFlow, status: 'active' };
       ProcessModel.findOne.mockResolvedValue(process);
 
-      const result = await processService.getProcessByUniqueKeys(record, idFlow);
+      const result = await processService.getProcessByUniqueKeys(
+        record,
+        idFlow,
+      );
 
       expect(result).toEqual(process);
-      expect(ProcessModel.findOne).toHaveBeenCalledWith({ where: { record, idFlow } });
+      expect(ProcessModel.findOne).toHaveBeenCalledWith({
+        where: { record, idFlow },
+      });
     });
   });
 
@@ -164,7 +185,6 @@ describe('ProcessService', () => {
       const validRecord = '12345678901234567890';
       const invalidRecord = 'ABCD123456';
 
-      
       const result1 = processService.validateRecord(validRecord);
       const result2 = processService.validateRecord(invalidRecord);
 
@@ -179,7 +199,6 @@ describe('ProcessService', () => {
 
       expect(result1.valid).toEqual(true);
 
- 
       expect(result2.valid).toEqual(false);
     });
   });
