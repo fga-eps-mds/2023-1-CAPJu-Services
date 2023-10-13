@@ -42,9 +42,7 @@ describe('StageController', () => {
 
   //caso não haja nenhuma etapa, retornará o status 401 e a mensagem de não ter etapas cadastardas
   test('index - no stages found (401)', async () => {
-    stageController.stageService.findAll = jest
-      .fn()
-      .mockResolvedValue(false);
+    stageController.stageService.findAll = jest.fn().mockResolvedValue(false);
 
     await stageController.index(reqMock, resMock);
 
@@ -57,9 +55,7 @@ describe('StageController', () => {
   //simula um erro interno do servidor, caso haja retornará a mensagem e status 500
   test('index - internal server error (500)', async () => {
     const error = new Error('Internal Server Error');
-    stageController.stageService.findAll = jest
-      .fn()
-      .mockRejectedValue(error);
+    stageController.stageService.findAll = jest.fn().mockRejectedValue(error);
 
     await stageController.index(reqMock, resMock);
 
@@ -121,7 +117,7 @@ describe('StageController', () => {
     expect(resMock.status).toHaveBeenCalledWith(500);
   });
 
-  //verifica se a etapa pode ser criada com id 1  e duração de 5 dias a fim de 
+  //verifica se a etapa pode ser criada com id 1  e duração de 5 dias a fim de
   // checar se é criada a etapa corretamente devovlendo o status 200
   test('store - create stage (200)', async () => {
     const stageData = {
@@ -137,7 +133,7 @@ describe('StageController', () => {
     reqMock.body = stageData;
 
     await stageController.store(reqMock, resMock);
-    
+
     expect(resMock.json).toHaveBeenCalledWith(stageData);
     expect(resMock.status).toHaveBeenCalledWith(200);
   });

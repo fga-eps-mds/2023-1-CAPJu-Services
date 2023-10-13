@@ -1,4 +1,5 @@
 ## Issue
+
 <!-- Descrever qual issue esse Pull Requeste deve fechar  -->
 
 Closes fga-eps-mds/2023-1-CAPJu-Doc#issue_number
@@ -8,7 +9,9 @@ Closes fga-eps-mds/2023-1-CAPJu-Doc#issue_number
 <!-- Descreve precisamente o que está sendo submetido e suas alterações -->
 
 ## Revisão
+
 <!-- Verifica se os critérios estabelecidos na issue foram realizados -->
+
 - [] Critério 1
 - [] Critério 1
 - [] Critério 1
@@ -19,9 +22,8 @@ Closes fga-eps-mds/2023-1-CAPJu-Doc#issue_number
 - [] A ramificação está atualizada com a branch Develop.
 - [] Os commits atendem o padrão especificado na política de contribuição.
 
-
 ## Screenshots (Se necessário)
 
-| Antes | Depois |
-| ----- | ------ |
+| Antes   | Depois  |
+| ------- | ------- |
 | Image 1 | Image 2 |
