@@ -1,15 +1,15 @@
-FROM node:18.13.0
+FROM node:18.13.0-alpine
 
 WORKDIR /app
 
 COPY . .
 
-RUN npm i
+COPY entrypoint.sh ./entrypoint.sh
 
-RUN chmod +x entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 RUN npm i -g sequelize-cli
 
 RUN npm install
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "-c", "./entrypoint.sh"]
