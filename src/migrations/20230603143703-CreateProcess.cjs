@@ -13,15 +13,20 @@ module.exports = {
       idFlow: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        foreignKey: true,
         references: { model: 'flow', key: 'idFlow' },
         onDelete: 'RESTRICT',
       },
       idUnit: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        foreignKey: true,
+        references: { model: 'unit', key: 'idUnit' },
+        onDelete: 'RESTRICT',
       },
       idStage: {
         type: Sequelize.INTEGER,
+        foreignKey: true,
         allowNull: true,
         unique: 'unique_processRecord_idStage',
         references: { model: 'stage', key: 'idStage' },
@@ -30,7 +35,10 @@ module.exports = {
       },
       idPriority: {
         type: Sequelize.INTEGER,
+        foreignKey: true,
         allowNull: false,
+        references: { model: 'priority', key: 'idPriority' },
+        onDelete: 'RESTRICT',
       },
       record: {
         type: Sequelize.STRING(20),
