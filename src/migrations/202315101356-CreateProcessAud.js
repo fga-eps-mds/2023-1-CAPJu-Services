@@ -13,10 +13,6 @@ module.exports = {
             idProcess: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
-                references: {
-                    model: 'process',
-                    key: 'idProcess'
-                }
             },
             processRecord: {
                 type: Sequelize.STRING(20),

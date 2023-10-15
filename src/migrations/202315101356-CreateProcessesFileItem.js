@@ -12,7 +12,7 @@ module.exports = {
             },
             idProcessesFile: {
                 type: Sequelize.INTEGER,
-                allowNull: true,
+                allowNull: false,
                 references: {
                     model: 'processesFile',
                     key: 'idProcessesFile'

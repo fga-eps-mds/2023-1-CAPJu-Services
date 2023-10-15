@@ -10,26 +10,11 @@ module.exports = {
         autoIncrement: true,
         allowNull: false,
       },
-      record: {
-        type: Sequelize.STRING(20),
-        allowNull: false,
-        unique: 'unique_processRecord_idStage',
-      },
       idFlow: {
         type: Sequelize.INTEGER,
         allowNull: false,
-      },
-      nickname: {
-        type: Sequelize.STRING(50),
-        allowNull: true,
-      },
-      finalised: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-      },
-      effectiveDate: {
-        type: Sequelize.DATE,
-        allowNull: true,
+        references: { model: 'flow', key: 'idFlow' },
+        onDelete: 'RESTRICT',
       },
       idUnit: {
         type: Sequelize.INTEGER,
@@ -39,15 +24,45 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         unique: 'unique_processRecord_idStage',
+        references: { model: 'stage', key: 'idStage' },
+        onDelete: 'RESTRICT',
+        defaultValue: 0,
       },
       idPriority: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      status: {
-        type: Sequelize.ENUM('inProgress', 'archived', 'finished', 'notStarted'),
+      record: {
+        type: Sequelize.STRING(20),
         allowNull: false,
+        unique: 'unique_processRecord_idStage',
+      },
+      nickname: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+      },
+      finalised: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+      },
+      effectiveDate: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      status: {
+        type: Sequelize.ENUM({
+          values: ['inProgress', 'archived', 'finished', 'notStarted'],
+        }),
         defaultValue: 'notStarted',
+        allowNull: false,
       },
     });
 
