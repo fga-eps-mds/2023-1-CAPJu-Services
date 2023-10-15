@@ -2,7 +2,6 @@ import { QueryTypes } from 'sequelize';
 import sequelizeConfig from '../../src/config/sequelize.js';
 import FlowUserService from '../../src/services/flowUser.js';
 
-
 const FlowUserModel = {
   findAll: jest.fn(),
   create: jest.fn(),
@@ -65,8 +64,20 @@ describe('FlowUserService', () => {
     it(' Retornar os usuários a serem notificados com base no ID do fluxo fornecido', async () => {
       const idFlow = 1;
       const query_results = [
-        { idFlow: 1, cpf: '1234567890', fullName: 'John Doe', email: 'johndoe@example.com', idUnit: 1 },
-        { idFlow: 1, cpf: '0987654321', fullName: 'Jane Smith', email: 'janesmith@example.com', idUnit: 2 },
+        {
+          idFlow: 1,
+          cpf: '1234567890',
+          fullName: 'John Doe',
+          email: 'johndoe@example.com',
+          idUnit: 1,
+        },
+        {
+          idFlow: 1,
+          cpf: '0987654321',
+          fullName: 'Jane Smith',
+          email: 'janesmith@example.com',
+          idUnit: 2,
+        },
       ];
       sequelizeConfig.query.mockResolvedValue(query_results);
 
@@ -78,7 +89,7 @@ describe('FlowUserService', () => {
         expect.objectContaining({
           replacements: [idFlow],
           type: QueryTypes.SELECT,
-        })
+        }),
       );
     });
   });

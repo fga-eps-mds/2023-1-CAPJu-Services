@@ -1,7 +1,6 @@
 import { Op } from 'sequelize';
 import FlowStageService from '../../src/services/flowStage';
 
-
 const FlowStageModel = {
   findAll: jest.fn(),
   findAllByIdFlow: jest.fn(),
@@ -69,7 +68,9 @@ describe('FlowStageService', () => {
 
       await flowStageService.deleteFlowStageByIdFlow(idFlow);
 
-      expect(FlowStageModel.destroy).toHaveBeenCalledWith({ where: { idFlow } });
+      expect(FlowStageModel.destroy).toHaveBeenCalledWith({
+        where: { idFlow },
+      });
     });
   });
 
@@ -80,7 +81,11 @@ describe('FlowStageService', () => {
       const idStageB = 2;
       FlowStageModel.destroy.mockResolvedValue();
 
-      await flowStageService.deleteFlowStageByIdFlowAndStages(idFlow, idStageA, idStageB);
+      await flowStageService.deleteFlowStageByIdFlowAndStages(
+        idFlow,
+        idStageA,
+        idStageB,
+      );
 
       expect(FlowStageModel.destroy).toHaveBeenCalledWith({
         where: {

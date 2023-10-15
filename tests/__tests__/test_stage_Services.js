@@ -1,10 +1,9 @@
 import StageService from '../../src/services/stage';
-import controllers from '../../src/controllers/_index.js'
+import controllers from '../../src/controllers/_index.js';
 import services from '../../src/services/_index.js';
 import models from '../../src/models/_index.js';
-import * as middleware from '../../middleware/authMiddleware.js'
+import * as middleware from '../../middleware/authMiddleware.js';
 import { StageController } from '../../src/controllers/stage';
-
 
 describe('StageService', () => {
   let stageService;
@@ -20,16 +19,15 @@ describe('StageService', () => {
     };
 
     stageService = new StageService(stageModelMock);
-    stageController = new StageController()
+    stageController = new StageController();
   });
 
   describe('findAll', () => {
-
     const reqMock = {
       body: {},
       params: {},
     };
-    
+
     const resMock = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
@@ -40,7 +38,7 @@ describe('StageService', () => {
       { idFlow: 2, name: 'Flow 2', idUnit: 1 },
     ];
 
-    const mockFlow = {}
+    const mockFlow = {};
     const mockFlowStages = [
       { idFlow: 1, idStageA: 1, idStageB: 2 },
       { idFlow: 1, idStageA: 2, idStageB: 3 },
@@ -56,17 +54,16 @@ describe('StageService', () => {
       { from: 2, to: 3 },
     ];
 
-    
     it('Deve retornar todas as etapas', async () => {
-      jest.spyOn(middleware, "tokenToUser").mockReturnValue({
+      jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
         idUnit: 1,
         idRole: 1,
       });
 
       services.stageService.findAll = jest.fn().mockResolvedValue(mockStages);
       services.stageService.countRows = jest.fn().mockResolvedValue(4);
-    //   const stages = [{ id: 1, name: 'Stage 1' }, { id: 2, name: 'Stage 2' }];
-    //   stageModelMock.findAll.mockResolvedValue(stages);
+      //   const stages = [{ id: 1, name: 'Stage 1' }, { id: 2, name: 'Stage 2' }];
+      //   stageModelMock.findAll.mockResolvedValue(stages);
 
       reqMock.query = {
         limit: 1,
@@ -91,7 +88,9 @@ describe('StageService', () => {
       const result = await stageService.findOneByStageId(idStage);
 
       expect(result).toEqual(stage);
-      expect(stageModelMock.findOne).toHaveBeenCalledWith({ where: { idStage } });
+      expect(stageModelMock.findOne).toHaveBeenCalledWith({
+        where: { idStage },
+      });
     });
   });
 
@@ -115,8 +114,9 @@ describe('StageService', () => {
 
       const result = await stageService.deleteStage(idStage);
 
-   
-      expect(stageModelMock.destroy).toHaveBeenCalledWith({ where: { idStage } });
+      expect(stageModelMock.destroy).toHaveBeenCalledWith({
+        where: { idStage },
+      });
     });
   });
 });
