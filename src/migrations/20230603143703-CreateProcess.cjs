@@ -4,60 +4,56 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('process', {
+      idProcess: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
       record: {
         type: Sequelize.STRING(20),
-        primaryKey: true,
+        allowNull: false,
+        unique: 'unique_processRecord_idStage',
+      },
+      idFlow: {
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       nickname: {
         type: Sequelize.STRING(50),
         allowNull: true,
       },
-      effectiveDate: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
       finalised: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
       },
-      idFlow: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        primaryKey: true,
-        references: { model: 'flow', key: 'idFlow' },
-        onDelete: 'RESTRICT',
+      effectiveDate: {
+        type: Sequelize.DATE,
+        allowNull: true,
       },
       idUnit: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      status: {
-        type: Sequelize.ENUM({
-          values: ['inProgress', 'archived', 'finished', 'notStarted'],
-        }),
-        defaultValue: 'notStarted',
-        allowNull: false,
-      },
       idStage: {
         type: Sequelize.INTEGER,
         allowNull: true,
-        references: { model: 'stage', key: 'idStage' },
-        onDelete: 'RESTRICT',
-        defaultValue: 0,
+        unique: 'unique_processRecord_idStage',
       },
       idPriority: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      createdAt: {
-        type: Sequelize.DATE,
+      status: {
+        type: Sequelize.ENUM('inProgress', 'archived', 'finished', 'notStarted'),
         allowNull: false,
+        defaultValue: 'notStarted',
       },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
+    });
+
+    await queryInterface.addIndex('process', ['record', 'idStage'], {
+      unique: true,
+      name: 'unique_processRecord_idStage',
     });
   },
 
