@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import axios from 'axios';
 import services from '../services/_index.js';
-import { tokenToUser } from '../../middleware/authMiddleware.js';
+import {getUserRoleAndUnitFilterFromReq, tokenToUser} from '../../middleware/authMiddleware.js';
 import { filterByName } from '../utils/filters.js';
 
 export class FlowController {
@@ -16,27 +16,26 @@ export class FlowController {
   index = async (_req, res) => {
     try {
       let where;
-      const { idRole, idUnit } = await tokenToUser(_req);
-      const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
         ...filterByName(_req),
-        ...unitFilter,
+        ...await getUserRoleAndUnitFilterFromReq(_req),
       };
 
       const { limit, offset } = _req.query;
 
-      const flows = await this.flowService.findAll(where, offset, limit);
+      const flows = await this.flowService.findAll(where, undefined, offset, limit);
       const totalCount = await this.flowService.countRows({ where });
       const totalPages = Math.ceil(totalCount / parseInt(_req.query.limit, 10));
 
       let flowsWithSequences = [];
-      for (const flow of flows) {
-        const flowStages = await this.flowStageService.findAllByIdFlow(
-          flow.idFlow,
-        );
+      const idFlows = flows.map(f => f.idFlow);
+      const flowsStages = await this.flowStageService.findAllByIdFlow(idFlows, undefined, ['idFlow', 'idStageA', 'idStageB', 'commentary']);
 
-        const { stages, sequences } =
-          await this.flowService.stagesSequencesFromFlowStages(flowStages);
+      for (const flow of flows) {
+
+        const flowStages = flowsStages.filter(fS => fS.idFlow === flow.idFlow);
+
+        const { stages, sequences } = await this.flowService.stagesSequencesFromFlowStages(flowStages);
 
         const flowSequence = {
           idFlow: flow.idFlow,
@@ -48,6 +47,8 @@ export class FlowController {
 
         flowsWithSequences.push(flowSequence);
       }
+
+      console.log(flowsWithSequences)
       return res
         .status(200)
         .json({ flows: flowsWithSequences || [], totalPages });
@@ -166,9 +167,8 @@ export class FlowController {
       for (const cpf of idUsersToNotify) {
         console.log('oi');
         const user = await axios.get(
-          `${process.env.USER_URL_API}/user/${cpf}/unit/${idUnit}`,
+          `http://localhost:8080/${cpf}/unit/${idUnit}`,
         );
-        console.log(user);
 
         if (!user.data) {
           return res.status(404).json({
@@ -222,7 +222,7 @@ export class FlowController {
         usersToNotify: idUsersToNotify,
       });
     } catch (error) {
-      // console.log(error)
+      console.log(error)
       return res.status(500).json({ message: 'Erro ao criar fluxo' });
     }
   };

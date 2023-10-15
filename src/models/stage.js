@@ -29,7 +29,6 @@ class StageModel extends Model {
     );
   }
   static associate(models) {
-    // this.belongsTo(models.Unit, { foreignKey: "idUnit", as: "unit" });
     this.belongsToMany(models.Flow, {
       foreignKey: 'idStage',
       through: 'idFlowStage',

@@ -5,13 +5,17 @@ class FlowStageService {
     this.flowStage = FlowStageModel;
   }
 
-  async findAll() {
-    return this.flowStage.findAll();
+  async findAll(where) {
+    return this.flowStage.findAll({ where, order: [['idFlowStage', 'ASC']], raw: true }); // This ordering is crucial to get the stages order correctly
   }
 
-  async findAllByIdFlow(idFlow) {
+  async findAllByIdFlow(idFlow, limit, attributes) {
     return this.flowStage.findAll({
       where: { idFlow },
+      limit: limit !== undefined ? limit : undefined,
+      raw: true,
+      attributes: attributes,
+      distinct: true,
     });
   }
 

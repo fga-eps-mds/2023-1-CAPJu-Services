@@ -1,11 +1,12 @@
 import { Op } from 'sequelize';
 
 export function filterByNicknameAndRecord(req) {
-  return req.query.filter
+    console.log(req.query);
+  return req.query.nicknameOrRecordFilter
     ? {
         [Op.or]: [
-          { record: { [Op.like]: `%${req.query.filter}%` } },
-          { nickname: { [Op.like]: `%${req.query.filter}%` } },
+          { record: { [Op.like]: `%${req.query.nicknameOrRecordFilter}%` } },
+          { nickname: { [Op.like]: `%${req.query.nicknameOrRecordFilter}%` } },
         ],
       }
     : {};
@@ -38,9 +39,20 @@ export function filterByFullName(req) {
 }
 
 export function filterByLegalPriority(req) {
-  if (req.query.filterByLegalPriority == 'true') {
+  if (req.query.filterByLegalPriority === 'true') {
     return { idPriority: { [Op.not]: 0 } };
   } else {
-    return { idPriority: { [Op.not]: null } };
+    return {};
   }
+}
+
+export function filterByNicknameOrRecord(req) {
+    return req.query.nicknameOrRecordFilter
+        ? {
+            [Op.or]: [
+                { record: { [Op.like]: `%${req.query.nicknameOrRecordFilter.trim()}%` } },
+                { nickname: { [Op.like]: `%${req.query.nicknameOrRecordFilter.trim()}%` } }
+            ],
+        }
+        : {};
 }

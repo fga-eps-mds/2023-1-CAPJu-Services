@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
 import { filterByName } from '../utils/filters.js';
-import { tokenToUser } from '../../middleware/authMiddleware.js';
+import {getUserRoleAndUnitFilterFromReq, tokenToUser, userFromReq} from '../../middleware/authMiddleware.js';
 
 export class StageController {
   constructor() {
@@ -11,12 +11,9 @@ export class StageController {
   index = async (req, res) => {
     try {
       let limit;
-      const { idRole, idUnit } = await tokenToUser(req);
-      console.log(idUnit);
-      const unitFilter = idRole === 5 ? {} : { idUnit };
       let where = {
         ...filterByName(req),
-        ...unitFilter,
+        ...await getUserRoleAndUnitFilterFromReq(req),
       };
 
       const data = { where, offset: req.query.offset, limit: req.query.limit };
@@ -30,6 +27,7 @@ export class StageController {
         return res.status(200).json({ stages: stages || [], totalPages });
       }
     } catch (error) {
+      console.log(error)
       return res.status(500).json({ message: 'Erro ao buscar etapas' });
     }
   };
@@ -49,10 +47,11 @@ export class StageController {
   };
 
   store = async (req, res) => {
-    const { name, idUnit, duration } = req.body;
+    const { name, duration } = req.body;
+    const idUnit = (await userFromReq(req)).unit.idUnit;
     try {
       const data = {
-        name: name.toLowerCase(),
+        name: name.trim(),
         idUnit,
         duration,
       };
@@ -65,13 +64,13 @@ export class StageController {
 
   update = async (req, res) => {
     try {
-      const { idStage, name, duration } = req.body;
+      const { name, duration } = req.body;
+      const idUnit = (await userFromReq(req)).unit.idUnit;
       const updated = await this.stageService.updateStage(
-        idStage,
+        idUnit,
         name,
         duration,
       );
-      console.log(updated);
       if (updated) {
         return res.status(200).json({
           message: 'Etapa atualizada com sucesso',
