@@ -12,7 +12,7 @@ services:
       - ./:/app
       - /app/node_modules
     ports:
-      - 8083:8083
+      - 8082:8082
     networks:
       - capju
     env_file:
