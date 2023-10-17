@@ -1,3 +1,3 @@
 #!/bin/sh
-npm run migration
+npm run migration --silent
 npm run start
