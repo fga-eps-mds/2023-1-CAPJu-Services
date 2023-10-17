@@ -6,12 +6,13 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: process_management
-    command: ['npm', 'run', 'start']
+    command: [ "/bin/sh", "-c", "npm start" ]
     restart: always
     volumes:
       - ./:/app
+      - /app/node_modules
     ports:
-      - 8082:8082
+      - 8083:8083
     networks:
       - capju
     env_file:
