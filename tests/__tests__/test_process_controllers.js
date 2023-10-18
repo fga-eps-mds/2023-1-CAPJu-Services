@@ -1,12 +1,12 @@
 import 'dotenv/config';
 import axios from 'axios';
 import { ProcessController } from '../../src/controllers/process';
-import * as middleware from '../../middleware/authMiddleware'
+import * as middleware from '../../middleware/authMiddleware';
 
 jest.mock('axios');
 
 const reqMock = {
-  body: {idUnit: 1, idRole: 1},
+  body: { idUnit: 1, idRole: 1 },
   params: {},
 };
 const resMock = {
@@ -33,34 +33,65 @@ describe('ProcessController', () => {
 
   describe('index', () => {
     test('list all processes (200)', async () => {
-      jest.spyOn(middleware, "tokenToUser").mockReturnValue({
+      const reqMockIndex = reqMock;
+
+      reqMockIndex.query = {
+        ...reqMockIndex.query,
+        showArchivedAndFinished: false,
+        filterByLegalPriority: false,
+      };
+
+      jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
         idUnit: 1,
         idRole: 1,
       });
 
-      const mockProcesses = [{ id: 1, name: 'Process 1', record: '123Abc' }, { id: 2, name: 'Process 2', record: '123Abc'}];
-      const mockFlowStages = [{idFlowProces: 1, idFlow: 1, record: '123abc', finalised: true}]
+      const mockProcesses = [
+        { id: 1, name: 'Process 1', record: '1234' },
+        { id: 2, name: 'Process 2', record: '1234' },
+      ];
+      const mockFlowStages = [
+        { idFlowProcess: 1, idFlow: 1, record: '1234', finalised: true },
+      ];
 
-      processController.processService.getAllProcess = jest.fn().mockResolvedValue(mockProcesses);
-      processController.flowStageService.findAll = jest.fn().mockResolvedValue(mockFlowStages);
-      processController.processService.countRows = jest.fn().mockResolvedValue(2);
+      processController.processService.getAllProcess = jest
+        .fn()
+        .mockResolvedValue(mockProcesses);
+      processController.flowStageService.findAll = jest
+        .fn()
+        .mockResolvedValue(mockFlowStages);
+      processController.processService.countRows = jest
+        .fn()
+        .mockResolvedValue(2);
 
-      await processController.index(reqMock, resMock);
+      await processController.index(reqMockIndex, resMock);
 
       expect(resMock.status).toHaveBeenCalledWith(200);
     });
 
     test('no processes found (204)', async () => {
-      processController.processService.getAllProcess = jest.fn().mockResolvedValue(null);
+      const reqMockIndex = reqMock;
 
-      await processController.index(reqMock, resMock);
+      reqMockIndex.query = {
+        ...reqMockIndex.query,
+        showArchivedAndFinished: false,
+        filterByLegalPriority: false,
+      };
+
+      processController.processService.getAllProcess = jest
+        .fn()
+        .mockResolvedValue(null);
+
+      await processController.index(reqMockIndex, resMock);
 
       expect(resMock.status).toHaveBeenCalledWith(204);
     });
 
     test('internal server error (500)', async () => {
       const error = new Error('Internal Server Error');
-      processController.processService.getAllProcess = jest.fn().mockRejectedValue(error);
+      processController.processService.getAllProcess = jest
+        .fn()
+        .mockRejectedValue(error);
 
       await processController.index(reqMock, resMock);
 
@@ -72,7 +103,9 @@ describe('ProcessController', () => {
     test('process found (200)', async () => {
       const mockProcess = { id: 1, name: 'Process 1' };
 
-      processController.processService.getProcessByRecord = jest.fn().mockResolvedValue(mockProcess);
+      processController.processService.getProcessByRecord = jest
+        .fn()
+        .mockResolvedValue(mockProcess);
 
       reqMock.params = { record: '123' };
 
@@ -83,7 +116,9 @@ describe('ProcessController', () => {
     });
 
     test('process not found (404)', async () => {
-      processController.processService.getProcessByRecord = jest.fn().mockResolvedValue(null);
+      processController.processService.getProcessByRecord = jest
+        .fn()
+        .mockResolvedValue(null);
 
       reqMock.params = { record: '123' };
 
@@ -98,7 +133,9 @@ describe('ProcessController', () => {
 
     test('internal server error (500)', async () => {
       const error = new Error('Internal Server Error');
-      processController.processService.getProcessByRecord = jest.fn().mockRejectedValue(error);
+      processController.processService.getProcessByRecord = jest
+        .fn()
+        .mockRejectedValue(error);
 
       reqMock.params = { record: '123' };
 
@@ -114,9 +151,14 @@ describe('ProcessController', () => {
 
   describe('getProcessByIdFlow', () => {
     test('processes found (200)', async () => {
-      const mockProcesses = [{ id: 1, name: 'Process 1' }, { id: 2, name: 'Process 2' }];
+      const mockProcesses = [
+        { id: 1, name: 'Process 1' },
+        { id: 2, name: 'Process 2' },
+      ];
 
-      processController.processService.getProcessByIdFlow = jest.fn().mockResolvedValue(mockProcesses);
+      processController.processService.getProcessByIdFlow = jest
+        .fn()
+        .mockResolvedValue(mockProcesses);
 
       reqMock.params = { idFlow: 1 };
 
@@ -127,7 +169,9 @@ describe('ProcessController', () => {
     });
 
     test('no processes found (404)', async () => {
-      processController.processService.getProcessByIdFlow = jest.fn().mockResolvedValue(null);
+      processController.processService.getProcessByIdFlow = jest
+        .fn()
+        .mockResolvedValue(null);
 
       reqMock.params = { idFlow: 1 };
 
@@ -142,7 +186,9 @@ describe('ProcessController', () => {
 
     test('internal server error (500)', async () => {
       const error = new Error('Internal Server Error');
-      processController.processService.getProcessByIdFlow = jest.fn().mockRejectedValue(error);
+      processController.processService.getProcessByIdFlow = jest
+        .fn()
+        .mockRejectedValue(error);
 
       reqMock.params = { idFlow: 1 };
 
@@ -173,7 +219,9 @@ describe('ProcessController', () => {
     });
 
     test('process not found (404)', async () => {
-      processController.processService.getProcessByUniqueKeys = jest.fn().mockResolvedValue(null);
+      processController.processService.getProcessByUniqueKeys = jest
+        .fn()
+        .mockResolvedValue(null);
 
       reqMock.params = { record: '123', idFlow: 1 };
 
@@ -208,8 +256,12 @@ describe('ProcessController', () => {
       const mockFlow = { idFlow: 1, idUnit: 1 };
       const mockRecordStatus = { valid: true, filteredRecord: '123' };
 
-      processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
-      processController.flowService.findOneByFlowId = jest.fn().mockResolvedValue(mockFlow);
+      processController.processService.validateRecord = jest
+        .fn()
+        .mockReturnValue(mockRecordStatus);
+      processController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue(mockFlow);
       processController.processService.createProcess = jest.fn();
 
       reqMock.body = {
@@ -231,7 +283,9 @@ describe('ProcessController', () => {
     test('invalid record format (400)', async () => {
       const mockRecordStatus = { valid: false, filteredRecord: 'abc' };
 
-      processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
+      processController.processService.validateRecord = jest
+        .fn()
+        .mockReturnValue(mockRecordStatus);
 
       reqMock.body = {
         record: 'abc',
@@ -253,8 +307,12 @@ describe('ProcessController', () => {
     test('flow not found (500)', async () => {
       const mockRecordStatus = { valid: true, filteredRecord: '123' };
 
-      processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
-      processController.flowService.findOneByFlowId = jest.fn().mockRejectedValue(new Error('Flow not found'));
+      processController.processService.validateRecord = jest
+        .fn()
+        .mockReturnValue(mockRecordStatus);
+      processController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockRejectedValue(new Error('Flow not found'));
 
       reqMock.body = {
         record: '123',
@@ -276,7 +334,10 @@ describe('ProcessController', () => {
 
     describe('getPriorityProcess', () => {
       test('list priority processes (200)', async () => {
-        const mockPriorityProcesses = [{ id: 1, name: 'Process 1' }, { id: 2, name: 'Process 2' }];
+        const mockPriorityProcesses = [
+          { id: 1, name: 'Process 1' },
+          { id: 2, name: 'Process 2' },
+        ];
 
         processController.processService.getPriorityProcess = jest
           .fn()
@@ -289,17 +350,23 @@ describe('ProcessController', () => {
       });
 
       test('no priority processes found (404)', async () => {
-        processController.processService.getPriorityProcess = jest.fn().mockResolvedValue(null);
+        processController.processService.getPriorityProcess = jest
+          .fn()
+          .mockResolvedValue(null);
 
         await processController.getPriorityProcess(reqMock, resMock);
 
-        expect(resMock.json).toHaveBeenCalledWith({ error: 'Não há processos com prioridade legal.' });
+        expect(resMock.json).toHaveBeenCalledWith({
+          error: 'Não há processos com prioridade legal.',
+        });
         expect(resMock.status).toHaveBeenCalledWith(404);
       });
 
       test('internal server error (500)', async () => {
         const error = new Error('Internal Server Error');
-        processController.processService.getPriorityProcess = jest.fn().mockRejectedValue(error);
+        processController.processService.getPriorityProcess = jest
+          .fn()
+          .mockRejectedValue(error);
 
         await processController.getPriorityProcess(reqMock, resMock);
 
@@ -310,14 +377,32 @@ describe('ProcessController', () => {
     describe('updateProcess', () => {
       test('update process successfully (200)', async () => {
         const mockRecordStatus = { valid: true, filteredRecord: '123' };
-        const mockProcess = { id: 1, record: '123', nickname: 'John Doe', status: 'notStarted' };
+        const mockProcess = {
+          id: 1,
+          record: '123',
+          nickname: 'John Doe',
+          status: 'notStarted',
+        };
         const mockFlowStages = [{ idStageA: 1 }];
-        const mockUpdatedProcess = { id: 1, record: '123', nickname: 'John Doe', status: 'inProgress' };
+        const mockUpdatedProcess = {
+          id: 1,
+          record: '123',
+          nickname: 'John Doe',
+          status: 'inProgress',
+        };
 
-        processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
-        processController.processService.getProcessByRecord = jest.fn().mockResolvedValue(mockProcess);
-        processController.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue(mockFlowStages);
-        processController.processService.updateProcess = jest.fn().mockResolvedValue(mockUpdatedProcess);
+        processController.processService.validateRecord = jest
+          .fn()
+          .mockReturnValue(mockRecordStatus);
+        processController.processService.getProcessByRecord = jest
+          .fn()
+          .mockResolvedValue(mockProcess);
+        processController.flowStageService.findAllByIdFlow = jest
+          .fn()
+          .mockResolvedValue(mockFlowStages);
+        processController.processService.updateProcess = jest
+          .fn()
+          .mockResolvedValue(mockUpdatedProcess);
 
         reqMock.params = { record: '123' };
         reqMock.body = { nickname: 'Jane Doe', status: 'inProgress' };
@@ -331,7 +416,9 @@ describe('ProcessController', () => {
       test('invalid record format (400)', async () => {
         const mockRecordStatus = { valid: false, filteredRecord: 'abc' };
 
-        processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
+        processController.processService.validateRecord = jest
+          .fn()
+          .mockReturnValue(mockRecordStatus);
 
         reqMock.params = { record: 'abc' };
         reqMock.body = { nickname: 'John Doe', status: 'inProgress' };
@@ -348,44 +435,74 @@ describe('ProcessController', () => {
       test('process not found (500)', async () => {
         const mockRecordStatus = { valid: true, filteredRecord: '123' };
 
-        processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
-        processController.processService.getProcessByRecord = jest.fn().mockRejectedValue(new Error('Process not found'));
+        processController.processService.validateRecord = jest
+          .fn()
+          .mockReturnValue(mockRecordStatus);
+        processController.processService.getProcessByRecord = jest
+          .fn()
+          .mockRejectedValue(new Error('Process not found'));
 
         reqMock.params = { record: '123' };
         reqMock.body = { nickname: 'John Doe', status: 'inProgress' };
 
         await processController.updateProcess(reqMock, resMock);
 
-        expect(resMock.json).toHaveBeenCalledWith({ error: 'Falha ao buscar processo.' });
+        expect(resMock.json).toHaveBeenCalledWith({
+          error: 'Falha ao buscar processo.',
+        });
         expect(resMock.status).toHaveBeenCalledWith(500);
       });
 
       test('no stages in flow (404)', async () => {
         const mockRecordStatus = { valid: true, filteredRecord: '123' };
-        const mockProcess = { id: 1, record: '123', nickname: 'John Doe', status: 'notStarted' };
+        const mockProcess = {
+          id: 1,
+          record: '123',
+          nickname: 'John Doe',
+          status: 'notStarted',
+        };
         const mockFlowStages = [];
 
-        processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
-        processController.processService.getProcessByRecord = jest.fn().mockResolvedValue(mockProcess);
-        processController.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue(mockFlowStages);
+        processController.processService.validateRecord = jest
+          .fn()
+          .mockReturnValue(mockRecordStatus);
+        processController.processService.getProcessByRecord = jest
+          .fn()
+          .mockResolvedValue(mockProcess);
+        processController.flowStageService.findAllByIdFlow = jest
+          .fn()
+          .mockResolvedValue(mockFlowStages);
 
         reqMock.params = { record: '123' };
         reqMock.body = { nickname: 'John Doe', status: 'inProgress' };
 
         await processController.updateProcess(reqMock, resMock);
 
-        expect(resMock.json).toHaveBeenCalledWith({ error: 'Não há etapas neste fluxo' });
+        expect(resMock.json).toHaveBeenCalledWith({
+          error: 'Não há etapas neste fluxo',
+        });
         expect(resMock.status).toHaveBeenCalledWith(404);
       });
 
       test('starting process not valid (200)', async () => {
         const mockRecordStatus = { valid: true, filteredRecord: '123' };
-        const mockProcess = { id: 1, record: '123', nickname: 'John Doe', status: 'inProgress' };
+        const mockProcess = {
+          id: 1,
+          record: '123',
+          nickname: 'John Doe',
+          status: 'inProgress',
+        };
         const mockFlowStages = [{ idStageA: 1 }];
 
-        processController.processService.validateRecord = jest.fn().mockReturnValue(mockRecordStatus);
-        processController.processService.getProcessByRecord = jest.fn().mockResolvedValue(mockProcess);
-        processController.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue(mockFlowStages);
+        processController.processService.validateRecord = jest
+          .fn()
+          .mockReturnValue(mockRecordStatus);
+        processController.processService.getProcessByRecord = jest
+          .fn()
+          .mockResolvedValue(mockProcess);
+        processController.flowStageService.findAllByIdFlow = jest
+          .fn()
+          .mockResolvedValue(mockFlowStages);
 
         reqMock.params = { record: '123' };
         reqMock.body = { nickname: 'John Doe', status: 'inProgress' };
@@ -407,32 +524,42 @@ describe('ProcessController', () => {
       test('delete process successfully (200)', async () => {
         const mockResult = 1;
 
-        processController.processService.deleteProcessByRecord = jest.fn().mockResolvedValue(mockResult);
+        processController.processService.deleteProcessByRecord = jest
+          .fn()
+          .mockResolvedValue(mockResult);
 
         reqMock.params = { record: '123' };
 
         await processController.deleteProcess(reqMock, resMock);
 
-        expect(resMock.json).toHaveBeenCalledWith({ message: 'Processo apagado.' });
+        expect(resMock.json).toHaveBeenCalledWith({
+          message: 'Processo apagado.',
+        });
         expect(resMock.status).toHaveBeenCalledWith(200);
       });
 
       test('process not found (404)', async () => {
         const mockResult = 0;
 
-        processController.processService.deleteProcessByRecord = jest.fn().mockResolvedValue(mockResult);
+        processController.processService.deleteProcessByRecord = jest
+          .fn()
+          .mockResolvedValue(mockResult);
 
         reqMock.params = { record: '123' };
 
         await processController.deleteProcess(reqMock, resMock);
 
-        expect(resMock.json).toHaveBeenCalledWith({ error: 'Não há registro 123.' });
+        expect(resMock.json).toHaveBeenCalledWith({
+          error: 'Não há registro 123.',
+        });
         expect(resMock.status).toHaveBeenCalledWith(404);
       });
 
       test('internal server error (500)', async () => {
         const error = new Error('Internal Server Error');
-        processController.processService.deleteProcessByRecord = jest.fn().mockRejectedValue(error);
+        processController.processService.deleteProcessByRecord = jest
+          .fn()
+          .mockRejectedValue(error);
 
         reqMock.params = { record: '123' };
 
@@ -451,8 +578,12 @@ describe('ProcessController', () => {
         const mockFlowStages = [{ idStageA: 1, idStageB: 2 }];
         const mockResult = { id: 1, record: '123', idStage: 2 };
 
-        processController.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue(mockFlowStages);
-        processController.processService.updateProcess = jest.fn().mockResolvedValue(mockResult);
+        processController.flowStageService.findAllByIdFlow = jest
+          .fn()
+          .mockResolvedValue(mockFlowStages);
+        processController.processService.updateProcess = jest
+          .fn()
+          .mockResolvedValue(mockResult);
 
         reqMock.body = { record: '123', from: 1, to: 2, idFlow: 1 };
 
@@ -480,8 +611,12 @@ describe('ProcessController', () => {
         const mockFlowStages = [{ idStageA: 1, idStageB: 3 }];
         const mockResult = { id: 1, record: '123', idStage: 2 };
 
-        processController.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue(mockFlowStages);
-        processController.processService.updateProcess = jest.fn().mockResolvedValue(mockResult);
+        processController.flowStageService.findAllByIdFlow = jest
+          .fn()
+          .mockResolvedValue(mockFlowStages);
+        processController.processService.updateProcess = jest
+          .fn()
+          .mockResolvedValue(mockResult);
 
         reqMock.body = { record: '123', from: 1, to: 2, idFlow: 1 };
 
@@ -497,8 +632,12 @@ describe('ProcessController', () => {
       test('error updating process stage (500)', async () => {
         const mockFlowStages = [{ idStageA: 1, idStageB: 2 }];
 
-        processController.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue(mockFlowStages);
-        processController.processService.updateProcess = jest.fn().mockRejectedValue(new Error('Error updating process stage'));
+        processController.flowStageService.findAllByIdFlow = jest
+          .fn()
+          .mockResolvedValue(mockFlowStages);
+        processController.processService.updateProcess = jest
+          .fn()
+          .mockRejectedValue(new Error('Error updating process stage'));
 
         reqMock.body = { record: '123', from: 1, to: 2, idFlow: 1 };
 
