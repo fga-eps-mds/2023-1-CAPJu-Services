@@ -220,7 +220,7 @@ export class ProcessController {
 
   updateProcess = async (req, res) => {
     try {
-      const { nickname } = req.body;
+      const { nickname, status } = req.body;
 
       const recordStatus = this.processService.validateRecord(
         req.params.record,
@@ -256,7 +256,11 @@ export class ProcessController {
               effectiveDate: new Date(),
               status: 'inProgress',
             }
-          : {};
+          : {
+            idStage: flowStages[0].idStageA || process.idStage,
+            effectiveDate: new Date(),
+            status,
+          };
 
       const updatedProcess = await this.processService.updateProcess(
         {
