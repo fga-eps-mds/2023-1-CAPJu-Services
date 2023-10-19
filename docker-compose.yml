@@ -1,4 +1,4 @@
-version: "3.3"
+version: '3.3'
 
 services:
   process_management:
@@ -6,7 +6,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: process_management
-    entrypoint: ["/bin/sh", "-c", "./entrypoint.sh"]
+    command: [ "/bin/sh", "-c", "npm start" ]
     restart: always
     volumes:
       - ./:/app
