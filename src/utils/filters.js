@@ -52,3 +52,16 @@ export function filterByIdFlow(req) {
       }
     : {};
 }
+
+export function filterByDateRange(req){
+  const {from, to}=req.query
+  
+  if(to===undefined||from===undefined)
+    return {}
+  return {
+    effectiveDate: {
+      [Op.between]: [new Date(from), new Date(to)]
+    },
+}
+
+}

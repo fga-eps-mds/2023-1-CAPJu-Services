@@ -4,7 +4,8 @@ import {
   filterByLegalPriority,
   filterByNicknameAndRecord,
   filterByStatus,
-  filterByIdFlow
+  filterByIdFlow,
+  filterByDateRange
 } from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
 
@@ -27,10 +28,10 @@ export class ProcessController {
         ...filterByLegalPriority(req),
         ...filterByNicknameAndRecord(req),
         ...filterByStatus(req),
-        ...  filterByIdFlow(req),
+        ...filterByIdFlow(req),
+        ...filterByDateRange(req),
         ...unitFilter,
       };
-      console.log({where})
       const offset = parseInt(req.query.offset) || 0;
       const limit = parseInt(req.query.limit) || 10;
 
