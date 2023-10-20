@@ -1,23 +1,12 @@
-import pino from 'pino';
+import {Op} from 'sequelize';
 import xlsx from 'node-xlsx';
+import XLSX from 'xlsx-js-style';
 import models from '../models/_index.js';
 import ProcessService from './process.js';
 import FlowService from './flow.js';
 import PriorityService from './priority.js';
-import {Op} from "sequelize";
-
-
-const logger = pino({
-    transport: {
-        target: 'pino-pretty',
-        options: {
-            levelFirst: true,
-            translateTime: false,
-            ignore: 'pid,hostname,time',
-            messageFormat: '{msg}',
-        }
-    },
-});
+import {logger} from "../utils/logger.js";
+import sequelizeConfig from "../config/sequelize.js";
 
 const validProcessesHeader = ['Número processo', 'Número do Processo', 'Processos'];
 const validNicknamesHeader = ['Apelido', 'Apelidos'];
@@ -57,7 +46,6 @@ export class ProcessesFileService {
             ]
         }
 
-        console.log(req.nameOrRecord)
         const data = await this.processesFileRepository.findAll({
             where,
             offset,
@@ -117,7 +105,6 @@ export class ProcessesFileService {
 
         const totalCount = await this.processesFileItemRepository.count({ where });
 
-        console.log(totalCount)
         const totalPages = Math.ceil(totalCount / limit);
         const currentPage = Math.floor(offset / limit) + 1;
 
@@ -144,6 +131,12 @@ export class ProcessesFileService {
 
     }
 
+    updateFileItem = async (idProcessesFileItem, newData) => {
+
+        return await this.processesFileItemRepository.update(newData, { where: { idProcessesFileItem }, returning: false });
+
+    }
+
     findFileById = async (idProcessesFile, dataFlag) => {
         return await this.processesFileRepository.findOne({
             where: { idProcessesFile },
@@ -153,14 +146,11 @@ export class ProcessesFileService {
     }
 
     deleteFileById = async (idProcessesFile) => {
-        console.log(idProcessesFile)
         await this.processesFileItemRepository.destroy({ where: { idProcessesFile } });
         return await this.processesFileRepository.destroy({ where: { idProcessesFile } });
     }
 
     executeJob = async () => {
-
-        logger.info('Iniciando rotina de importação de processos interna');
 
         // logic based on the assumption that the files will be small.
         const files = await this.processesFileRepository.findAll({
@@ -175,7 +165,7 @@ export class ProcessesFileService {
 
         const idProcessesFile = files.map(f => f.idProcessesFile);
 
-        await this.processesFileRepository.update({ status : 'inProgress' }, { where: { idProcessesFile } });
+        await this.processesFileRepository.update({ status : 'inProgress' }, { where: { idProcessesFile }, returning: false });
 
         for (const file of files) {
 
@@ -190,8 +180,6 @@ export class ProcessesFileService {
                 logger.info(`Parser arquivo [${file.idProcessesFile}-${file.fileName}] concluído`);
 
                 const headerIndex = workbook[0].data.findIndex(row => row.length);
-
-                logger.info(`Index cabeçalho ${headerIndex}`);
 
                 if(headerIndex === -1) {
                     throw new Error('Cabeçalho não encontrado');
@@ -268,7 +256,7 @@ export class ProcessesFileService {
 
                     const processes = [];
 
-                    const flows = await this.flowService.findAllRawWithAttributes({ name : sheetDataMap.get(headerIndexes.flowsHeaderIndex) }, ['idFlow', 'idUnit', 'name']);
+                    const flows = await this.flowService.findAllRawWithAttributes({ name : Array.from(new Set(sheetDataMap.get(headerIndexes.flowsHeaderIndex))) }, ['idFlow', 'idUnit', 'name']);
 
                     for (let j = 0; j < processesFileItems.length; j++) {
 
@@ -287,7 +275,7 @@ export class ProcessesFileService {
                                                          { name: 'Apelido', key: 'nickname' }].filter(field => !fileItem[field.key])
 
                         if(mandatoryNonEmptyFields.length) {
-                            mandatoryNonEmptyFields.forEach(emptyField => message = message.concat(`${emptyField.name} vazio `));
+                            mandatoryNonEmptyFields.forEach(emptyField => message = message.concat(`${emptyField.name} vazio \n`));
                             status = 'error';
                         }
 
@@ -296,7 +284,7 @@ export class ProcessesFileService {
                             const flow = flows.find(f => f.name === fileItem.flow);
 
                             if(!flow) {
-                                message = message.concat(`Fluxo ${fileItem.flow} inválido `);
+                                message = message.concat(`Fluxo ${fileItem.flow} inválido \n`);
                                 status = 'error';
                             } else {
                                 Object.assign(process, { idFlow: flow.idFlow, idUnit: flow.idUnit });
@@ -309,7 +297,7 @@ export class ProcessesFileService {
                             const { filteredRecord: record, valid } = this.validateRecord(fileItem.record);
 
                             if(!valid) {
-                                message = message.concat(`Número de processo ${fileItem.record} fora do padrão CNJ `);
+                                message = message.concat(`Número de processo ${fileItem.record} fora do padrão CNJ \n`);
                                 status = 'error';
                             } else {
                                 Object.assign(process, { record });
@@ -319,7 +307,7 @@ export class ProcessesFileService {
 
                         const idPriority = this.getPriorityIdByDescriptionOrAbbreviation(fileItem.priority);
                         if(idPriority === null) {
-                            message = message.concat(`Prioridade ${fileItem.priority} não encontrada `);
+                            message = message.concat(`Prioridade ${fileItem.priority} não encontrada \n`);
                         } else {
                             Object.assign(process, { idPriority });
                         }
@@ -329,6 +317,7 @@ export class ProcessesFileService {
                             fileItem.process = process;
                             processes.push(process);
                         } else {
+                            message = message.trim();
                             Object.assign(fileItem, { message } );
                         }
 
@@ -336,10 +325,10 @@ export class ProcessesFileService {
 
                     }
 
-                    const resultingSheetData = [ [...worksheet.data[headerIndex], 'Resultado', 'Mensagens'], ...worksheet.data.slice(headerIndex+1)]
+                    const resultingSheetData = [ [...worksheet.data[headerIndex], 'Resultado', 'Mensagens'], ...worksheet.data.slice(headerIndex+1) ];
                     resultingSheetWorkbooks.push({ name: worksheet.name, data: resultingSheetData  })
                     const initialIndex = headerIndex + 1;
-                    processesFileItems.forEach((processesFileItem,i) => {
+                    processesFileItems.forEach((processesFileItem, i) => {
                         const currentRow = resultingSheetData[initialIndex+i];
                         let aux = 0;
                         while (aux < worksheet.data[headerIndex].length) {
@@ -347,48 +336,100 @@ export class ProcessesFileService {
                                 currentRow.splice(aux, 1, undefined);
                             aux++;
                         }
-                        currentRow.splice(worksheet.data[headerIndex].length,0, processesFileItem.status === 'imported' ? 'IMPORTADO' : 'ERRO');
-                        currentRow.splice(worksheet.data[headerIndex].length+1,0,processesFileItem.message || '-');
+                        const status = {
+                            imported: { content: 'IMPORTADO', color: '34eb4c' },
+                            error: { content: 'ERRO', color: 'd62d2d' }
+                        }[processesFileItem.status];
+                        currentRow.splice(worksheet.data[headerIndex].length,0, { v: status.content, s: { font: { color: { rgb: status.color } }} });
+                        currentRow.splice(worksheet.data[headerIndex].length+1,0,{ v: processesFileItem.message || '-', s: { alignment: { wrapText: true } } });
                     });
 
                     const processesAuds = [];
 
-                    const processesResponse = await models.Process.bulkCreate(processes,  { returning: true });
+                    const wb = XLSX.utils.book_new();
 
-                    processesResponse.forEach((process, i) => {
-                        process = process.toJSON();
-                        processes[i].idProcess = process.idProcess;
-                        processesAuds.push({
-                            processRecord: process.record,
-                            idProcess: process.idProcess,
-                            operation: 'INSERT',
-                            changedBy: file.importedBy,
-                            newValues: JSON.stringify(process),
-                            changedAt: new Date(),
-                            remarks: null,
-                            oldValues: null,
+                    for (const sheet of resultingSheetWorkbooks) {
+
+                        const ws = XLSX.utils.aoa_to_sheet(sheet.data);
+
+                        const maxContentLengths = this.findMaxContentLengthPerColumn(sheet.data);
+
+                        ws['!cols'] = maxContentLengths.map((maxLength) => ({wch: maxLength}));
+
+                        XLSX.utils.book_append_sheet(wb, ws, sheet.name);
+                    }
+
+                    await sequelizeConfig.transaction(async (transaction) => {
+
+                        const processesResponse = await models.Process.bulkCreate(processes,  { returning: true, logging: false, transaction });
+
+                        processesResponse.forEach((process, i) => {
+                            process = process.toJSON();
+                            processes[i].idProcess = process.idProcess;
+                            processesAuds.push({
+                                processRecord: process.record,
+                                idProcess: process.idProcess,
+                                operation: 'INSERT',
+                                changedBy: file.importedBy,
+                                newValues: JSON.stringify(process),
+                                changedAt: new Date(),
+                                remarks: null,
+                                oldValues: null,
+                            });
                         });
+
+                        processesFileItems = processesFileItems.map(fI => ({ ...fI, idProcess: fI.process?.idProcess }));
+
+                        await models.ProcessAud.bulkCreate(processesAuds, { transaction, returning: false, logging: false, });
+                        await this.processesFileItemRepository.bulkCreate(processesFileItems, { transaction, returning: false, logging: false, });
+                        await this.processesFileRepository.update(
+                            { status: 'imported', message: null, importedAt: new Date() },
+                            { where: { idProcessesFile: file.idProcessesFile } },
+                            { transaction, returning: false, logging: false, }
+                        );
+
+                        const outputFile = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+                        await this.processesFileRepository.update({ dataResultingFile: Buffer.from(outputFile) }, { where: { idProcessesFile: file.idProcessesFile }, transaction, returning: false });
+
                     });
-
-                    processesFileItems = processesFileItems.map(fI => ({ ...fI, idProcess: fI.process?.idProcess }));
-
-                    await models.ProcessAud.bulkCreate(processesAuds);
-                    await this.processesFileItemRepository.bulkCreate(processesFileItems);
-                    await this.processesFileRepository.update({ status : 'imported', message: null, importedAt: new Date() }, { where: { idProcessesFile: file.idProcessesFile } });
 
                 }
 
-                const resultingSheet = xlsx.build(resultingSheetWorkbooks).buffer;
-
-                await this.processesFileRepository.update({ dataResultingFile: Buffer.from(resultingSheet) }, { where: { idProcessesFile: file.idProcessesFile } });
-
             } catch (error) {
                 logger.error(`Erro ao processar planilha: ${error}`);
-                await this.processesFileRepository.update({ status : 'error', message: error, importedAt: null, dataResultingFile: null }, { where: { idProcessesFile: file.idProcessesFile } });
+                await this.processesFileRepository.update(
+                    { status: 'error', message: error.message, importedAt: null, dataResultingFile: null },
+                    { where: { idProcessesFile: file.idProcessesFile }, returning: false }
+                );
             }
 
         }
     }
+
+    findMaxContentLengthPerColumn = (sheetData) => {
+        const maxContentLengths = [];
+
+        sheetData.forEach((row) => {
+            row.forEach((cell, index) => {
+                const cellValue = cell?.v ? cell.v : (cell || '');
+
+                if (index === row.length-2) {
+                    maxContentLengths[index] = 15;
+                } else {
+                    const longestSegment = cellValue.toString().split('\n').reduce((max, line) => { return line.length > max ? line.length : max; }, 0);
+                    if (index >= maxContentLengths.length) {
+                        maxContentLengths.push(longestSegment);
+                    } else if (longestSegment > maxContentLengths[index]) {
+                        maxContentLengths[index] = longestSegment;
+                    }
+                }
+
+            });
+        });
+
+        return maxContentLengths;
+    };
 
     getFormattedFileName = (fileName) => {
         let formattedName = fileName.replace(/ /g, "_");

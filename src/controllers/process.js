@@ -208,7 +208,7 @@ export class ProcessController {
 
       try {
         if (flow) {
-          await this.processService.createProcessAndAud({
+          const data = await this.processService.createProcessAndAud({
             record,
             idUnit: flow.idUnit,
             nickname,
@@ -219,6 +219,7 @@ export class ProcessController {
 
           return res.status(200).json({
             message: `Processo criado com sucesso.`,
+            data,
           });
         }
       } catch (error) {

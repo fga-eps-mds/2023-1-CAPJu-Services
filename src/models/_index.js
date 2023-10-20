@@ -12,6 +12,7 @@ import UnitModel from './unit.js';
 import NoteModel from './note.js';
 import ProcessesFileModel from "./processesFile.js";
 import ProcessesFileItemModel from './processesFileItem.js';
+import DocumentAudModel from "./documentAud.js";
 
 const Priority = PriorityModel;
 const Flow = FlowModel;
@@ -25,6 +26,7 @@ const Role = RoleModel;
 const Note = NoteModel;
 const ProcessesFile = ProcessesFileModel;
 const ProcessesFileItem = ProcessesFileItemModel;
+const DocumentAud = DocumentAudModel;
 
 const models = {
   Priority,
@@ -41,6 +43,7 @@ const models = {
   Note,
   ProcessesFile,
   ProcessesFileItem,
+  DocumentAud,
 };
 
 User.associate(models);
@@ -48,5 +51,6 @@ ProcessAud.associate(models);
 Process.associate(models);
 ProcessesFile.associate(models);
 ProcessesFileItem.associate(models);
+DocumentAud.associate(models);
 
 export default models;

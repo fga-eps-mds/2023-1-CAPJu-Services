@@ -9,6 +9,7 @@ ProcessesFileRoutes.get('/findAllItemsPaged', authenticate, controller.findAllIt
 ProcessesFileRoutes.post('/newFile', authenticate, controller.create);
 ProcessesFileRoutes.delete('/deleteFile/:idProcessesFile', authenticate, controller.deleteById);
 ProcessesFileRoutes.get('/findFileById/:idProcessesFile/:dataFlag', authenticate, controller.findFileById);
-ProcessesFileRoutes.put('/updateFile/:idProcessesFile', authenticate, controller.create);
+ProcessesFileRoutes.put('/updateFile/:idProcessesFile', authenticate, () => {});
+ProcessesFileRoutes.put('/updateFileItem/:idProcessesFileItem', authenticate, controller.updateFileItem);
 
 export default ProcessesFileRoutes;

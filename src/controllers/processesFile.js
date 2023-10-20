@@ -57,6 +57,23 @@ export class ProcessesFileController {
         }
     }
 
+    updateFileItem = async (req, res) => {
+        try {
+
+            const { idProcessesFileItem } = req.params;
+
+            const newData = req.body;
+
+            await this.processesFileService.updateFileItem(idProcessesFileItem, newData)
+
+            return res.status(200).json({ idProcessesFileItem });
+
+        } catch (error) {
+            return res.status(500).json({error: `${error}`, message: `Erro ao atualizar item`});
+        }
+
+    }
+
     findFileById = async (req, res) => {
         try {
 
