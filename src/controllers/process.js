@@ -7,7 +7,6 @@ import {
   filterByIdFlow
 } from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
-import { Op } from 'sequelize';
 
 export class ProcessController {
   constructor() {
@@ -43,39 +42,14 @@ export class ProcessController {
 
       if (!processes || processes.length === 0) {
         return res.status(204).json([]);
-      } else {
-        const processesWithFlows = [];
-        for (const process of processes) {
-          const flowProcesses = await this.flowStageService.findAll({
-            where: {
-              record: process.record,
-            },
-          });
+      } 
+      const totalCount = await this.processService.countRows({ where });
+      const totalPages = Math.ceil(totalCount / limit) || 0;
 
-          const flowProcessesIdFlows = flowProcesses.map(flowProcess => {
-            return flowProcess.idFlow;
-          });
+      return res
+        .status(200)
+        .json({ processes, totalPages });
 
-          processesWithFlows.push({
-            record: process.record,
-            nickname: process.nickname,
-            effectiveDate: process.effectiveDate,
-            idUnit: process.idUnit,
-            idStage: process.idStage,
-            idPriority: process.idPriority,
-            idFlow: flowProcessesIdFlows,
-            status: process.status,
-            progress: process.progress,
-          });
-        }
-
-        const totalCount = await this.processService.countRows({ where });
-        const totalPages = Math.ceil(totalCount / limit) || 0;
-
-        return res
-          .status(200)
-          .json({ processes: processesWithFlows, totalPages });
-      }
     } catch (error) {
       return res.status(500).json({
         error: error.message,
