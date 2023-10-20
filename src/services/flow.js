@@ -1,3 +1,7 @@
+import { QueryTypes } from 'sequelize';
+import sequelizeConfig from '../config/sequelize.js';
+import 'dotenv/config';
+
 class FlowService {
   constructor(FlowModel) {
     this.flow = FlowModel;
@@ -65,6 +69,21 @@ class FlowService {
 
   async deleteFlowById(idFlow) {
     return await this.flow.destroy({ where: { idFlow } });
+  }
+
+  async getHistoricByFlowId(idFlow) {
+    const query_results = await sequelizeConfig.query(
+      `SELECT 
+        P."idFlow", A."idProcess", A."processRecord", A."operation", A."changedAt", A."newValues" 
+        FROM "processAud" A 
+        INNER JOIN process P on P."idProcess"=A."idProcess" 
+        WHERE P."idFlow" = 1 AND A."operation" = 'UPDATE';`,
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
+      
+    return query_results;
   }
 
   async stagesSequencesFromFlowStages(flowStages) {
