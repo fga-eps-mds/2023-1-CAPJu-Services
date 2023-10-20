@@ -7,6 +7,7 @@ import {
   filterByIdFlow
 } from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
+import { Op } from 'sequelize';
 
 export class ProcessController {
   constructor() {
@@ -30,7 +31,7 @@ export class ProcessController {
         ...  filterByIdFlow(req),
         ...unitFilter,
       };
-
+      console.log({where})
       const offset = parseInt(req.query.offset) || 0;
       const limit = parseInt(req.query.limit) || 10;
 
