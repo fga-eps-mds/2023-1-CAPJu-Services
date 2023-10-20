@@ -44,3 +44,11 @@ export function filterByLegalPriority(req) {
     return { idPriority: { [Op.not]: null } };
   }
 }
+
+export function filterByIdFlow(req) {
+  return req.query.idFlow
+    ? {
+        idFlow: req.query.idFlow,
+      }
+    : {};
+}

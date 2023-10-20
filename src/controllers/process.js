@@ -4,9 +4,9 @@ import {
   filterByLegalPriority,
   filterByNicknameAndRecord,
   filterByStatus,
+  filterByIdFlow
 } from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
-import { Op } from 'sequelize';
 
 export class ProcessController {
   constructor() {
@@ -27,6 +27,7 @@ export class ProcessController {
         ...filterByLegalPriority(req),
         ...filterByNicknameAndRecord(req),
         ...filterByStatus(req),
+        ...  filterByIdFlow(req),
         ...unitFilter,
       };
 
