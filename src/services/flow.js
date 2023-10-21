@@ -77,8 +77,9 @@ class FlowService {
         P."idFlow", A."idProcess", A."processRecord", A."operation", A."changedAt", A."newValues" 
         FROM "processAud" A 
         INNER JOIN process P on P."idProcess"=A."idProcess" 
-        WHERE P."idFlow" = 1 AND A."operation" = 'UPDATE';`,
+        WHERE P."idFlow" = ? AND A."operation" = 'UPDATE';`,
       {
+        replacements: [ idFlow ],
         type: QueryTypes.SELECT,
       },
     );
