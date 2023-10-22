@@ -6,76 +6,18 @@ on:
       - 'v*'
 
 jobs:
-  generate-release-mailer:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get file name
-        id: name
-        run: echo "::set-output name=file_name::fga-eps-mds-2023-1-Capju-ServicesMailer-$(TZ='America/Sao_Paulo' date +'%m-%d-%Y-%H-%M-%S')-${{github.ref_name}}"
-
-      - name: Copy repository
-        uses: actions/checkout@v2
-      - run: wget $METRICS_URL -O ${{ steps.name.outputs.file_name }}.json
-        env:
-          METRICS_URL: ${{ secrets.MAILER_METRICS_URL }}
-      - uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.name.outputs.file_name }}.json
-          path: ${{ steps.name.outputs.file_name }}.json
-
-      - name: Send metrics to doc repo
-        run: |
-          git config --global user.email "${{ secrets.GIT_EMAIL }}"
-          git config --global user.name "${{ secrets.GIT_USER }}"
-          git clone --single-branch --branch main "https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/fga-eps-mds/2023-1-CAPJu-Doc" doc
-          mkdir -p doc/analytics-raw-data
-          cp -R fga-eps-mds*.json doc/analytics-raw-data
-          cd doc
-          git add .
-          git commit -m "Métricas SonarCloud Services Mailer - ${{ github.event.repository.name }} ${{ github.ref_name }}"
-          git push
-          echo "Arquivos de métricas gerado com sucesso."
-  generate-release-unit:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get file name
-        id: name
-        run: echo "::set-output name=file_name::fga-eps-mds-2023-1-Capju-ServicesUnit-$(TZ='America/Sao_Paulo' date +'%m-%d-%Y-%H-%M-%S')-${{github.ref_name}}"
-
-      - name: Copy repository
-        uses: actions/checkout@v2
-      - run: wget $METRICS_URL -O ${{ steps.name.outputs.file_name }}.json
-        env:
-          METRICS_URL: ${{ secrets.UNIT_METRICS_URL }}
-      - uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.name.outputs.file_name }}.json
-          path: ${{ steps.name.outputs.file_name }}.json
-
-      - name: Send metrics to doc repo
-        run: |
-          git config --global user.email "${{ secrets.GIT_EMAIL }}"
-          git config --global user.name "${{ secrets.GIT_USER }}"
-          git clone --single-branch --branch main "https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/fga-eps-mds/2023-1-CAPJu-Doc" doc
-          mkdir -p doc/analytics-raw-data
-          cp -R fga-eps-mds*.json doc/analytics-raw-data
-          cd doc
-          git add .
-          git commit -m "Métricas SonarCloud  Services Unit - ${{ github.event.repository.name }} ${{ github.ref_name }}"
-          git push
-          echo "Arquivos de métricas gerado com sucesso."
   generate-release-User:
     runs-on: ubuntu-latest
     steps:
       - name: Get file name
         id: name
-        run: echo "::set-output name=file_name::fga-eps-mds-2023-1-Capju-ServicesUser-$(TZ='America/Sao_Paulo' date +'%m-%d-%Y-%H-%M-%S')-${{github.ref_name}}"
+        run: echo "::set-output name=file_name::fga-eps-mds-2023-2-Capju-User-Service-$(TZ='America/Sao_Paulo' date +'%m-%d-%Y-%H-%M-%S')-${{github.ref_name}}"
 
       - name: Copy repository
         uses: actions/checkout@v2
       - run: wget $METRICS_URL -O ${{ steps.name.outputs.file_name }}.json
         env:
-          METRICS_URL: ${{ secrets.USER_METRICS_URL }}
+          METRICS_URL: ${{ secrets.METRICS_URL }}
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.name.outputs.file_name }}.json
@@ -85,98 +27,11 @@ jobs:
         run: |
           git config --global user.email "${{ secrets.GIT_EMAIL }}"
           git config --global user.name "${{ secrets.GIT_USER }}"
-          git clone --single-branch --branch main "https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/fga-eps-mds/2023-1-CAPJu-Doc" doc
+          git clone --single-branch --branch main "https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/fga-eps-mds/2023-2-CAPJu-Doc" doc
           mkdir -p doc/analytics-raw-data
           cp -R fga-eps-mds*.json doc/analytics-raw-data
           cd doc
           git add .
           git commit -m "Métricas SonarCloud Services USER - ${{ github.event.repository.name }} ${{ github.ref_name }}"
-          git push
-          echo "Arquivos de métricas gerado com sucesso."
-  generate-release-note:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get file name
-        id: name
-        run: echo "::set-output name=file_name::fga-eps-mds-2023-1-Capju-ServicesNote-$(TZ='America/Sao_Paulo' date +'%m-%d-%Y-%H-%M-%S')-${{github.ref_name}}"
-
-      - name: Copy repository
-        uses: actions/checkout@v2
-      - run: wget $METRICS_URL -O ${{ steps.name.outputs.file_name }}.json
-        env:
-          METRICS_URL: ${{ secrets.NOTE_METRICS_URL }}
-      - uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.name.outputs.file_name }}.json
-          path: ${{ steps.name.outputs.file_name }}.json
-
-      - name: Send metrics to doc repo
-        run: |
-          git config --global user.email "${{ secrets.GIT_EMAIL }}"
-          git config --global user.name "${{ secrets.GIT_USER }}"
-          git clone --single-branch --branch main "https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/fga-eps-mds/2023-1-CAPJu-Doc" doc
-          mkdir -p doc/analytics-raw-data
-          cp -R fga-eps-mds*.json doc/analytics-raw-data
-          cd doc
-          git add .
-          git commit -m "Métricas SonarCloud Services Note - ${{ github.event.repository.name }} ${{ github.ref_name }}"
-          git push
-          echo "Arquivos de métricas gerado com sucesso."
-  generate-release-processmanagement:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get file name
-        id: name
-        run: echo "::set-output name=file_name::fga-eps-mds-2023-1-Capju-ServicesProcessmanagement-$(TZ='America/Sao_Paulo' date +'%m-%d-%Y-%H-%M-%S')-${{github.ref_name}}"
-
-      - name: Copy repository
-        uses: actions/checkout@v2
-      - run: wget $METRICS_URL -O ${{ steps.name.outputs.file_name }}.json
-        env:
-          METRICS_URL: ${{ secrets.PROCESSMANEGEMENT_METRICS_URL }}
-      - uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.name.outputs.file_name }}.json
-          path: ${{ steps.name.outputs.file_name }}.json
-
-      - name: Send metrics to doc repo
-        run: |
-          git config --global user.email "${{ secrets.GIT_EMAIL }}"
-          git config --global user.name "${{ secrets.GIT_USER }}"
-          git clone --single-branch --branch main "https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/fga-eps-mds/2023-1-CAPJu-Doc" doc
-          mkdir -p doc/analytics-raw-data
-          cp -R fga-eps-mds*.json doc/analytics-raw-data
-          cd doc
-          git add .
-          git commit -m "Métricas SonarCloud Processmanagement- ${{ github.event.repository.name }} ${{ github.ref_name }}"
-          git push
-          echo "Arquivos de métricas gerado com sucesso."
-  generate-release-services:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get file name
-        id: name
-        run: echo "::set-output name=file_name::fga-eps-mds-2023-1-Capju-Services-$(TZ='America/Sao_Paulo' date +'%m-%d-%Y-%H-%M-%S')-${{github.ref_name}}"
-
-      - name: Copy repository
-        uses: actions/checkout@v2
-      - run: wget $METRICS_URL -O ${{ steps.name.outputs.file_name }}.json
-        env:
-          METRICS_URL: ${{ secrets.SERVICES_METRICS_URL }}
-      - uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.name.outputs.file_name }}.json
-          path: ${{ steps.name.outputs.file_name }}.json
-
-      - name: Send metrics to doc repo
-        run: |
-          git config --global user.email "${{ secrets.GIT_EMAIL }}"
-          git config --global user.name "${{ secrets.GIT_USER }}"
-          git clone --single-branch --branch main "https://x-access-token:${{ secrets.PERSONAL_TOKEN }}@github.com/fga-eps-mds/2023-1-CAPJu-Doc" doc
-          mkdir -p doc/analytics-raw-data
-          cp -R fga-eps-mds*.json doc/analytics-raw-data
-          cd doc
-          git add .
-          git commit -m "Métricas SonarCloud Geral Services- ${{ github.event.repository.name }} ${{ github.ref_name }}"
           git push
           echo "Arquivos de métricas gerado com sucesso."

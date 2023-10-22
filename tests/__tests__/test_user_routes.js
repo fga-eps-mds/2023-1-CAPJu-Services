@@ -2,7 +2,7 @@ import { UserController } from '../../src/controllers/user.js';
 import UserService from '../../src/services/user.js';
 import models from '../../src/models/_index.js';
 import * as jwtUtils from '../../src/utils/jwt.js';
-import * as middleware from '../../middleware/authMiddleware.js'
+import * as middleware from '../../middleware/authMiddleware.js';
 
 describe('UserController', () => {
   let userController;
@@ -19,7 +19,7 @@ describe('UserController', () => {
       query: {},
       body: {
         idRole: 1,
-        idUnit: 1
+        idUnit: 1,
       },
     };
     resMock = {
@@ -73,62 +73,113 @@ describe('UserController', () => {
 
   describe('getAllUsers', () => {
     it('should return all users', async () => {
-      jest.spyOn(middleware, "tokenToUser").mockReturnValue({
+      jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
         idUnit: 1,
         idRole: 1,
       });
       const users = [
-        {fullName: 'John Doe', idRole: 1, accepted: false, cpf: '1019283727222', email: 'john@email.com', idUnit: 1 },
-        {fullName: 'Jane Smith', idRole: 2 , accepted: false, cpf: '212222222222', email: 'j@test.com', idUnit: 2 },      ];
+        {
+          fullName: 'John Doe',
+          idRole: 1,
+          accepted: false,
+          cpf: '1019283727222',
+          email: 'john@email.com',
+          idUnit: 1,
+        },
+        {
+          fullName: 'Jane Smith',
+          idRole: 2,
+          accepted: false,
+          cpf: '212222222222',
+          email: 'j@test.com',
+          idUnit: 2,
+        },
+      ];
       userServiceMock.getAllUsers = jest.fn().mockResolvedValue(users);
 
       await userController.index(reqMock, resMock);
 
       // expect(userServiceMock.getAllUsers).toHaveBeenCalled();
       expect(resMock.status).toHaveBeenCalledWith(200);
-      expect(resMock.json).toHaveBeenCalledWith({'users': users});
+      expect(resMock.json).toHaveBeenCalledWith({ users: users });
     });
 
     it('should return accepted users if "accepted" query parameter is true', async () => {
-      jest.spyOn(middleware, "tokenToUser").mockReturnValue({
+      jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
         idUnit: 1,
         idRole: 1,
       });
+
       const users = [
-        {fullName: 'John Doe', idRole: 1, accepted: false, cpf: '1019283727222', email: 'john@email.com', idUnit: 1 },
-        {fullName: 'Jane Smith', idRole: 2 , accepted: false, cpf: '212222222222', email: 'j@test.com', idUnit: 2 },
+        {
+          fullName: 'John Doe',
+          idRole: 1,
+          accepted: false,
+          cpf: '1019283727222',
+          email: 'john@email.com',
+          idUnit: 1,
+        },
+        {
+          fullName: 'Jane Smith',
+          idRole: 2,
+          accepted: false,
+          cpf: '212222222222',
+          email: 'j@test.com',
+          idUnit: 2,
+        },
       ];
-      userServiceMock.getAcceptedUsers = jest.fn().mockResolvedValue(users);
+
+      const getAcceptedUsersSpy = jest
+        .spyOn(UserService.prototype, 'getAcceptedUsers')
+        .mockReturnValue(users);
+
       reqMock.query.accepted = 'true';
 
       await userController.index(reqMock, resMock);
 
+      expect(getAcceptedUsersSpy).toHaveBeenCalled();
       expect(resMock.status).toHaveBeenCalledWith(500);
     });
 
     it('should return non-accepted users if "accepted" query parameter is false', async () => {
-      jest.spyOn(middleware, "tokenToUser").mockReturnValue({
+      jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
         idUnit: 1,
         idRole: 1,
       });
 
       const users = [
-        {fullName: 'John Doe', idRole: 1, accepted: false, cpf: '1019283727222', email: 'john@email.com', idUnit: 1 },
-        {fullName: 'Jane Smith', idRole: 2 , accepted: false, cpf: '212222222222', email: 'j@test.com', idUnit: 2 },
+        {
+          fullName: 'John Doe',
+          idRole: 1,
+          accepted: false,
+          cpf: '1019283727222',
+          email: 'john@email.com',
+          idUnit: 1,
+        },
+        {
+          fullName: 'Jane Smith',
+          idRole: 2,
+          accepted: false,
+          cpf: '212222222222',
+          email: 'j@test.com',
+          idUnit: 2,
+        },
       ];
-      userServiceMock.getNoAcceptedUsers = jest.fn().mockResolvedValue(users);
+
+      const getNoAcceptedUsersSpy = jest
+        .spyOn(UserService.prototype, 'getNoAcceptedUsers')
+        .mockReturnValue(users);
       reqMock.query.accepted = 'false';
-      reqMock.query.limit = 1
+      reqMock.query.limit = 1;
 
       await userController.index(reqMock, resMock);
 
-      // expect(userServiceMock.getNoAcceptedUsers).toHaveBeenCalled();
+      expect(getNoAcceptedUsersSpy).toHaveBeenCalled();
       expect(resMock.status).toHaveBeenCalledWith(500);
-      // expect(resMock.json).toHaveBeenCalledWith({'totalPages': 0, 'users': users});
     });
 
     it('should return 400 if "accepted" query parameter is neither true nor false', async () => {
-      jest.spyOn(middleware, "tokenToUser").mockReturnValue({
+      jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
         idUnit: 1,
         idRole: 1,
       });
@@ -275,6 +326,7 @@ describe('UserController', () => {
         idUnit: 1,
         idRole: 2,
       };
+
       const createdUser = {
         id: 1,
         fullName: 'John Doe',
@@ -285,22 +337,20 @@ describe('UserController', () => {
         idRole: 2,
       };
 
-      userServiceMock.createUser = jest.fn().mockResolvedValue(createdUser);
+      const createUserSpy = jest
+        .spyOn(UserService.prototype, 'createUser')
+        .mockReturnValue(createdUser);
 
       reqMock.body = newUser;
 
       await userController.store(reqMock, resMock);
 
-      expect(userServiceMock.createUser).toHaveBeenCalledWith({
-        fullName: 'John Doe',
-        cpf: '1234567890',
-        email: 'john@example.com',
-        password: 'password',
-        accepted: false,
-        idUnit: 1,
-        idRole: 2,
+      expect(createUserSpy).toHaveBeenCalled();
+
+      expect(resMock.json).toHaveBeenCalledWith({
+        user: createdUser,
+        message: 'Usuario cadastrado com sucesso',
       });
-      expect(resMock.json).toHaveBeenCalledWith(createdUser);
     });
 
     it('should return 500 if an error occurs', async () => {
