@@ -176,6 +176,7 @@ export class UserController {
   store = async (req, res) => {
     try {
       const { fullName, cpf, email, password, idUnit, idRole } = req.body;
+
       const data = {
         fullName,
         cpf: cpfFilter(cpf),
@@ -185,7 +186,9 @@ export class UserController {
         idUnit,
         idRole,
       };
+
       const user = await this.userService.createUser(data);
+
       return res
         .json({ user, message: 'Usuario cadastrado com sucesso' })
         .status(200);

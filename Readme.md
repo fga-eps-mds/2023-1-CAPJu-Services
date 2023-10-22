@@ -36,10 +36,11 @@ Este repositório contém o código-fonte do serviço User do projeto CAPJu, seg
 ## Instalação
 
 ### Configurando banco de dados e configurações iniciais
+
 Para rodar localmente o banco de dados e então conseguir executar esse serviço é necessário seguir os seguintes passos:
 
 ```bash
-# Clone o repositório de configuração do projeto em uma pasta dedicada ao projeto 
+# Clone o repositório de configuração do projeto em uma pasta dedicada ao projeto
 $ git clone https://github.com/fga-eps-mds/2023-2-CAPJu-Config
 
 # Acesse a pasta do projeto
@@ -49,8 +50,7 @@ $ cd 2023-2-CAPJu-Config
 $ docker-compose up
 ```
 
-*Obs: Dentro do docker de configuração o nginx, ou proxy, irá apontar erro até todos os serviços do back-end serem levantados*
-
+_Obs: Dentro do docker de configuração o nginx, ou proxy, irá apontar erro até todos os serviços do back-end serem levantados_
 
 ### Configurando .env do serviço
 
@@ -71,9 +71,11 @@ Esse projeto conta com a versão 18 no [NodeJs](https://nodejs.org/en).
 O [Node Version Manager](https://github.com/nvm-sh/nvm), mais comumente chamado de NVM, é a maneira mais popular de instalar várias versões do Nodejs. Essa tecnologia é recomendada para o desenvolvedor poder gerenciar diferentes versões do NodeJs conforme a necessidade do projeto.
 
 ## Docker
+
 Para rodar esse projeto é necessário ter uma instalação do docker em sua máquina local, para consultar a instalação baseado no seu sistema operacional acesse o [site da instalação](https://docs.docker.com/engine/install/)
 
 ## Docker-compose
+
 Para rodar esse projeto é necessário também possuir uma instalação do plugin do docker, docker-compose, em sua máquina, para o sistema operacional Windows a instalação é feita junto ao [Docker Desktop](https://docs.docker.com/compose/install/). Para instalação no sistema operacional linux basta seguir a documentação presente no site através do seguinte [link](https://docs.docker.com/compose/install/linux/#install-the-plugin-manually)
 
 ## Execute o projeto localmente
@@ -83,10 +85,10 @@ Por conter uma arquitetura de microserviços, é necessário rodar cada serviço
 ```bash
 # Para rodar o projeto pela primeira vez basta executar os seguintes comandos:
 ## Esse comando irá definir a versão de desenvolvimento do NodeJs como 18
-nvm use 18 
+nvm use 18
 
 ## Esse comando irá instalar as bibliotecas
-npm install 
+npm install
 ```
 
 ## Instalando Novas Dependencias
@@ -98,7 +100,8 @@ npm install nome-da-dependencia
 ```
 
 ## Rodando serviço
-Para rodar o serviço basta apenas rodar o comando: 
+
+Para rodar o serviço basta apenas rodar o comando:
 
 ```bash
 docker-compose up

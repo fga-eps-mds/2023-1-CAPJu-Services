@@ -101,6 +101,7 @@ class UserService {
 
   async updateUserEmail(cpf, email) {
     const user = await this.getUserByCpf(cpf);
+
     if (user) {
       const [updatedRows] = await this.user.update(
         { email: email },
