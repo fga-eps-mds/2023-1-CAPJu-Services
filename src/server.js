@@ -20,7 +20,7 @@ sequelizeConfig.sync().then(() => {
   logger.info(`Conexão com o banco de dados ${process.env.DB_NAME}-${process.env.DB_HOST} na porta ${process.env.DB_PORT} realizada com sucesso!`);
 });
 
-const CRON_PATTERN = '*/5 * * * * *';
+const CRON_PATTERN = '0 */5 * * * *'; // Executado a cada 5min
 
 const processesFileService = services.processesFileService;
 

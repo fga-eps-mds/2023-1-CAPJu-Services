@@ -37,7 +37,7 @@ class ProcessAudService {
       remarks: null,
     };
 
-    return await this.processAudRepository.create(auditEntry, { transaction });
+    return await this.processAudRepository.create(auditEntry, transaction ? { transaction } : {});
 
   }
 

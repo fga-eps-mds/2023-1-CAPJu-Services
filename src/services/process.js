@@ -2,6 +2,7 @@ import ProcessAudService from './processAudService.js';
 import models from '../models/_index.js';
 import {Op} from 'sequelize';
 import FlowStageService from "./flowStage.js";
+import sequelizeConfig from "../config/sequelize.js";
 
 class ProcessService {
   constructor(ProcessModel) {
@@ -9,6 +10,7 @@ class ProcessService {
     this.processAud = new ProcessAudService(models.ProcessAud);
     this.flowStageService =  new FlowStageService(models.FlowStage);
     this.noteRepository = models.Note;
+    this.processesFileItemRepository = models.ProcessesFileItem;
   }
 
   async createProcessAndAud(process, req) {
@@ -166,9 +168,15 @@ class ProcessService {
   }
 
   async deleteProcessById(idProcess, req) {
-    await this.noteRepository.destroy({where: {idProcess}});
-    await this.processAud.create(idProcess, null, 'DELETE', req);
-    return await this.process.destroy({where: {idProcess}});
+    let result;
+    await sequelizeConfig.transaction(async transaction => {
+      await this.noteRepository.destroy({where: {idProcess}, transaction});
+      await this.processesFileItemRepository.destroy({where: {idProcess}, transaction});
+      result = await this.process.destroy({where: {idProcess}, transaction});
+      if(result)
+        await this.processAud.create(idProcess, null, 'DELETE', req, transaction);
+    });
+    return result;
   }
 
   async getAllProcess(params) {
