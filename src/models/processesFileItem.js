@@ -46,7 +46,7 @@ class ProcessesFileItemModel extends Model {
                 },
                 status: {
                     type: DataTypes.ENUM({
-                        values: ['imported', 'error'],
+                        values: ['imported', 'manuallyImported', 'error'],
                     }),
                     allowNull: false,
                     defaultValue: 'error',

@@ -5,6 +5,9 @@ import {UnitService} from './unit.js';
 import PriorityService from './priority.js';
 import StageService from './stage.js';
 import ProcessService from "./process.js";
+import XLSX from 'xlsx-js-style';
+import {v4 as uuidv4} from 'uuid';
+import {formatDateTimeToBrazilian} from "../utils/date.js";
 
 class ProcessAudService {
 
@@ -14,9 +17,10 @@ class ProcessAudService {
     this.unitService = new UnitService(models.Unit);
     this.priorityService = new PriorityService(models.Priority);
     this.stageService = new StageService(models.Stage);
+    this.documentAudRepository = models.DocumentAud;
   }
 
-  async create(idProcess, newValues, operation, req) {
+  async create(idProcess, newValues, operation, req, transaction) {
 
     // For memory and logic purposes, the "newValues" param should only receive the fields that changed.
 
@@ -33,7 +37,7 @@ class ProcessAudService {
       remarks: null,
     };
 
-    return await this.processAudRepository.create(auditEntry)
+    return await this.processAudRepository.create(auditEntry, { transaction });
 
   }
 
@@ -71,7 +75,7 @@ class ProcessAudService {
   async findAll(req) {
 
     let auditRecords = await this.processAudRepository.findAll({
-      where: await this.extractFiltersFromReq(req),
+      where: this.extractFiltersFromReq(req),
       include: [{model: models.User, as: 'userInfo', attributes: ['fullName'], required: false}],
       order: [['id', 'DESC']], // <- IF THIS CHANGES, THE LOGIC BELLOW SHOULD ALSO CHANGE.
     });
@@ -79,12 +83,90 @@ class ProcessAudService {
     return await this.extractProcessEventsFromAuds(auditRecords);
   }
 
-  async extractFiltersFromReq(req) {
-    const filter = {};
+  async generateXlsx(req) {
+
+    const { idProcess } = req.params;
+
+    let auditRecords = await this.processAudRepository.findAll({
+      where: { idProcess },
+      include: [{model: models.User, as: 'userInfo', attributes: ['fullName'], required: false}],
+      order: [['id', 'DESC']], // <- IF THIS CHANGES, THE LOGIC BELLOW SHOULD ALSO CHANGE.
+    });
+
+    const eventsRaw = await this.extractProcessEventsFromAuds(auditRecords);
+
+    const processRecord = await (new ProcessService(models.Process)).getProcessRecordById(idProcess);
+
+    const uuid = uuidv4();
+
+    const currentDate = new Date();
+
+    const currentDateFormatted = formatDateTimeToBrazilian(currentDate);
+
+    const user = await userFromReq(req);
+
+    const emitedBy = `${user.fullName} (${user.role.name})`;
+
+    const header = ['EVENTO', 'AUTOR', 'DATA'];
+    let maxEventLength = header[0].length;
+    let maxAuthorLength = header[1].length;
+    let maxDateLength = header[2].length;
+
+    const worksheetData = [
+      [	{ v: `HISTÓRICO DE EVENTOS\n\nProcesso: ${processRecord}\nData emissão: ${currentDateFormatted}\nEmissor: ${emitedBy}\nDocumento: ${uuid}`, t: "s", s: { alignment: { wrapText: true, horizontal: 'center' } } },],
+      [],
+      [...header],
+    ];
+
+    eventsRaw.forEach(event => {
+      const eventMessage = event.messages.slice().reverse().join('\n');
+      const author = event.changedBy;
+      const date = formatDateTimeToBrazilian(event.changedAt);
+
+      event.messages.forEach(message => {
+        if (message.length > maxEventLength) {
+          maxEventLength = message.length;
+        }
+      });
+
+      worksheetData.push([{ v: eventMessage, s: { alignment: { wrapText: true } }}, { v: author, s: { alignment: { vertical: 'center' } }}, { v: date, s: { alignment: { vertical: 'center' } }}]);
+
+      maxAuthorLength = Math.max(maxAuthorLength, author.length);
+      maxDateLength = Math.max(maxDateLength, date.length);
+    });
+
+    const wb = XLSX.utils.book_new();
+
+    const ws = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+
+    ws['!rows'] = [ { hpt: 90 }, ];
+
+    ws['!cols'] = [
+      { wch: maxEventLength },
+      { wch: maxAuthorLength },
+      { wch: maxDateLength },
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Página 1');
+
+    const xlsx = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    await this.documentAudRepository.create({
+      emitedBy: user.cpf,
+      uuid,
+      type: 'PROCESS_EVENTS_XLSX',
+      emitedAt: currentDate,
+    }, { returning: false });
+
+    return xlsx;
+
+  }
+
+  extractFiltersFromReq(req) {
     const { idProcess } = req.query;
-    if (idProcess)
-      filter.idProcess = idProcess;
-    return filter;
+    return idProcess ? { idProcess } : {};
   }
 
   findEntityByID = (entities, idName, idToBeFound) => {

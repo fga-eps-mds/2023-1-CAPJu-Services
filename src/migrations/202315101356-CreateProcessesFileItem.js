@@ -43,7 +43,7 @@ module.exports = {
                 allowNull: true,
             },
             status: {
-                type: Sequelize.ENUM('imported', 'error'),
+                type: Sequelize.ENUM('imported', 'manuallyImported', 'error'),
                 allowNull: false,
                 defaultValue: 'error',
             },

@@ -27,4 +27,14 @@ export class ProcessAudController {
 
     }
 
+    generateXlsx = async (req, res) => {
+        try {
+            const resultingXlsxBuffer = await this.processAudService.generateXlsx(req);
+            return res.status(200).json(resultingXlsxBuffer);
+        } catch (error) {
+            return res.status(500).json({error: `${error}`, message: `Erro ao gerar excel`});
+        }
+
+    }
+
 }

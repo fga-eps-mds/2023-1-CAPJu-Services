@@ -13,11 +13,7 @@ class ProcessService {
 
   async createProcessAndAud(process, req) {
     const createdProcess = await this.process.create(process);
-    try {
-      await this.processAud.create(createdProcess.idProcess, createdProcess, 'INSERT', req);
-    } catch (e) {
-      console.log(e)
-    }
+    await this.processAud.create(createdProcess.idProcess, createdProcess, 'INSERT', req);
     return createdProcess
   }
 
@@ -57,8 +53,6 @@ class ProcessService {
       return res.status(404).json({ error: 'Não há etapas neste fluxo' });
     }
 
-    console.log(startingProcess);
-
     if(startingProcess.status) {
       status = startingProcess.status
       delete startingProcess.status;
@@ -77,8 +71,6 @@ class ProcessService {
     console.log(originalProcess);
 
     Object.keys(newData).forEach(k => (originalProcess[k] === newData[k]) && delete newData[k]);
-
-    console.log(newData);
 
     return await this.executeUpdateQuery(idProcess, newData, req);
 

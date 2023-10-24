@@ -5,20 +5,8 @@ import applicationRoutes from './routes/_index.js';
 import sequelizeConfig from './config/sequelize.js';
 import fileUpload from 'express-fileupload';
 import cron from 'node-cron';
-import pino from 'pino';
 import services from "./services/_index.js";
-
-const logger = pino({
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      levelFirst: true,
-      translateTime: false,
-      ignore: 'pid,hostname,time',
-      messageFormat: '{msg}',
-    }
-  },
-});
+import {logger} from "./utils/logger.js";
 
 const app = express();
 const port = process.env.API_PORT;

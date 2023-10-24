@@ -18,7 +18,8 @@ async function tokenToUser(req, res) {
           `select * from users u where cpf = :cpf limit 1`,
           {
             type: QueryTypes.SELECT,
-            replacements: { cpf: decoded.cpf }
+            replacements: { cpf: decoded.cpf },
+            logging: false,
           }
       );
       
@@ -49,7 +50,8 @@ async function authenticate(req, res, next) {
         `select * from users u where cpf = :cpf limit 1`,
         {
           type: QueryTypes.SELECT,
-          replacements: { cpf: decodedUser.cpf }
+          replacements: { cpf: decodedUser.cpf },
+          logging: false
         }
     );
 
