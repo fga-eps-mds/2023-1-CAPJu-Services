@@ -79,6 +79,115 @@ export class FlowController {
     }
   };
 
+  showHistoricByFlowId = async (req, res) => {
+    try {
+      const { idFlow } = req.params;
+      let flowHistoric = await this.flowService.getHistoricByFlowId(
+        idFlow,
+        );
+        if (flowHistoric.length > 0){
+        let stages =  await this.flowStageService.findAllByIdFlow(idFlow);
+        const umDiaEmMilissegundos = 24 * 60 * 60 * 1000;
+        
+        let grupos = {};
+        
+        flowHistoric.forEach(historic => {
+          const idProcess = historic.idProcess;
+          const effectiveDate = historic.changedAt;
+          const newValues = JSON.parse(historic.newValues);
+          let {idStage, finalised: finished } = newValues;
+        
+          if (!grupos[idProcess]) {
+            grupos[idProcess] = {};
+          }
+          
+          if (finished) {
+              
+              grupos[idProcess].finalised = historic.changedAt;
+          }
+
+          else if (!grupos[idProcess][idStage]) {
+            grupos[idProcess][idStage] = { first:effectiveDate,  last: effectiveDate};
+          }
+          else{
+            grupos[idProcess][idStage].last = effectiveDate;
+          }
+          
+        });
+
+        let tempoTotal = new Array(stages.length+1).fill(0);
+        let qtdEtapas = new Array(stages.length+1).fill(0);
+        let at = 0;
+
+        stages.forEach(stage => {
+          const begin = stage.idStageA;
+          const end = stage.idStageB;
+          
+          let timeFirst;
+          let timeLast;
+
+          Object.values(grupos).forEach(trem => {          
+            if(trem[begin] ){
+              timeFirst = trem[begin].first;
+            }
+            if(trem[end]){
+              timeLast = trem[end].last;
+            }
+            else{
+              return;
+            }
+              
+            const dateA = new Date(timeFirst);
+            const dateB = new Date(timeLast);
+            const deltaDate = dateB - dateA;
+            
+            const tempoEtapa = Math.ceil(deltaDate / umDiaEmMilissegundos);
+
+            //console.log("---------------------------", timeFirst, timeLast, "TEMPO ETAPA EM DIAS ------>", tempoEtapa, "Em dias", "etapa");
+            tempoTotal[at]+=tempoEtapa;
+            qtdEtapas[at]++;
+
+            if(at+1==stages.length && trem.finalised){
+              //console.log("ESTOU NA ETAPA DE CONCLUSAO")
+              const dateC = new Date(trem.finalised);
+              const deltaDateEnd = dateC - dateB;
+              
+              const tempoEtapaEnd = Math.ceil(deltaDateEnd / umDiaEmMilissegundos);
+
+              // console.log("---------------------------", timeFirst, timeLast, "TEMPO ETAPA EM DIAS ------>", tempoEtapaEnd, "Em dias", "etapa");
+              tempoTotal[at+1]+=tempoEtapaEnd;
+              qtdEtapas[at+1]++;
+            }
+            
+          });
+    
+
+          at++;
+        });
+        
+        const resultado = tempoTotal.map((elemento, indice) => {
+          if (qtdEtapas[indice] !== 0) {
+            return elemento / qtdEtapas[indice];
+          } else {
+            return 0;
+          }
+        });
+
+        return res.status(200).json(resultado);
+
+      }
+      return res.status(404).json({
+        message: `Não há dados sobre o fluxos`,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        error,
+        message: `Erro ao buscar o histórico de alteraçõe dos processos de um fluxos`,
+      });
+    }
+  };
+
   showByFlowId = async (req, res) => {
     const { idFlow } = req.params;
     try {
@@ -165,7 +274,6 @@ export class FlowController {
       const { name, idUnit, sequences, idUsersToNotify } = req.body;
 
       for (const cpf of idUsersToNotify) {
-        console.log('oi');
         const user = await axios.get(
           `http://localhost:8080/${cpf}/unit/${idUnit}`,
         );
