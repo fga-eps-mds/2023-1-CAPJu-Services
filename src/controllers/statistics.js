@@ -3,9 +3,6 @@ import 'dotenv/config';
 
 export class StatisticsController {
     constructor(){
-        this.processService = services.processService;
-        this.stageService = services.stageService;
-        this.flowStageService = services.flowStageService;
         this.statisticsService = services.statisticsService;
     }
 
@@ -19,11 +16,16 @@ export class StatisticsController {
             if (!minDate || !maxDate)
                 return res.status(412).json({ error: "É necessário indicar o período de vencimento!" })
 
-            console.log(minDate, maxDate);
+            const offset = parseInt(req.query.offset) || 0;
+            const limit = parseInt(req.query.limit) || 10;
 
-            const processInDue = await this.statisticsService.SearchDueDate(minDate, maxDate);
+            const processInDue = await this.statisticsService.SearchDueDate(minDate, maxDate, offset, limit);
 
-            return res.status(200).json({processInDue});
+
+            const totalCount = await this.statisticsService.countRowsDueDate(minDate, maxDate);
+            const totalPages = Math.ceil(totalCount / limit) || 0;
+
+            return res.status(200).json({processInDue, totalPages});
             // return res.status(200).json(result);
 
         } catch (error) {
