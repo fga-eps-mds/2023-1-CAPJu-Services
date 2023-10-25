@@ -24,13 +24,15 @@ class StatisticsService {
         JOIN stage s ON p."idStage" = s."idStage"
         JOIN flow f ON p."idFlow" = f."idFlow"
         WHERE p."effectiveDate" + (s.duration * interval '1 day') >=  :minDate
-          AND p."effectiveDate" + (s.duration * interval '1 day') <= :maxDate;`,
+          AND p."effectiveDate" + (s.duration * interval '1 day') <= :maxDate
+        OFFSET :offSet
+        LIMIT :limit;`,
       {
         replacements: {
           minDate: new Date(minDate),
           maxDate: new Date(maxDate),
-          offSet: offSet,
-          limit: limit
+          offSet: offSet,  // Corrigido para offSet
+          limit: limit,    // Corrigido para limit
         },
         type: QueryTypes.SELECT,
       },
