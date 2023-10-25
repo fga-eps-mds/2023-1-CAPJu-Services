@@ -5,7 +5,7 @@ import {
   filterByNicknameAndRecord,
   filterByStatus,
   filterByIdFlow,
-  filterByDateRange
+  filterByDateRange,
 } from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
 
@@ -33,7 +33,7 @@ export class ProcessController {
         ...unitFilter,
       };
       const offset = parseInt(req.query.offset) || 0;
-      const limit = parseInt(req.query.limit) || 10;
+      const limit = parseInt(req.query.limit) || null;
 
       const processes = await this.processService.getAllProcess({
         where,
@@ -43,14 +43,11 @@ export class ProcessController {
 
       if (!processes || processes.length === 0) {
         return res.status(204).json([]);
-      } 
+      }
       const totalCount = await this.processService.countRows({ where });
       const totalPages = Math.ceil(totalCount / limit) || 0;
 
-      return res
-        .status(200)
-        .json({ processes, totalPages });
-
+      return res.status(200).json({ processes, totalPages });
     } catch (error) {
       return res.status(500).json({
         error: error.message,
@@ -234,10 +231,10 @@ export class ProcessController {
               status: 'inProgress',
             }
           : {
-            idStage: flowStages[0].idStageA || process.idStage,
-            effectiveDate: new Date(),
-            status,
-          };
+              idStage: flowStages[0].idStageA || process.idStage,
+              effectiveDate: new Date(),
+              status,
+            };
 
       const updatedProcess = await this.processService.updateProcess(
         {
