@@ -3,8 +3,14 @@ const StatisticsRoutes = express.Router();
 import controllers from '../controllers/_index.js';
 
 StatisticsRoutes.get(
-    '/qtdFlow/:idFlow',
+    '/ProcessByStage/:idFlow/:idStage',
     controllers.statisticsController.getProcessByStepInFlow,
 );
+
+StatisticsRoutes.get(
+    '/qtdFlow/:idFlow',
+    controllers.statisticsController.getProcessCountByStepInFlow,
+);
+
 
 export default StatisticsRoutes;
