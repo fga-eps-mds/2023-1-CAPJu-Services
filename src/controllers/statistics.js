@@ -7,6 +7,7 @@ export class StatisticsController {
     this.flowStageService = services.flowStageService;
   }
 
+
   getProcessByStepInFlow = async (req, res) => {
     try {
       // Pega id do fluxo
@@ -35,7 +36,7 @@ export class StatisticsController {
           offset,
       });
 
-      return res.status(200).json({ processesbyIdFlow });
+      return res.status(200).json({ process: processesbyIdFlow });
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }
@@ -77,4 +78,4 @@ export class StatisticsController {
       return res.status(500).json({ error: error.message });
     }
   };
-}
+};

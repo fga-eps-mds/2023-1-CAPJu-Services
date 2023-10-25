@@ -6,7 +6,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: process_management
-    command: [ "/bin/sh", "-c", "npm start" ]
+    command: ['/bin/sh', '-c', 'npm start']
     restart: always
     volumes:
       - ./:/app

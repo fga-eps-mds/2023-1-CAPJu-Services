@@ -12,7 +12,7 @@ const flowStageController = new FlowStageController();
 const flowUserController = new FlowUserController();
 const processController = new ProcessController();
 const stageController = new StageController();
-const statisticsController = new StatisticsController(); 
+const statisticsController = new StatisticsController();
 
 const controllers = {
   priorityController,
