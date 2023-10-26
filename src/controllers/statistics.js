@@ -27,7 +27,7 @@ export class StatisticsController {
       const stages = {};
 
       // Pega os processos do fluxo
-      const processesbyIdFlow = await this.processService.getAllProcess({
+      const {count, rows} = await this.processService.getAndCountAllProcess({
           where: {
             idFlow, 
             idStage,
@@ -36,7 +36,11 @@ export class StatisticsController {
           offset,
       });
 
-      return res.status(200).json({ process: processesbyIdFlow });
+      const totalPages = Math.ceil(count / limit) || 0;
+
+      
+
+      return res.status(200).json({ process: rows, totalPages });
     } catch (error) {
       return res.status(500).json({ error: error.message });
     }

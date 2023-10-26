@@ -27,6 +27,10 @@ class ProcessService {
     return await this.process.findAll(where);
   }
 
+  async getAndCountAllProcess(where) {
+    return await this.process.findAndCountAll(where);
+  }
+
   async getPriorityProcess() {
     return await this.process.findAll({
       where: { idPriority: [1, 2, 3, 4, 5, 6, 7, 8] },
