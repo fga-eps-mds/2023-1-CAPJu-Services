@@ -2,7 +2,12 @@ import { FlowController } from '../../src/controllers/flow.js';
 import FlowService from '../../src/services/flow.js';
 import models from '../../src/models/_index.js';
 import FlowModel from '../../src/models/flow.js';
+import sequelizeConfig from '../../src/config/sequelize.js';
+import { QueryTypes } from 'sequelize';
 
+jest.mock('../../src/config/sequelize.js', () => ({
+  query: jest.fn(),
+}));
 describe('FlowController', () => {
   let flowController;
   let flowServiceMock;
@@ -16,6 +21,8 @@ describe('FlowController', () => {
     update: jest.fn(),
     destroy: jest.fn(),
   };
+
+
 
   beforeEach(() => {
     flowServiceMock = new FlowService(models.Flow);
@@ -122,6 +129,8 @@ describe('FlowController', () => {
     });
   });
 
+  
+
   describe('stagesSequencesFromFlowStages', () => {
     it('Retornar estágios e sequências a partir dos estágios do fluxo', async () => {
       const flowStages = [
@@ -157,4 +166,36 @@ describe('FlowController', () => {
       expect(result).toEqual(expectedResult);
     });
   });
+
+  // Esse teste funciona no arquivo test_flowUser_Services.js  mas nesse não
+  describe('getHistoricByFlowId', () => {
+    it('retornar o tempo medio de um fluxo', async () => {
+      const flowId = 3;
+      const query_results = [
+        {
+          IdFlow: 3,
+          idProcess: 2,
+          processRecord: "54466326220239210525",
+          operation: "UPDATE",
+          changedAt: "2023-10-21 15:47:03.515+00",
+          newValues: "{\"status\":\"inProgress\",\"idStage\":5,\"effectiveDate\":\"2023-10-21T15:47:03.438Z\"}",
+        }
+      ]
+      
+      sequelizeConfig.query.mockResolvedValue(query_results)
+      const result = await flowService.getHistoricByFlowId(flowId);
+
+      expect(result).toEqual(query_results);
+
+      expect(sequelizeConfig.query).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          replacements: [flowId],
+          type: QueryTypes.SELECT,
+        }),
+      );
+  
+    });
+  }); 
+
 });
