@@ -82,4 +82,33 @@ export class StatisticsController {
       return res.status(500).json({ error: error.message });
     }
   };
+  
+  getAllProcessByStepInStage = async (req, res) => {
+    try {
+      // Pega id do fluxo
+      const { idFlow, idStage } = req.params;
+  
+      if (!idFlow)
+        return res
+          .status(412)
+          .json({ error: 'É necessário fornecer um id de um fluxo' });
+  
+      if (!idStage)
+        return res
+          .status(412)
+          .json({ error: 'É necessário fornecer um id de uma etapa' });
+  
+      // Pega os processos do fluxo
+      const process = await this.processService.getAllProcess({
+          where: {
+            idFlow, 
+            idStage,
+          }
+      });
+  
+      return res.status(200).json({ process });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  };
 };

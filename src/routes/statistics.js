@@ -12,5 +12,10 @@ StatisticsRoutes.get(
     controllers.statisticsController.getProcessCountByStepInFlow,
 );
 
+StatisticsRoutes.get(
+    '/AllProcessByStage/:idFlow/:idStage',
+    controllers.statisticsController.getAllProcessByStepInStage,
+);
+
 
 export default StatisticsRoutes;
