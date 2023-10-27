@@ -1,25 +1,25 @@
-import { FlowController } from '../../src/controllers/flow.js';
 import FlowService from '../../src/services/flow.js';
-import models from '../../src/models/_index.js';
-import FlowModel from '../../src/models/flow.js';
+import sequelizeConfig from '../../src/config/sequelize.js';
+import { QueryTypes } from 'sequelize';
+
+const FlowModelMock = {
+  findAll: jest.fn(),
+  findOne: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  destroy: jest.fn(),
+};
+
+jest.mock('../../src/config/sequelize.js', () => ({
+  query: jest.fn(),
+}));
 
 describe('FlowController', () => {
-  let flowController;
-  let flowServiceMock;
   let reqMock;
   let resMock;
   let flowService;
-  let FlowModelMock = {
-    findAll: jest.fn(),
-    findOne: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    destroy: jest.fn(),
-  };
-
+  
   beforeEach(() => {
-    flowServiceMock = new FlowService(models.Flow);
-    flowController = new FlowController(flowServiceMock);
     reqMock = {
       body: {},
       params: {},
@@ -122,6 +122,8 @@ describe('FlowController', () => {
     });
   });
 
+  
+
   describe('stagesSequencesFromFlowStages', () => {
     it('Retornar estágios e sequências a partir dos estágios do fluxo', async () => {
       const flowStages = [
@@ -157,4 +159,35 @@ describe('FlowController', () => {
       expect(result).toEqual(expectedResult);
     });
   });
+
+  describe('getHistoricByFlowId', () => {
+    it('retornar o tempo medio de um fluxo', async () => {
+      const flowId = 3;
+      const query_results = [
+        {
+          IdFlow: 3,
+          idProcess: 2,
+          processRecord: "54466326220239210525",
+          operation: "UPDATE",
+          changedAt: "2023-10-21 15:47:03.515+00",
+          newValues: "{\"status\":\"inProgress\",\"idStage\":5,\"effectiveDate\":\"2023-10-21T15:47:03.438Z\"}",
+        }
+      ]
+      
+      sequelizeConfig.query.mockResolvedValue(query_results)
+      const result = await flowService.getHistoricByFlowId(flowId);
+
+      expect(result).toEqual(query_results);
+
+      expect(sequelizeConfig.query).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          replacements: [flowId],
+          type: QueryTypes.SELECT,
+        }),
+      );
+  
+    });
+  }); 
+
 });

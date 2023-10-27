@@ -6,17 +6,11 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: process_management
-    command: [
-      './wait-for-it.sh',
-      'db:5432',
-      '--',
-      'npm',
-      'run',
-      'start',
-      ]
+    command: [ "/bin/sh", "-c", "npm start" ]
     restart: always
     volumes:
       - ./:/app
+      - /app/node_modules
     ports:
       - 8082:8082
     networks:
