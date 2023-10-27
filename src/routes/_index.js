@@ -5,9 +5,9 @@ import StageRoutes from './stage.js';
 import FlowStageRoutes from './flowStage.js';
 import ProcessRoutes from './process.js';
 import FlowUserRoutes from './flowUser.js';
-import ProcessAudRoutes from './processAud.js'
-import ProcessesFileRoutes from "./processesFile.js";
-import DocumentAudRoutes from "./documentAud.js";
+import ProcessAudRoutes from './processAud.js';
+import ProcessesFileRoutes from './processesFile.js';
+import DocumentAudRoutes from './documentAud.js';
 const applicationRoutes = express.Router();
 
 applicationRoutes.use('/priority', PriorityRoutes);

@@ -4,9 +4,9 @@ import { FlowUserController } from './flowUser.js';
 import { PriorityController } from './priority.js';
 import { ProcessController } from './process.js';
 import { StageController } from './stage.js';
-import {ProcessAudController} from './processAud.js';
-import {ProcessesFileController} from './processesFile.js';
-import {DocumentAudController} from "./documentAud.js";
+import { ProcessAudController } from './processAud.js';
+import { ProcessesFileController } from './processesFile.js';
+import { DocumentAudController } from './documentAud.js';
 
 const priorityController = new PriorityController();
 const flowController = new FlowController();

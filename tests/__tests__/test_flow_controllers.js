@@ -2,7 +2,6 @@ import 'dotenv/config';
 import axios from 'axios';
 import { FlowController } from '../../src/controllers/flow.js';
 
-
 //jest.mock('../services/_index.js');
 jest.mock('axios');
 
@@ -11,7 +10,6 @@ const resMock = {
   status: jest.fn().mockReturnThis(),
   json: jest.fn(),
 };
-
 
 describe('FlowController', () => {
   let flowController;
@@ -74,7 +72,6 @@ describe('FlowController', () => {
   });
 
   describe('getHistoricByFlowId', () => {
-
     afterEach(() => {
       jest.clearAllMocks();
     });
@@ -85,108 +82,121 @@ describe('FlowController', () => {
         {
           IdFlow: 1,
           idProcess: 2,
-          processRecord: "54466326220239210526",
-          operation: "UPDATE",
-          changedAt: "2023-10-21 15:47:03.515+00",
-          newValues: "{\"status\":\"inProgress\",\"idStage\":1,\"effectiveDate\":\"2023-10-21T15:47:03.438Z\"}",
+          processRecord: '54466326220239210526',
+          operation: 'UPDATE',
+          changedAt: '2023-10-21 15:47:03.515+00',
+          newValues:
+            '{"status":"inProgress","idStage":1,"effectiveDate":"2023-10-21T15:47:03.438Z"}',
         },
         {
           IdFlow: 1,
           idProcess: 3,
-          processRecord: "54466326220239210526",
-          operation: "UPDATE",
-          changedAt: "2023-10-21 15:47:03.515+00",
-          newValues: "{\"status\":\"inProgress\",\"idStage\":1,\"effectiveDate\":\"2023-10-21T15:47:03.438Z\"}",
+          processRecord: '54466326220239210526',
+          operation: 'UPDATE',
+          changedAt: '2023-10-21 15:47:03.515+00',
+          newValues:
+            '{"status":"inProgress","idStage":1,"effectiveDate":"2023-10-21T15:47:03.438Z"}',
         },
         {
           IdFlow: 1,
           idProcess: 3,
-          processRecord: "54466326220239210526",
-          operation: "UPDATE",
-          changedAt: "2023-10-24 15:47:04.515+00",
-          newValues: "{\"status\":\"inProgress\",\"idStage\":2,\"effectiveDate\":\"2023-10-24T15:47:03.438Z\"}",
+          processRecord: '54466326220239210526',
+          operation: 'UPDATE',
+          changedAt: '2023-10-24 15:47:04.515+00',
+          newValues:
+            '{"status":"inProgress","idStage":2,"effectiveDate":"2023-10-24T15:47:03.438Z"}',
         },
         {
           IdFlow: 1,
           idProcess: 3,
-          processRecord: "54466326220239210526",
-          operation: "UPDATE",
-          changedAt: "2023-10-25 15:47:05.515+00",
-          newValues: "{\"status\":\"inProgress\",\"idStage\":1,\"effectiveDate\":\"2023-10-24T15:47:03.438Z\"}",
+          processRecord: '54466326220239210526',
+          operation: 'UPDATE',
+          changedAt: '2023-10-25 15:47:05.515+00',
+          newValues:
+            '{"status":"inProgress","idStage":1,"effectiveDate":"2023-10-24T15:47:03.438Z"}',
         },
         {
           IdFlow: 1,
           idProcess: 3,
-          processRecord: "54466326220239210526",
-          operation: "UPDATE",
-          changedAt: "2023-10-26 15:47:06.515+00",
-          newValues: "{\"status\":\"inProgress\",\"idStage\":2,\"effectiveDate\":\"2023-10-24T15:47:03.438Z\"}",
+          processRecord: '54466326220239210526',
+          operation: 'UPDATE',
+          changedAt: '2023-10-26 15:47:06.515+00',
+          newValues:
+            '{"status":"inProgress","idStage":2,"effectiveDate":"2023-10-24T15:47:03.438Z"}',
         },
         {
           IdFlow: 1,
           idProcess: 3,
-          processRecord: "54466326220239210526",
-          operation: "UPDATE",
-          changedAt: "2023-10-27 15:47:07.515+00",
-          newValues: "{\"finalised\":\"true\",\"status\":\"inProgress\",\"idStage\":3,\"effectiveDate\":\"2023-10-25T15:47:03.438Z\"}",
-        }
-      ]
+          processRecord: '54466326220239210526',
+          operation: 'UPDATE',
+          changedAt: '2023-10-27 15:47:07.515+00',
+          newValues:
+            '{"finalised":"true","status":"inProgress","idStage":3,"effectiveDate":"2023-10-25T15:47:03.438Z"}',
+        },
+      ];
 
       const findAll_results = [
         {
-            idFlowStage: 1,
-            idStageA: 1,
-            idStageB: 2,
-            idFlow: 1,
-            commentary: "",
-            createdAt: "2023-10-18 23:40:24.348+00",
-            updatedAt: "2023-10-18 23:40:24.348+00",
+          idFlowStage: 1,
+          idStageA: 1,
+          idStageB: 2,
+          idFlow: 1,
+          commentary: '',
+          createdAt: '2023-10-18 23:40:24.348+00',
+          updatedAt: '2023-10-18 23:40:24.348+00',
         },
         {
-            idFlowStage: 2,
-            idStageA: 2,
-            idStageB: 3,
-            idFlow: 1,
-            commentary: "",
-            createdAt: "2023-10-18 23:40:24.363+00",
-            updatedAt: "2023-10-18 23:40:24.363+00",
-        }
-      ]
+          idFlowStage: 2,
+          idStageA: 2,
+          idStageB: 3,
+          idFlow: 1,
+          commentary: '',
+          createdAt: '2023-10-18 23:40:24.363+00',
+          updatedAt: '2023-10-18 23:40:24.363+00',
+        },
+      ];
 
-      const expected_result = [1,2,3,undefined]
+      const expected_result = [1, 2, 3, undefined];
       reqMock.params = { idFlow: 1 };
 
       flowController.flowService.getHistoricByFlowId = jest
-      .fn()
-      .mockResolvedValue(query_results);
-      
+        .fn()
+        .mockResolvedValue(query_results);
+
       flowController.flowStageService.findAllByIdFlow = jest
-      .fn()
-      .mockResolvedValue(findAll_results);
+        .fn()
+        .mockResolvedValue(findAll_results);
 
-      const result = await flowController.showHistoricByFlowId(reqMock, resMock);
+      const result = await flowController.showHistoricByFlowId(
+        reqMock,
+        resMock,
+      );
       expect(resMock.status).toHaveBeenCalledWith(200);
-  
     });
-
 
     it('Não encontrar Histórico de um fluxo', async () => {
       const flowId = 1;
-      const query_results = undefined
-      const error = new Error("Cannot read properties of undefined (reading 'length')");
+      const query_results = undefined;
+      const error = new Error(
+        "Cannot read properties of undefined (reading 'length')",
+      );
 
       reqMock.params = { idFlow: 1 };
 
       flowController.flowService.getHistoricByFlowId = jest
-      .fn()
-      .mockResolvedValue(query_results);
-      
-      const result = await flowController.showHistoricByFlowId(reqMock, resMock);
+        .fn()
+        .mockResolvedValue(query_results);
+
+      const result = await flowController.showHistoricByFlowId(
+        reqMock,
+        resMock,
+      );
       expect(resMock.json).toHaveBeenCalledWith({
         error,
-        message: "Erro ao buscar o histórico de alteraçõe dos processos de um fluxos",
+        message:
+          'Erro ao buscar o histórico de alteraçõe dos processos de um fluxos',
       });
-      
+
       expect(resMock.status).toHaveBeenCalledWith(500);
     });
 
@@ -196,14 +206,18 @@ describe('FlowController', () => {
       reqMock.params = { idFlow: 1 };
 
       flowController.flowService.getHistoricByFlowId = jest
-      .fn()
-      .mockResolvedValue(query_results);
-      
-      const result = await flowController.showHistoricByFlowId(reqMock, resMock);
+        .fn()
+        .mockResolvedValue(query_results);
+
+      const result = await flowController.showHistoricByFlowId(
+        reqMock,
+        resMock,
+      );
       expect(resMock.json).toHaveBeenCalledWith({
-        message: "Erro ao buscar o histórico de alteraçõe dos processos de um fluxos",
+        message:
+          'Erro ao buscar o histórico de alteraçõe dos processos de um fluxos',
       });
-      
+
       expect(resMock.status).toHaveBeenCalledWith(404);
     });
 
@@ -212,55 +226,56 @@ describe('FlowController', () => {
         {
           IdFlow: 1,
           idProcess: 2,
-          processRecord: "54466326220239210526",
-          operation: "UPDATE",
-          changedAt: "2023-10-21 15:47:03.515+00",
-          newValues: "{\"status\":\"inProgress\",\"idStage\":1,\"effectiveDate\":\"2023-10-21T15:47:03.438Z\"}",
-        }
+          processRecord: '54466326220239210526',
+          operation: 'UPDATE',
+          changedAt: '2023-10-21 15:47:03.515+00',
+          newValues:
+            '{"status":"inProgress","idStage":1,"effectiveDate":"2023-10-21T15:47:03.438Z"}',
+        },
       ];
-      
+
       const findAll_results = [
         {
-            idFlowStage: 1,
-            idStageA: 1,
-            idStageB: 2,
-            idFlow: 1,
-            commentary: "",
-            createdAt: "2023-10-18 23:40:24.348+00",
-            updatedAt: "2023-10-18 23:40:24.348+00",
+          idFlowStage: 1,
+          idStageA: 1,
+          idStageB: 2,
+          idFlow: 1,
+          commentary: '',
+          createdAt: '2023-10-18 23:40:24.348+00',
+          updatedAt: '2023-10-18 23:40:24.348+00',
         },
         {
-            idFlowStage: 2,
-            idStageA: 2,
-            idStageB: 3,
-            idFlow: 1,
-            commentary: "",
-            createdAt: "2023-10-18 23:40:24.363+00",
-            updatedAt: "2023-10-18 23:40:24.363+00",
+          idFlowStage: 2,
+          idStageA: 2,
+          idStageB: 3,
+          idFlow: 1,
+          commentary: '',
+          createdAt: '2023-10-18 23:40:24.363+00',
+          updatedAt: '2023-10-18 23:40:24.363+00',
         },
         {
           idFlowStage: 3,
           idStageA: 3,
           idStageB: 4,
           idFlow: 1,
-          commentary: "",
-          createdAt: "2023-10-18 23:40:24.363+00",
-          updatedAt: "2023-10-18 23:40:24.363+00",
-      }
-      ] 
+          commentary: '',
+          createdAt: '2023-10-18 23:40:24.363+00',
+          updatedAt: '2023-10-18 23:40:24.363+00',
+        },
+      ];
       reqMock.params = { idFlow: 1 };
 
       flowController.flowService.getHistoricByFlowId = jest
-      .fn()
-      .mockResolvedValue(query_results);
-      
+        .fn()
+        .mockResolvedValue(query_results);
+
       flowController.flowStageService.findAllByIdFlow = jest
-      .fn()
-      .mockResolvedValue(findAll_results);
+        .fn()
+        .mockResolvedValue(findAll_results);
 
       await flowController.showHistoricByFlowId(reqMock, resMock);
-      
+
       expect(resMock.status).toHaveBeenCalledWith(200);
     });
-  }); 
+  });
 });

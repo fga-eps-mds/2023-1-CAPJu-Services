@@ -1,6 +1,6 @@
 import { Op, QueryTypes } from 'sequelize';
 import sequelizeConfig from '../config/sequelize.js';
-import "dotenv/config.js"
+import 'dotenv/config.js';
 
 class FlowStageService {
   constructor(FlowStageModel) {
@@ -8,7 +8,11 @@ class FlowStageService {
   }
 
   async findAll(where) {
-    return this.flowStage.findAll({ where, order: [['idFlowStage', 'ASC']], raw: true }); // This ordering is crucial to get the stages order correctly
+    return this.flowStage.findAll({
+      where,
+      order: [['idFlowStage', 'ASC']],
+      raw: true,
+    }); // This ordering is crucial to get the stages order correctly
   }
 
   async findAllByIdFlow(idFlow, limit, attributes) {
@@ -38,7 +42,7 @@ class FlowStageService {
         ORDER BY tbl.origem
       `,
       {
-        replacements: [ idFlow, idFlow ],
+        replacements: [idFlow, idFlow],
         type: QueryTypes.SELECT,
       },
     );

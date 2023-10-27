@@ -1,5 +1,5 @@
-import {Model, DataTypes, Sequelize} from "sequelize";
-import sequelizeConfig from "../config/sequelize.js";
+import { Model, DataTypes, Sequelize } from 'sequelize';
+import sequelizeConfig from '../config/sequelize.js';
 
 class UserModel extends Model {
   static init(sequelize) {
@@ -43,22 +43,25 @@ class UserModel extends Model {
       },
       {
         sequelize,
-        tableName: "users",
-      }
+        tableName: 'users',
+      },
     );
 
     return this;
   }
 
   static associate(models) {
-    this.belongsTo(models.Unit, { foreignKey: "idUnit", as: "unit" });
-    this.belongsTo(models.Role, { foreignKey: "idRole", as: "role" });
+    this.belongsTo(models.Unit, { foreignKey: 'idUnit', as: 'unit' });
+    this.belongsTo(models.Role, { foreignKey: 'idRole', as: 'role' });
     this.belongsToMany(models.Flow, {
-      foreignKey: "cpf",
-      through: "idFlowUser",
-      as: "flow",
+      foreignKey: 'cpf',
+      through: 'idFlowUser',
+      as: 'flow',
     });
-    this.hasMany(models.ProcessAud, { foreignKey: 'changedBy', as: 'auditRecords' });
+    this.hasMany(models.ProcessAud, {
+      foreignKey: 'changedBy',
+      as: 'auditRecords',
+    });
   }
 }
 

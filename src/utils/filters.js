@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 
 export function filterByNicknameAndRecord(req) {
-    console.log(req.query);
+  console.log(req.query);
   return req.query.nicknameOrRecordFilter
     ? {
         [Op.or]: [
@@ -47,12 +47,20 @@ export function filterByLegalPriority(req) {
 }
 
 export function filterByNicknameOrRecord(req) {
-    return req.query.nicknameOrRecordFilter
-        ? {
-            [Op.or]: [
-                { record: { [Op.like]: `%${req.query.nicknameOrRecordFilter.trim()}%` } },
-                { nickname: { [Op.like]: `%${req.query.nicknameOrRecordFilter.trim()}%` } }
-            ],
-        }
-        : {};
+  return req.query.nicknameOrRecordFilter
+    ? {
+        [Op.or]: [
+          {
+            record: {
+              [Op.like]: `%${req.query.nicknameOrRecordFilter.trim()}%`,
+            },
+          },
+          {
+            nickname: {
+              [Op.like]: `%${req.query.nicknameOrRecordFilter.trim()}%`,
+            },
+          },
+        ],
+      }
+    : {};
 }

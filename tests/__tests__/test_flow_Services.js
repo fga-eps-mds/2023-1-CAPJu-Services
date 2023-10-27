@@ -18,7 +18,7 @@ describe('FlowController', () => {
   let reqMock;
   let resMock;
   let flowService;
-  
+
   beforeEach(() => {
     reqMock = {
       body: {},
@@ -122,8 +122,6 @@ describe('FlowController', () => {
     });
   });
 
-  
-
   describe('stagesSequencesFromFlowStages', () => {
     it('Retornar estágios e sequências a partir dos estágios do fluxo', async () => {
       const flowStages = [
@@ -167,14 +165,15 @@ describe('FlowController', () => {
         {
           IdFlow: 3,
           idProcess: 2,
-          processRecord: "54466326220239210525",
-          operation: "UPDATE",
-          changedAt: "2023-10-21 15:47:03.515+00",
-          newValues: "{\"status\":\"inProgress\",\"idStage\":5,\"effectiveDate\":\"2023-10-21T15:47:03.438Z\"}",
-        }
-      ]
-      
-      sequelizeConfig.query.mockResolvedValue(query_results)
+          processRecord: '54466326220239210525',
+          operation: 'UPDATE',
+          changedAt: '2023-10-21 15:47:03.515+00',
+          newValues:
+            '{"status":"inProgress","idStage":5,"effectiveDate":"2023-10-21T15:47:03.438Z"}',
+        },
+      ];
+
+      sequelizeConfig.query.mockResolvedValue(query_results);
       const result = await flowService.getHistoricByFlowId(flowId);
 
       expect(result).toEqual(query_results);
@@ -186,8 +185,6 @@ describe('FlowController', () => {
           type: QueryTypes.SELECT,
         }),
       );
-  
     });
-  }); 
-
+  });
 });

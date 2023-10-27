@@ -1,7 +1,10 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
 import { filterByName } from '../utils/filters.js';
-import {getUserRoleAndUnitFilterFromReq, tokenToUser, userFromReq} from '../../middleware/authMiddleware.js';
+import {
+  getUserRoleAndUnitFilterFromReq,
+  userFromReq,
+} from '../../middleware/authMiddleware.js';
 
 export class StageController {
   constructor() {
@@ -13,7 +16,7 @@ export class StageController {
       let limit;
       let where = {
         ...filterByName(req),
-        ...await getUserRoleAndUnitFilterFromReq(req),
+        ...(await getUserRoleAndUnitFilterFromReq(req)),
       };
 
       const data = { where, offset: req.query.offset, limit: req.query.limit };
@@ -27,7 +30,7 @@ export class StageController {
         return res.status(200).json({ stages: stages || [], totalPages });
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return res.status(500).json({ message: 'Erro ao buscar etapas' });
     }
   };

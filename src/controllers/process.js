@@ -1,12 +1,11 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
 import {
-  filterByLegalPriority, filterByNicknameOrRecord,
+  filterByLegalPriority,
+  filterByNicknameOrRecord,
   filterByStatus,
 } from '../utils/filters.js';
-import {
-  getUserRoleAndUnitFilterFromReq,
-} from '../../middleware/authMiddleware.js';
+import { getUserRoleAndUnitFilterFromReq } from '../../middleware/authMiddleware.js';
 
 export class ProcessController {
   constructor() {
@@ -18,12 +17,11 @@ export class ProcessController {
 
   index = async (req, res) => {
     try {
-
       let where = {
         ...filterByLegalPriority(req),
         ...filterByStatus(req),
         ...filterByNicknameOrRecord(req),
-        ...await getUserRoleAndUnitFilterFromReq(req),
+        ...(await getUserRoleAndUnitFilterFromReq(req)),
       };
 
       const offset = parseInt(req.query.offset) || 0;
@@ -33,10 +31,18 @@ export class ProcessController {
         where,
         limit,
         offset,
-        attributes: ['idProcess', 'idFlow', 'idPriority', 'record', 'nickname', 'status', 'finalised']
+        attributes: [
+          'idProcess',
+          'idFlow',
+          'idPriority',
+          'record',
+          'nickname',
+          'status',
+          'finalised',
+        ],
       });
 
-      console.log(processes)
+      console.log(processes);
 
       if (!processes?.length) {
         return res.status(204).json([]);
@@ -45,40 +51,48 @@ export class ProcessController {
 
         const idFlows = processes.map(p => p.idFlow);
 
-        const flowsStagesRaw = await this.flowStageService.findAll({ idFlow: idFlows });
+        const flowsStagesRaw = await this.flowStageService.findAll({
+          idFlow: idFlows,
+        });
 
         const flowStagesOrdered = [];
 
         flowsStagesRaw.forEach(flowStageRaw => {
-          const flowIndex = flowStagesOrdered.findIndex(fS => fS.idFlow === flowStageRaw.idFlow);
-          if(flowIndex === -1) {
-            flowStagesOrdered.push({ idFlow: flowStageRaw.idFlow, stagesOrdered: [flowStageRaw.idStageA, flowStageRaw.idStageB] })
+          const flowIndex = flowStagesOrdered.findIndex(
+            fS => fS.idFlow === flowStageRaw.idFlow,
+          );
+          if (flowIndex === -1) {
+            flowStagesOrdered.push({
+              idFlow: flowStageRaw.idFlow,
+              stagesOrdered: [flowStageRaw.idStageA, flowStageRaw.idStageB],
+            });
           } else {
             const flow = flowStagesOrdered[flowIndex];
             flow.stagesOrdered.push(flowStageRaw.idStageB);
           }
-        })
+        });
 
         for (const process of processes) {
-
           const { idFlow, idStage } = process;
 
           let progress;
 
-          const processFlow = flowStagesOrdered.find(fS => fS.idFlow === idFlow);
+          const processFlow = flowStagesOrdered.find(
+            fS => fS.idFlow === idFlow,
+          );
 
-          if(idStage !== null) {
-            const currentStageCount = processFlow.stagesOrdered.findIndex(s => s === idStage) + 1;
-            progress = `${currentStageCount}/${processFlow.stagesOrdered.length}`
+          if (idStage !== null) {
+            const currentStageCount =
+              processFlow.stagesOrdered.findIndex(s => s === idStage) + 1;
+            progress = `${currentStageCount}/${processFlow.stagesOrdered.length}`;
           } else {
-            progress = `0/${processFlow.stagesOrdered.length}`
+            progress = `0/${processFlow.stagesOrdered.length}`;
           }
 
           processesWithFlows.push({
             ...process,
             progress,
           });
-
         }
 
         const totalCount = await this.processService.countRows({ where });
@@ -89,7 +103,7 @@ export class ProcessController {
           .json({ processes: processesWithFlows, totalPages });
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return res.status(500).json({
         error,
         message: 'Erro ao buscar processos',
@@ -183,10 +197,15 @@ export class ProcessController {
 
   store = async (req, res) => {
     try {
+      let {
+        record: paramRecord,
+        nickname,
+        priority: idPriority,
+        idFlow,
+      } = req.body;
 
-      let { record: paramRecord, nickname, priority: idPriority, idFlow } = req.body;
-
-      let { filteredRecord: record, valid: isRecordValid } = this.processService.validateRecord(paramRecord);
+      let { filteredRecord: record, valid: isRecordValid } =
+        this.processService.validateRecord(paramRecord);
 
       if (!isRecordValid) {
         return res.status(400).json({
@@ -208,14 +227,17 @@ export class ProcessController {
 
       try {
         if (flow) {
-          const data = await this.processService.createProcessAndAud({
-            record,
-            idUnit: flow.idUnit,
-            nickname,
-            idFlow,
-            idPriority,
-            finalised: false,
-          }, req);
+          const data = await this.processService.createProcessAndAud(
+            {
+              record,
+              idUnit: flow.idUnit,
+              nickname,
+              idFlow,
+              idPriority,
+              finalised: false,
+            },
+            req,
+          );
 
           return res.status(200).json({
             message: `Processo criado com sucesso.`,
@@ -254,13 +276,11 @@ export class ProcessController {
 
   updateProcess = async (req, res) => {
     try {
-
       const updatedProcess = await this.processService.updateProcess(req, res);
 
       if (updatedProcess) {
         return res.status(200).json(updatedProcess);
       }
-
     } catch (error) {
       return res.status(500).json({ error: `${error}` });
     }
@@ -268,23 +288,27 @@ export class ProcessController {
 
   deleteProcess = async (req, res) => {
     try {
-
-      const result = await this.processService.deleteProcessById(req.params.idProcess, req);
+      const result = await this.processService.deleteProcessById(
+        req.params.idProcess,
+        req,
+      );
 
       if (!result) {
-        return res.status(404).json({ error: `Não há registro ${req.params.record}.` });
+        return res
+          .status(404)
+          .json({ error: `Não há registro ${req.params.record}.` });
       }
 
       return res.status(200).json({ message: 'Processo apagado.' });
     } catch (error) {
-      return res.status(500).json({ error, message: 'Erro ao apagar processo.' });
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao apagar processo.' });
     }
   };
 
   updateProcessStage = async (req, res) => {
-
     try {
-
       const result = await this.processService.updateProcessStage(req, res);
 
       if (result) {
@@ -292,42 +316,38 @@ export class ProcessController {
           message: 'Etapa atualizada com sucesso.',
         });
       }
-
     } catch (error) {
       return res.status(500).json({ error: `${error}` });
     }
-
   };
 
   finalizeProcess = async (req, res) => {
     try {
-
-      const finalizedProcess = await this.processService.finalizeProcess(req, res);
+      const finalizedProcess = await this.processService.finalizeProcess(
+        req,
+        res,
+      );
 
       if (finalizedProcess) {
         return res.status(200).json(finalizedProcess);
       }
-
     } catch (error) {
       return res.status(500).json({ error: `${error}` });
     }
-
   };
 
   archiveProcess = async (req, res) => {
-
     try {
-
-      const archivedProcess = await this.processService.archiveProcess(req, res);
+      const archivedProcess = await this.processService.archiveProcess(
+        req,
+        res,
+      );
 
       if (archivedProcess) {
         return res.status(200).json(archivedProcess);
       }
-
     } catch (error) {
       return res.status(500).json({ error: `${error}` });
     }
-
   };
-
 }

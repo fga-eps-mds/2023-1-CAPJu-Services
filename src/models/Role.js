@@ -1,5 +1,5 @@
-import {Model, DataTypes, Sequelize} from "sequelize";
-import sequelizeConfig from "../config/sequelize.js";
+import { Model, DataTypes, Sequelize } from 'sequelize';
+import sequelizeConfig from '../config/sequelize.js';
 
 class RoleModel extends Model {
   static init(sequelize) {
@@ -26,15 +26,15 @@ class RoleModel extends Model {
       },
       {
         sequelize,
-        tableName: "role",
-      }
+        tableName: 'role',
+      },
     );
   }
 
   static associate(models) {
     this.hasMany(models.User, {
-      foreignKey: "cpf",
-      as: "users",
+      foreignKey: 'cpf',
+      as: 'users',
     });
   }
 }

@@ -14,7 +14,6 @@ jest.mock('../../src/config/sequelize.js', () => ({
   query: jest.fn(),
 }));
 
-
 describe('FlowStageService', () => {
   let flowStageService;
 
@@ -113,22 +112,22 @@ describe('FlowStageService', () => {
       const query_results = [
         {
           idStage: 1,
-          name: "Primeira Etapa",
-          duration: 5
+          name: 'Primeira Etapa',
+          duration: 5,
         },
         {
           idStage: 2,
-          name: "Segunda Etapa",
-          duration: 2
+          name: 'Segunda Etapa',
+          duration: 2,
         },
         {
           idStage: 3,
-          name: "Terceira Etapa",
-          duration: 2
-        }
-      ]
+          name: 'Terceira Etapa',
+          duration: 2,
+        },
+      ];
 
-      sequelizeConfig.query.mockResolvedValue(query_results)
+      sequelizeConfig.query.mockResolvedValue(query_results);
       const result = await flowStageService.findFlowStagesByFlowId(flowId);
 
       expect(result).toEqual(query_results);
@@ -140,7 +139,6 @@ describe('FlowStageService', () => {
           type: QueryTypes.SELECT,
         }),
       );
-  
     });
   });
 });

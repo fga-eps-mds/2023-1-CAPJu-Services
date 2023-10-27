@@ -8,7 +8,6 @@ class FlowService {
   }
 
   async findAll(where, attributes, offset, limit) {
-
     const options = {
       where: where,
       offset: offset || 0,
@@ -23,7 +22,6 @@ class FlowService {
   }
 
   async findAllRawWithAttributes(where, attributes) {
-
     const options = {
       where,
       attributes,
@@ -39,7 +37,7 @@ class FlowService {
 
   async findOneByFlowId(idFlow, attributes) {
     const query = {
-      where: { idFlow }
+      where: { idFlow },
     };
 
     if (attributes && attributes.length) {
@@ -48,7 +46,6 @@ class FlowService {
 
     return this.flow.findOne(query);
   }
-
 
   async createFlow(params) {
     return this.flow.create(params);
@@ -79,11 +76,11 @@ class FlowService {
         INNER JOIN process P on P."idProcess"=A."idProcess" 
         WHERE P."idFlow" = ? AND A."operation" = 'UPDATE';`,
       {
-        replacements: [ idFlow ],
+        replacements: [idFlow],
         type: QueryTypes.SELECT,
       },
     );
-      
+
     return query_results;
   }
 
