@@ -3,7 +3,6 @@ import sequelizeConfig from '../config/sequelize.js';
 import 'dotenv/config';
 
 class StatisticsService {
-
   constructor() {}
 
   async SearchDueDate(minDate, maxDate, offSet, limit) {
@@ -31,13 +30,13 @@ class StatisticsService {
         replacements: {
           minDate: new Date(minDate),
           maxDate: new Date(maxDate),
-          offSet: offSet,  // Corrigido para offSet
-          limit: limit,    // Corrigido para limit
+          offSet: offSet, // Corrigido para offSet
+          limit: limit, // Corrigido para limit
         },
         type: QueryTypes.SELECT,
       },
     );
-      
+
     return query_results;
   }
 
@@ -61,10 +60,9 @@ class StatisticsService {
     );
 
     const countRows = query_results.length;
-  
+
     return countRows;
   }
-
 }
 
 export default StatisticsService;

@@ -22,7 +22,7 @@ const services = {
   flowUserService,
   processService,
   stageService,
-  statisticsService
+  statisticsService,
 };
 
 export default services;
