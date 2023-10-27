@@ -1,5 +1,5 @@
-import {Model, DataTypes, Sequelize} from "sequelize";
-import sequelizeConfig from "../config/sequelize.js";
+import { Model, DataTypes, Sequelize } from 'sequelize';
+import sequelizeConfig from '../config/sequelize.js';
 
 class UnitModel extends Model {
   static init(sequelize) {
@@ -17,8 +17,8 @@ class UnitModel extends Model {
       },
       {
         sequelize,
-        tableName: "unit",
-      }
+        tableName: 'unit',
+      },
     );
   }
 
@@ -28,8 +28,6 @@ class UnitModel extends Model {
       as: 'users',
     });
   }
-
-
 }
 UnitModel.init(sequelizeConfig, Sequelize.DataTypes);
 export default UnitModel;

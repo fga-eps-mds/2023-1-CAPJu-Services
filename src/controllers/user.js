@@ -3,9 +3,9 @@ import { generateToken } from '../utils/jwt.js';
 import { filterByFullName } from '../utils/filters.js';
 import { Op } from 'sequelize';
 import { hash, verify } from 'argon2';
-import passHashing from "../config/passHashing.js";
-import {cpfFilter} from "../utils/cpf.js";
-import {userFromReq} from "../middleware/authMiddleware.js";
+import passHashing from '../config/passHashing.js';
+import { cpfFilter } from '../utils/cpf.js';
+import { userFromReq } from '../middleware/authMiddleware.js';
 
 export class UserController {
   constructor() {
@@ -140,7 +140,9 @@ export class UserController {
     try {
       const { cpf, password } = req.body;
 
-      const user = await this.userService.getUserByCpfWithPasswordRolesAndUnit(cpf);
+      const user = await this.userService.getUserByCpfWithPasswordRolesAndUnit(
+        cpf,
+      );
 
       if (!user) {
         return res.status(401).json({
@@ -154,10 +156,13 @@ export class UserController {
         });
       }
 
-      const isPasswordCorrect = await verify(user.password, password, passHashing);
+      const isPasswordCorrect = await verify(
+        user.password,
+        password,
+        passHashing,
+      );
 
       if (isPasswordCorrect) {
-
         const tokenPayload = { ...user.toJSON() };
         delete tokenPayload.password;
 
@@ -181,7 +186,6 @@ export class UserController {
 
   store = async (req, res) => {
     try {
-
       const { fullName, cpf, email, password, idUnit, idRole } = req.body;
 
       const hashedPassword = await hash(password, passHashing);
@@ -331,5 +335,4 @@ export class UserController {
       });
     }
   };
-
 }

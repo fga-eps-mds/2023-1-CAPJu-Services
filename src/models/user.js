@@ -40,18 +40,16 @@ class UserModel extends Model {
     );
   }
 
-    static associate(models) {
-        this.belongsTo(models.Unit, {
-            foreignKey: 'idUnit',
-            as: 'unit',
-        });
-        this.belongsTo(models.Role, {
-            foreignKey: 'idRole',
-            as: 'role',
-        });
-    }
-
-
+  static associate(models) {
+    this.belongsTo(models.Unit, {
+      foreignKey: 'idUnit',
+      as: 'unit',
+    });
+    this.belongsTo(models.Role, {
+      foreignKey: 'idRole',
+      as: 'role',
+    });
+  }
 }
 UserModel.init(sequelizeConfig, Sequelize.DataTypes);
 export default UserModel;

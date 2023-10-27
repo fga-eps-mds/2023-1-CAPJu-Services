@@ -9,12 +9,11 @@ const Role = RoleModel;
 const models = {
   User,
   Unit,
-  Role
+  Role,
 };
 
 Object.values(models)
-    .filter(model => typeof model.associate === 'function')
-    .forEach(model => model.associate(models));
-
+  .filter(model => typeof model.associate === 'function')
+  .forEach(model => model.associate(models));
 
 export default models;
