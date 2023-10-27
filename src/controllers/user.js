@@ -195,7 +195,9 @@ export class UserController {
         idUnit,
         idRole,
       };
+
       const user = await this.userService.createUser(data);
+
       return res
         .json({ user, message: 'Usuario cadastrado com sucesso' })
         .status(200);

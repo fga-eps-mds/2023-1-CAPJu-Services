@@ -3,7 +3,6 @@ import { tokenToUser } from '../../middleware/authMiddleware';
 import UserService from '../../src/services/user.js';
 import models from '../../src/models/_index.js';
 
-
 describe('authMiddleware test', () => {
   beforeEach(() => {
     let userServiceMock = new UserService(models.User);
@@ -35,7 +34,7 @@ describe('authMiddleware test', () => {
       let res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
       userServiceMock.createUser = jest.fn().mockResolvedValue(createUser);
       req.headers.authorization = 'Bearer ' + token;
-      
+
       const teste = await tokenToUser(req, res);
       console.log(teste);
       expect(teste.cpf).toBe(undefined);

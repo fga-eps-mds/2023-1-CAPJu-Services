@@ -6,30 +6,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Download dependencies
-        run: |
-          cd Mailer && yarn
-          cd ../Unit && yarn
-          cd ../User && yarn
-          cd ../ProcessManagement && yarn
-          cd ../Note && yarn
+        run: yarn
       - name: Check code style
-        run: |
-          cd Mailer && yarn check-format
-          cd ../Unit && yarn check-format
-          cd ../User && yarn check-format
-          cd ../ProcessManagement && yarn check-format
-          cd ../Note && yarn check-format
+        run: yarn check-format
       - name: Lint Analysis
-        run: |
-          cd Mailer && yarn eslint src
-          cd ../Unit && yarn eslint src
-          cd ../User && yarn eslint src
-          cd ../ProcessManagement && yarn eslint src
-          cd ../Note && yarn eslint src
+        run: yarn eslint src
       - name: Tests
-        run: |
-          cd Mailer && yarn test
-          cd ../Unit && yarn test
-          cd ../User && yarn test
-          cd ../ProcessManagement && yarn test --passWithNoTests # TODO: remove this
-          cd ../Note && yarn test
+        run: yarn test
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
