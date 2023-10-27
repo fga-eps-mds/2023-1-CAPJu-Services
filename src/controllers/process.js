@@ -6,7 +6,6 @@ import {
   filterByStatus,
 } from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
-import { Op } from 'sequelize';
 
 export class ProcessController {
   constructor() {
