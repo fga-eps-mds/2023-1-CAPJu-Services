@@ -1,32 +1,25 @@
-import { FlowController } from '../../src/controllers/flow.js';
 import FlowService from '../../src/services/flow.js';
-import models from '../../src/models/_index.js';
-import FlowModel from '../../src/models/flow.js';
 import sequelizeConfig from '../../src/config/sequelize.js';
 import { QueryTypes } from 'sequelize';
+
+const FlowModelMock = {
+  findAll: jest.fn(),
+  findOne: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  destroy: jest.fn(),
+};
 
 jest.mock('../../src/config/sequelize.js', () => ({
   query: jest.fn(),
 }));
+
 describe('FlowController', () => {
-  let flowController;
-  let flowServiceMock;
   let reqMock;
   let resMock;
   let flowService;
-  let FlowModelMock = {
-    findAll: jest.fn(),
-    findOne: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    destroy: jest.fn(),
-  };
-
-
-
+  
   beforeEach(() => {
-    flowServiceMock = new FlowService(models.Flow);
-    flowController = new FlowController(flowServiceMock);
     reqMock = {
       body: {},
       params: {},
@@ -167,7 +160,6 @@ describe('FlowController', () => {
     });
   });
 
-  // Esse teste funciona no arquivo test_flowUser_Services.js  mas nesse não
   describe('getHistoricByFlowId', () => {
     it('retornar o tempo medio de um fluxo', async () => {
       const flowId = 3;

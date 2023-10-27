@@ -125,15 +125,16 @@ export class FlowController {
           
           let timeFirst;
           let timeLast;
-
-          Object.values(grupos).forEach(trem => {          
+          console.log("------>>>>>>>>>>>>>>>>>", at);
+          Object.values(grupos).forEach(trem => {  
+            console.log(trem);        
             if(trem[begin] ){
               timeFirst = trem[begin].first;
             }
             if(trem[end]){
               timeLast = trem[end].last;
             }
-            else{
+            else if(!trem.finalised){
               return;
             }
               
@@ -143,18 +144,14 @@ export class FlowController {
             
             const tempoEtapa = Math.ceil(deltaDate / umDiaEmMilissegundos);
 
-            //console.log("---------------------------", timeFirst, timeLast, "TEMPO ETAPA EM DIAS ------>", tempoEtapa, "Em dias", "etapa");
             tempoTotal[at]+=tempoEtapa;
             qtdEtapas[at]++;
-
+            
+            console.log("----------------> AT =", at+1, stages.length,trem.finalised, "\n");
             if(at+1==stages.length && trem.finalised){
-              //console.log("ESTOU NA ETAPA DE CONCLUSAO")
               const dateC = new Date(trem.finalised);
               const deltaDateEnd = dateC - dateB;
-              
               const tempoEtapaEnd = Math.ceil(deltaDateEnd / umDiaEmMilissegundos);
-
-              // console.log("---------------------------", timeFirst, timeLast, "TEMPO ETAPA EM DIAS ------>", tempoEtapaEnd, "Em dias", "etapa");
               tempoTotal[at+1]+=tempoEtapaEnd;
               qtdEtapas[at+1]++;
             }
