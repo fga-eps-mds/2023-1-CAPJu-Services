@@ -6,6 +6,7 @@ module.exports = {
     await queryInterface.createTable('process', {
       record: {
         type: Sequelize.STRING(20),
+        unique: true,
         primaryKey: true,
         allowNull: false,
       },
