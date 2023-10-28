@@ -5,15 +5,15 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "nodemon src/server.js",
+    "start": "nodemon --legacy-watch src/server.js",
     "test": "NODE_ENV=test jest --config=jest.config.mjs --detectOpenHandles --coverage",
     "lint": "eslint src",
     "migration": "npx sequelize-cli db:migrate",
     "seed": "npx sequelize-cli db:seed:all",
     "shred": "npx sequelize-cli db:migrate:undo:all",
-    "prettify": "prettier --write src",
-    "check-format": "prettier --check src",
-    "format": " npx prettier --write src --ignore-unknown . && prettier --check src &&  npx eslint --fix src --ext .js"
+    "prettify": "npx prettier --write src",
+    "check-format": "npx prettier --check src",
+    "format": " npx prettier --write src --ignore-unknown . && npx prettier --check src && npx eslint --fix src --ext .js"
   },
   "dependencies": {
     "@babel/core": "^7.21.8",
