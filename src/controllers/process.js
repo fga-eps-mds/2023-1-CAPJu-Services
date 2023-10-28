@@ -4,6 +4,8 @@ import {
   filterByLegalPriority,
   filterByNicknameAndRecord,
   filterByStatus,
+  filterByIdFlow,
+  filterByDateRange,
 } from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
 
@@ -26,11 +28,12 @@ export class ProcessController {
         ...filterByLegalPriority(req),
         ...filterByNicknameAndRecord(req),
         ...filterByStatus(req),
+        ...filterByIdFlow(req),
+        ...filterByDateRange(req),
         ...unitFilter,
       };
-
       const offset = parseInt(req.query.offset) || 0;
-      const limit = parseInt(req.query.limit) || 10;
+      const limit = parseInt(req.query.limit) || null;
 
       const processes = await this.processService.getAllProcess({
         where,
@@ -40,39 +43,11 @@ export class ProcessController {
 
       if (!processes || processes.length === 0) {
         return res.status(204).json([]);
-      } else {
-        const processesWithFlows = [];
-        for (const process of processes) {
-          const flowProcesses = await this.flowStageService.findAll({
-            where: {
-              record: process.record,
-            },
-          });
-
-          const flowProcessesIdFlows = flowProcesses.map(flowProcess => {
-            return flowProcess.idFlow;
-          });
-
-          processesWithFlows.push({
-            record: process.record,
-            nickname: process.nickname,
-            effectiveDate: process.effectiveDate,
-            idUnit: process.idUnit,
-            idStage: process.idStage,
-            idPriority: process.idPriority,
-            idFlow: flowProcessesIdFlows,
-            status: process.status,
-            progress: process.progress,
-          });
-        }
-
-        const totalCount = await this.processService.countRows({ where });
-        const totalPages = Math.ceil(totalCount / limit) || 0;
-
-        return res
-          .status(200)
-          .json({ processes: processesWithFlows, totalPages });
       }
+      const totalCount = await this.processService.countRows({ where });
+      const totalPages = Math.ceil(totalCount / limit) || 0;
+
+      return res.status(200).json({ processes, totalPages });
     } catch (error) {
       return res.status(500).json({
         error: error.message,
@@ -219,7 +194,7 @@ export class ProcessController {
 
   updateProcess = async (req, res) => {
     try {
-      const { nickname } = req.body;
+      const { nickname, status } = req.body;
 
       const recordStatus = this.processService.validateRecord(
         req.params.record,
@@ -255,7 +230,11 @@ export class ProcessController {
               effectiveDate: new Date(),
               status: 'inProgress',
             }
-          : {};
+          : {
+              idStage: flowStages[0].idStageA || process.idStage,
+              effectiveDate: new Date(),
+              status,
+            };
 
       const updatedProcess = await this.processService.updateProcess(
         {

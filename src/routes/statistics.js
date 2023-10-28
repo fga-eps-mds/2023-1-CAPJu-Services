@@ -17,4 +17,9 @@ StatisticsRoutes.get(
   controllers.statisticsController.getAllProcessByStepInStage,
 );
 
+StatisticsRoutes.get(
+  '/:minDate/:maxDate',
+  controllers.statisticsController.getProcessByDueDateInFlow,
+);
+
 export default StatisticsRoutes;

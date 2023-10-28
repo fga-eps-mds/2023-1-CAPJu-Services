@@ -6,7 +6,6 @@ import FlowStageRoutes from './flowStage.js';
 import ProcessRoutes from './process.js';
 import FlowUserRoutes from './flowUser.js';
 import StatisticsRoutes from './statistics.js';
-
 const applicationRoutes = express.Router();
 
 applicationRoutes.use('/priority', PriorityRoutes);
