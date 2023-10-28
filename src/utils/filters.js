@@ -12,13 +12,10 @@ export function filterByNicknameAndRecord(req) {
 }
 
 export function filterByStatus(req) {
-  return JSON.parse(req.query.showArchivedAndFinished)
-    ? {
-        [Op.or]: [{ status: `archived` }, { status: `finished` }],
-      }
-    : {
-        [Op.or]: [{ status: 'notStarted' }, { status: 'inProgress' }],
-      };
+  const { status } = req.query;
+
+  if (status === undefined || status.length === 0) return {};
+  return { [Op.or]: [...status.map(item => ({ status: item }))] };
 }
 
 export function filterByName(req) {
@@ -43,4 +40,23 @@ export function filterByLegalPriority(req) {
   } else {
     return { idPriority: { [Op.not]: null } };
   }
+}
+
+export function filterByIdFlow(req) {
+  return req.query.idFlow
+    ? {
+        idFlow: req.query.idFlow,
+      }
+    : {};
+}
+
+export function filterByDateRange(req) {
+  const { from, to } = req.query;
+
+  if (to === undefined || from === undefined) return {};
+  return {
+    effectiveDate: {
+      [Op.between]: [new Date(from), new Date(to)],
+    },
+  };
 }
