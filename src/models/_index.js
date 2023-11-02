@@ -6,7 +6,6 @@ import ProcessModel from './process.js';
 import FlowUserModel from './flowUser.js';
 import ProcessAudModel from './processAud.js';
 import UserModel from './User.js';
-import Unit from './Unit.js';
 import RoleModel from './Role.js';
 import UnitModel from './unit.js';
 import NoteModel from './note.js';
@@ -27,6 +26,7 @@ const Note = NoteModel;
 const ProcessesFile = ProcessesFileModel;
 const ProcessesFileItem = ProcessesFileItemModel;
 const DocumentAud = DocumentAudModel;
+const Unit = UnitModel;
 
 const models = {
   Priority,

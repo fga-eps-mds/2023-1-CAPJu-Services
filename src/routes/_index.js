@@ -5,6 +5,7 @@ import StageRoutes from './stage.js';
 import FlowStageRoutes from './flowStage.js';
 import ProcessRoutes from './process.js';
 import FlowUserRoutes from './flowUser.js';
+import StatisticsRoutes from './statistics.js';
 import ProcessAudRoutes from './processAud.js';
 import ProcessesFileRoutes from './processesFile.js';
 import DocumentAudRoutes from './documentAud.js';
@@ -20,5 +21,6 @@ applicationRoutes.use('/documentAud', DocumentAudRoutes);
 applicationRoutes.use('/processesFile', ProcessesFileRoutes);
 applicationRoutes.use('/process', ProcessRoutes);
 applicationRoutes.use('/flowUser', FlowUserRoutes);
+applicationRoutes.use('/statistics', StatisticsRoutes);
 
 export default applicationRoutes;

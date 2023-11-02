@@ -1,25 +1,21 @@
 import { Op } from 'sequelize';
 
 export function filterByNicknameAndRecord(req) {
-  console.log(req.query);
-  return req.query.nicknameOrRecordFilter
+  return req.query.filter
     ? {
         [Op.or]: [
-          { record: { [Op.like]: `%${req.query.nicknameOrRecordFilter}%` } },
-          { nickname: { [Op.like]: `%${req.query.nicknameOrRecordFilter}%` } },
+          { record: { [Op.like]: `%${req.query.filter}%` } },
+          { nickname: { [Op.like]: `%${req.query.filter}%` } },
         ],
       }
     : {};
 }
 
 export function filterByStatus(req) {
-  return JSON.parse(req.query.showArchivedAndFinished)
-    ? {
-        [Op.or]: [{ status: `archived` }, { status: `finished` }],
-      }
-    : {
-        [Op.or]: [{ status: 'notStarted' }, { status: 'inProgress' }],
-      };
+  const { status } = req.query;
+
+  if (status === undefined || status.length === 0) return {};
+  return { [Op.or]: [...status.map(item => ({ status: item }))] };
 }
 
 export function filterByName(req) {
@@ -42,7 +38,7 @@ export function filterByLegalPriority(req) {
   if (req.query.filterByLegalPriority === 'true') {
     return { idPriority: { [Op.not]: 0 } };
   } else {
-    return {};
+    return { idPriority: { [Op.not]: null } };
   }
 }
 

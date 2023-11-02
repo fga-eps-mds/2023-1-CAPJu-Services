@@ -234,6 +234,10 @@ class ProcessService {
     });
   }
 
+  async getAndCountAllProcess(where) {
+    return await this.process.findAndCountAll(where);
+  }
+
   async getPriorityProcess() {
     return await this.process.findAll({
       where: {

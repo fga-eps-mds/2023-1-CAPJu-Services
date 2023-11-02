@@ -39,10 +39,9 @@ export class ProcessController {
           'nickname',
           'status',
           'finalised',
+          'idStage',
         ],
       });
-
-      console.log(processes);
 
       if (!processes?.length) {
         return res.status(204).json([]);
@@ -77,13 +76,10 @@ export class ProcessController {
 
           let progress;
 
-          const processFlow = flowStagesOrdered.find(
-            fS => fS.idFlow === idFlow,
-          );
+          const processFlow = flowStagesOrdered.find(fS => fS.idFlow === idFlow);
 
           if (idStage !== null) {
-            const currentStageCount =
-              processFlow.stagesOrdered.findIndex(s => s === idStage) + 1;
+            const currentStageCount = processFlow.stagesOrdered.findIndex(s => s === idStage) + 1;
             progress = `${currentStageCount}/${processFlow.stagesOrdered.length}`;
           } else {
             progress = `0/${processFlow.stagesOrdered.length}`;
@@ -97,6 +93,8 @@ export class ProcessController {
 
         const totalCount = await this.processService.countRows({ where });
         const totalPages = Math.ceil(totalCount / limit) || 0;
+
+        console.log(processes);
 
         return res
           .status(200)
