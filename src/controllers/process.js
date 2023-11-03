@@ -25,9 +25,11 @@ export class ProcessController {
       const unitFilter = idRole === 5 ? {} : { idUnit };
 
       where = {
+        ...filterByStatus(req),
         ...filterByLegalPriority(req),
         ...filterByNicknameAndRecord(req),
-        ...filterByStatus(req),
+        ...filterByFlowName(req),
+        ...filterByStageName(req),
         ...filterByIdFlow(req),
         ...filterByDateRange(req),
         ...unitFilter,
