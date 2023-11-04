@@ -307,12 +307,11 @@ export class FlowController {
   delete = async (req, res) => {
     try {
       const { idFlow } = req.params;
-      await this.processService.getProcessByIdFlow(idFlow);
       await this.flowStageService.deleteFlowStageByIdFlow(idFlow);
       await this.flowUserService.deleteFlowUserById(idFlow);
-      await await this.processService.deleteByIdFlow(idFlow);
-
+      await this.processService.deleteByIdFlow(idFlow);
       const flow = await this.flowService.deleteFlowById(idFlow);
+      
       if (flow)
         return res.status(200).json({ message: 'Fluxo apagado com sucesso' });
       else return res.status(404).json({ message: 'Fluxo não encontrado' });
