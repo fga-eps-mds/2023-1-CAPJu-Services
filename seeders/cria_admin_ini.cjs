@@ -1,11 +1,12 @@
 'use strict';
 
 const argon2 = require('argon2');
-const passHashingParams = require('../src/config/passHashing.js');
+const passHashingParamsPromise = import('../src/config/passHashing.js').then(module => module.default);
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+    const passHashingParams = await passHashingParamsPromise;
     await queryInterface.bulkInsert(
       'users',
       [
@@ -19,6 +20,7 @@ module.exports = {
           idRole: 5,
           createdAt: new Date(),
           updatedAt: new Date(),
+          firstLogin: true,
         },
         {
           cpf: '12345678909',
@@ -30,6 +32,7 @@ module.exports = {
           idRole: 1,
           createdAt: new Date(),
           updatedAt: new Date(),
+          firstLogin: true,
         },
       ],
       {},
