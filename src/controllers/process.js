@@ -6,6 +6,9 @@ import {
   filterByStatus,
   filterByIdFlow,
   filterByDateRange,
+  filterByFlowName,
+  filterByStageName,
+  filterByName,
 } from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
 
@@ -15,12 +18,27 @@ export class ProcessController {
     this.priorityService = services.priorityService;
     this.flowStageService = services.flowStageService;
     this.flowService = services.flowService;
+    this.stageService = services.stageService;
   }
 
   index = async (req, res) => {
     try {
       let where;
+      let stagesForFilter = {};
       const { idRole, idUnit } = await tokenToUser(req);
+
+      if (req.query.filter?.type === 'stage') {
+        const name = req.query.filter.value;
+        where = {
+          ...filterByName({ query: { filter: name } })
+        };
+        const stages = await this.stageService.findAll({where});
+
+        stagesForFilter = stages.map((stage) => {
+          if (stage.name.includes(name))
+            return { idStage: stage.idStage }
+        });
+      }
 
       const unitFilter = idRole === 5 ? {} : { idUnit };
 
@@ -29,13 +47,16 @@ export class ProcessController {
         ...filterByLegalPriority(req),
         ...filterByNicknameAndRecord(req),
         ...filterByFlowName(req),
-        ...filterByStageName(req),
+        ...filterByStageName(req, stagesForFilter),
         ...filterByIdFlow(req),
         ...filterByDateRange(req),
         ...unitFilter,
       };
       const offset = parseInt(req.query.offset) || 0;
       const limit = parseInt(req.query.limit) || null;
+
+      console.log(where)
+      console.log(filterByStatus(req));
 
       const processes = await this.processService.getAllProcess({
         where,

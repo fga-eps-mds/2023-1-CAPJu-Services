@@ -15,11 +15,11 @@ export function filterByStatus(req) {
   const { status } = req.query;
 
   if (status === undefined || status.length === 0) return {};
-  return { [Op.or]: [...status.map(item => ({ status: item }))] };
+  return { [Op.and]: [{ [Op.or]: [...status.map(item => ({ status: item }))] }]};
 }
 
 export function filterByName(req) {
-  return req.query.filter?.type === 'stage'
+  return req.query.filter
     ? {
         [Op.or]: [{ name: { [Op.like]: `%${req.query.filter}%` } }],
       }
@@ -62,17 +62,17 @@ export function filterByDateRange(req) {
 }
 
 export function filterByFlowName(req) {
-  return re.query.filter?.type === 'flow'
+  return req.query.filter?.type === 'flow'
     ? {
-      [Op.or]: [{ name: { [Op.like]: `%${req.query.filter.value}%` } }],
+      [Op.or]: [{ idFlow: { [Op.like]: `%${req.query.filter.value}%` } }],
     }
     : {}
 }
 
-export function filterByStageName(req) {
+export function filterByStageName(req, stages) {
   return req.query.filter?.type === 'stage'
     ? {
-        [Op.or]: [{ name: { [Op.like]: `%${req.query.filter.value}%` } }],
+        [Op.or]: [...stages],
       }
     : {};
 }
