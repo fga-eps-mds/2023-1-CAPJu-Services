@@ -61,12 +61,12 @@ export function filterByDateRange(req) {
   };
 }
 
-export function filterByFlowName(req) {
+export function filterByFlowName(req, flows) {
   return req.query.filter?.type === 'flow'
     ? {
-      [Op.or]: [{ idFlow: { [Op.like]: `%${req.query.filter.value}%` } }],
+      [Op.or]: [...flows],
     }
-    : {}
+    : {};
 }
 
 export function filterByStageName(req, stages) {

@@ -3,7 +3,7 @@ class FlowService {
     this.flow = FlowModel;
   }
 
-  async findAll(where, offset, limit) {
+  async findAll({where, offset, limit}) {
     return this.flow.findAll({
       where,
       offset: offset,

@@ -24,29 +24,40 @@ export class ProcessController {
   index = async (req, res) => {
     try {
       let where;
-      let stagesForFilter = {};
       const { idRole, idUnit } = await tokenToUser(req);
 
+      let stagesForFilter = {};
       if (req.query.filter?.type === 'stage') {
         const name = req.query.filter.value;
         where = {
           ...filterByName({ query: { filter: name } })
         };
         const stages = await this.stageService.findAll({where});
-
         stagesForFilter = stages.map((stage) => {
           if (stage.name.includes(name))
             return { idStage: stage.idStage }
         });
       }
 
-      const unitFilter = idRole === 5 ? {} : { idUnit };
+      let flowsForFilter = {};
+      if (req.query.filter?.type === 'flow') {
+        const name = req.query.filter.value;
+        where = {
+          ...filterByName({ query: { filter: name } })
+        };
+        const flows = await this.flowService.findAll({where});
+        flowsForFilter = flows.map((flow) => {
+          if (flow.name.includes(name))
+            return { idFlow: flow.idFlow }
+        });
+      }
 
+      const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
         ...filterByStatus(req),
         ...filterByLegalPriority(req),
         ...filterByNicknameAndRecord(req),
-        ...filterByFlowName(req),
+        ...filterByFlowName(req, flowsForFilter),
         ...filterByStageName(req, stagesForFilter),
         ...filterByIdFlow(req),
         ...filterByDateRange(req),
