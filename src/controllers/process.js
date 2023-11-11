@@ -30,12 +30,11 @@ export class ProcessController {
       if (req.query.filter?.type === 'stage') {
         const name = req.query.filter.value;
         where = {
-          ...filterByName({ query: { filter: name } })
+          ...filterByName({ query: { filter: name } }),
         };
-        const stages = await this.stageService.findAll({where});
-        stagesForFilter = stages.map((stage) => {
-          if (stage.name.includes(name))
-            return { idStage: stage.idStage }
+        const stages = await this.stageService.findAll({ where });
+        stagesForFilter = stages.map(stage => {
+          if (stage.name.includes(name)) return { idStage: stage.idStage };
         });
       }
 
@@ -43,12 +42,11 @@ export class ProcessController {
       if (req.query.filter?.type === 'flow') {
         const name = req.query.filter.value;
         where = {
-          ...filterByName({ query: { filter: name } })
+          ...filterByName({ query: { filter: name } }),
         };
-        const flows = await this.flowService.findAll({where});
-        flowsForFilter = flows.map((flow) => {
-          if (flow.name.includes(name))
-            return { idFlow: flow.idFlow }
+        const flows = await this.flowService.findAll({ where });
+        flowsForFilter = flows.map(flow => {
+          if (flow.name.includes(name)) return { idFlow: flow.idFlow };
         });
       }
 
@@ -66,22 +64,35 @@ export class ProcessController {
       const offset = parseInt(req.query.offset) || 0;
       const limit = parseInt(req.query.limit) || null;
 
-      console.log(where)
-      console.log(filterByStatus(req));
-
       const processes = await this.processService.getAllProcess({
         where,
         limit,
         offset,
       });
 
-      if (!processes || processes.length === 0) {
+      const newProcesses = processes.map(async process => {
+        const processStage = await this.stageService.findOneByStageId(
+          process.idStage,
+        );
+        const processFlow = await this.flowService.findOneByFlowId(
+          process.idFlow,
+        );
+        return {
+          ...process,
+          stageName: processStage.name,
+          flowName: processFlow.name,
+        };
+      });
+
+      if (!newProcesses || newProcesses.length === 0) {
         return res.status(204).json([]);
       }
       const totalCount = await this.processService.countRows({ where });
       const totalPages = Math.ceil(totalCount / limit) || 0;
 
-      return res.status(200).json({ processes, totalPages });
+      return res
+        .status(200)
+        .json({ processes: newProcesses, totalPages, newProcesses });
     } catch (error) {
       return res.status(500).json({
         error: error.message,
