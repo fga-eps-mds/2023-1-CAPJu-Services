@@ -84,7 +84,7 @@ export class ProcessController {
         };
       });
 
-      if (!newProcesses || newProcesses.length === 0) {
+      if (!processes || processes.length === 0) {
         return res.status(204).json([]);
       }
       const totalCount = await this.processService.countRows({ where });
@@ -92,7 +92,7 @@ export class ProcessController {
 
       return res
         .status(200)
-        .json({ processes: newProcesses, totalPages, newProcesses });
+        .json({ processes, totalPages, newProcesses });
     } catch (error) {
       return res.status(500).json({
         error: error.message,
