@@ -15,7 +15,9 @@ export function filterByStatus(req) {
   const { status } = req.query;
 
   if (status === undefined || status.length === 0) return {};
-  return { [Op.and]: [{ [Op.or]: [...status.map(item => ({ status: item }))] }]};
+  return {
+    [Op.and]: [{ [Op.or]: [...status.map(item => ({ status: item }))] }],
+  };
 }
 
 export function filterByName(req) {
@@ -64,8 +66,8 @@ export function filterByDateRange(req) {
 export function filterByFlowName(req, flows) {
   return req.query.filter?.type === 'flow'
     ? {
-      [Op.or]: [...flows],
-    }
+        [Op.or]: [...flows],
+      }
     : {};
 }
 
