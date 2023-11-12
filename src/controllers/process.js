@@ -21,7 +21,6 @@ export class ProcessController {
     try {
       let where;
       const { idRole, idUnit } = await tokenToUser(req);
-
       const unitFilter = idRole === 5 ? {} : { idUnit };
 
       where = {
@@ -44,10 +43,12 @@ export class ProcessController {
       if (!processes || processes.length === 0) {
         return res.status(204).json([]);
       }
-      const totalCount = await this.processService.countRows({ where });
-      const totalPages = Math.ceil(totalCount / limit) || 0;
+      const totalProcesses = (await this.processService.countRows({ where }));
+      const totalFinished = await this.processService.countRows({ where: { ...where, status: 'finished' } });
+      const totalArchived = await this.processService.countRows({ where: { ...where, status: 'archived' } });
+      const totalPages = Math.ceil(totalProcesses / limit) || 0;
 
-      return res.status(200).json({ processes, totalPages });
+      return res.status(200).json({ processes, totalPages, totalProcesses, totalArchived, totalFinished });
     } catch (error) {
       return res.status(500).json({
         error: error.message,
