@@ -70,4 +70,53 @@ describe('FlowController', () => {
     });
     expect(resMock.status).toHaveBeenCalledWith(500);
   });
+
+  describe('delete', () => {
+    test('returning 200 ', async () => {
+      const returnValue = 1;
+
+      flowController.flowStageService.deleteFlowStageByIdFlow = jest.fn();
+
+      flowController.flowUserService.deleteFlowUserById = jest.fn();
+
+      flowController.processService.deleteByIdFlow = jest.fn();
+
+      flowController.flowService.deleteFlowById = jest
+        .fn()
+        .mockResolvedValue(returnValue);
+
+      await flowController.delete(reqMock, resMock);
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      return;
+    });
+
+    test('returning 404 ', async () => {
+      const returnValue = 0;
+
+      flowController.flowStageService.deleteFlowStageByIdFlow = jest.fn();
+
+      flowController.flowUserService.deleteFlowUserById = jest.fn();
+
+      flowController.processService.deleteByIdFlow = jest.fn();
+
+      flowController.flowService.deleteFlowById = jest
+        .fn()
+        .mockResolvedValue(returnValue);
+
+      await flowController.delete(reqMock, resMock);
+      expect(resMock.status).toHaveBeenCalledWith(404);
+      return;
+    });
+
+    test('returning 404 ', async () => {
+      const error = new Error('Internal Server Error');
+      flowController.flowStageService.deleteFlowStageByIdFlow = jest
+        .fn()
+        .mockRejectedValue(error);
+
+      await flowController.delete(reqMock, resMock);
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      return;
+    });
+  });
 });
