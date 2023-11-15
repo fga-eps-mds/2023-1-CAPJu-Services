@@ -70,19 +70,35 @@ export class ProcessController {
         offset,
       });
 
-      const newProcesses = processes.map(async process => {
-        const processStage = await this.stageService.findOneByStageId(
-          process.idStage,
-        );
-        const processFlow = await this.flowService.findOneByFlowId(
-          process.idFlow,
-        );
-        return {
-          ...process,
-          stageName: processStage.name,
-          flowName: processFlow.name,
-        };
-      });
+      const newProcesses = await Promise.all(
+        processes.map(async process => {
+          const processStage = await this.stageService.findOneByStageId(
+            process.idStage,
+          );
+
+          const flow = await this.flowService.findOneByFlowId(process.idFlow);
+
+          const flowStage = await this.flowStageService.findAllByIdFlow(
+            process.idFlow,
+          );
+
+          const { stages, sequences } =
+            await this.flowService.stagesSequencesFromFlowStages(flowStage);
+
+          const flowSequence = {
+            idFlow: flow.idFlow,
+            name: flow.name,
+            idUnit: flow.idUnit,
+            stages,
+            sequences,
+          };
+
+          process.dataValues.flow = flowSequence;
+          process.dataValues.stageName = processStage?.name || 'Não iniciado';
+
+          return process;
+        }),
+      );
 
       if (!processes || processes.length === 0) {
         return res.status(204).json([]);
@@ -90,9 +106,7 @@ export class ProcessController {
       const totalCount = await this.processService.countRows({ where });
       const totalPages = Math.ceil(totalCount / limit) || 0;
 
-      return res
-        .status(200)
-        .json({ processes, totalPages, newProcesses });
+      return res.status(200).json({ processes: newProcesses, totalPages });
     } catch (error) {
       return res.status(500).json({
         error: error.message,
