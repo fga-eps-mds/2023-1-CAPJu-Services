@@ -23,8 +23,16 @@ class ProcessService {
     return await this.process.destroy({ where: { record } });
   }
 
+  async deleteByIdFlow(idFlow) {
+    return await this.process.destroy({ where: { idFlow } });
+  }
+
   async getAllProcess(where) {
     return await this.process.findAll(where);
+  }
+
+  async getAndCountAllProcess(where) {
+    return await this.process.findAndCountAll(where);
   }
 
   async getPriorityProcess() {

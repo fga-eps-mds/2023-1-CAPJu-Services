@@ -222,7 +222,6 @@ export class FlowController {
         usersToNotify: idUsersToNotify,
       });
     } catch (error) {
-      // console.log(error)
       return res.status(500).json({ message: 'Erro ao criar fluxo' });
     }
   };
@@ -308,17 +307,11 @@ export class FlowController {
   delete = async (req, res) => {
     try {
       const { idFlow } = req.params;
-      const processes = await this.processService.getProcessByIdFlow(idFlow);
-      if (processes.length > 0) {
-        return res.status(409).json({
-          error: 'Há processos no fluxo',
-          message: `Há ${processes.length} processos no fluxo`,
-        });
-      }
       await this.flowStageService.deleteFlowStageByIdFlow(idFlow);
       await this.flowUserService.deleteFlowUserById(idFlow);
-
+      await this.processService.deleteByIdFlow(idFlow);
       const flow = await this.flowService.deleteFlowById(idFlow);
+
       if (flow)
         return res.status(200).json({ message: 'Fluxo apagado com sucesso' });
       else return res.status(404).json({ message: 'Fluxo não encontrado' });
