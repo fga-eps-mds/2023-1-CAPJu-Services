@@ -70,6 +70,10 @@ export class ProcessController {
         offset,
       });
 
+      if (!processes || processes.length === 0) {
+        return res.status(204).json([]);
+      }
+
       const newProcesses = await Promise.all(
         processes.map(async process => {
           const processStage = await this.stageService.findOneByStageId(
@@ -100,9 +104,6 @@ export class ProcessController {
         }),
       );
 
-      if (!processes || processes.length === 0) {
-        return res.status(204).json([]);
-      }
       const totalCount = await this.processService.countRows({ where });
       const totalPages = Math.ceil(totalCount / limit) || 0;
 

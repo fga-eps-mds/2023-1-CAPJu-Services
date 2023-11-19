@@ -47,12 +47,59 @@ describe('ProcessController', () => {
       });
 
       const mockProcesses = [
-        { id: 1, name: 'Process 1', record: '1234' },
-        { id: 2, name: 'Process 2', record: '1234' },
+        {
+          dataValues: {
+            id: 1,
+            name: 'Process 1',
+            record: '1234',
+            idStage: 1,
+            idFlow: 1,
+          },
+        },
+        {
+          dataValues: {
+            id: 2,
+            name: 'Process 2',
+            record: '1234',
+            idStage: 1,
+            idFlow: 1,
+          },
+        },
       ];
       const mockFlowStages = [
-        { idFlowProcess: 1, idFlow: 1, record: '1234', finalised: true },
+        {
+          idFlowStage: 1,
+          idStageA: 1,
+          idStageB: 2,
+          idFlow: 1,
+          commentary: '',
+          createdAt: '2023-10-20T22:57:32.144Z',
+          updatedAt: '2023-10-20T22:57:32.144Z',
+        },
       ];
+      const mockProcessStage = {
+        idStage: 1,
+        name: 'seried',
+        duration: 5,
+        idUnit: 1,
+        createdAt: '2023-10-22T16:49:21.364Z',
+        updatedAt: '2023-10-22T16:49:21.364Z',
+      };
+
+      const mockFlow = [
+        {
+          idFlow: 1,
+          name: 'Brasileirao',
+          idUnit: 1,
+          createdAt: '2023-10-20T22:57:32.144Z',
+          updatedAt: '2023-10-20T22:57:32.144Z',
+        },
+      ];
+
+      const mockSequence = {
+        stages: [1, 2],
+        sequences: [{ from: 1, commentary: '', to: 2 }],
+      };
 
       processController.processService.getAllProcess = jest
         .fn()
@@ -63,6 +110,18 @@ describe('ProcessController', () => {
       processController.processService.countRows = jest
         .fn()
         .mockResolvedValue(2);
+      processController.stageService.findOneByStageId = jest
+        .fn()
+        .mockResolvedValue(mockProcessStage);
+      processController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue(mockFlow);
+      processController.flowStageService.findAllByIdFlow = jest
+        .fn()
+        .mockResolvedValue(mockFlowStages);
+      processController.flowService.stagesSequencesFromFlowStages = jest
+        .fn()
+        .mockResolvedValue(mockSequence);
 
       await processController.index(reqMockIndex, resMock);
 
