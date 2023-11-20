@@ -2,8 +2,8 @@ class StageService {
   constructor(StageModel) {
     this.stage = StageModel;
   }
-  async findAll() {
-    return this.stage.findAll();
+  async findAll(where) {
+    return this.stage.findAll(where);
   }
 
   async findOneByStageId(idStage) {

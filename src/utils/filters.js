@@ -1,11 +1,11 @@
 import { Op } from 'sequelize';
 
 export function filterByNicknameAndRecord(req) {
-  return req.query.filter
+  return req.query.filter?.type === 'process'
     ? {
         [Op.or]: [
-          { record: { [Op.like]: `%${req.query.filter}%` } },
-          { nickname: { [Op.like]: `%${req.query.filter}%` } },
+          { record: { [Op.like]: `%${req.query.filter.value}%` } },
+          { nickname: { [Op.like]: `%${req.query.filter.value}%` } },
         ],
       }
     : {};
@@ -15,7 +15,9 @@ export function filterByStatus(req) {
   const { status } = req.query;
 
   if (status === undefined || status.length === 0) return {};
-  return { [Op.or]: [...status.map(item => ({ status: item }))] };
+  return {
+    [Op.and]: [{ [Op.or]: [...status.map(item => ({ status: item }))] }],
+  };
 }
 
 export function filterByName(req) {
@@ -27,9 +29,9 @@ export function filterByName(req) {
 }
 
 export function filterByFullName(req) {
-  return req.query.filter
+  return req.query.filter?.type === 'user'
     ? {
-        [Op.or]: [{ fullName: { [Op.like]: `%${req.query.filter}%` } }],
+        [Op.or]: [{ fullName: { [Op.like]: `%${req.query.filter.value}%` } }],
       }
     : {};
 }
@@ -59,4 +61,20 @@ export function filterByDateRange(req) {
       [Op.between]: [new Date(from), new Date(to)],
     },
   };
+}
+
+export function filterByFlowName(req, flows) {
+  return req.query.filter?.type === 'flow'
+    ? {
+        [Op.or]: [...flows],
+      }
+    : {};
+}
+
+export function filterByStageName(req, stages) {
+  return req.query.filter?.type === 'stage'
+    ? {
+        [Op.or]: [...stages],
+      }
+    : {};
 }
