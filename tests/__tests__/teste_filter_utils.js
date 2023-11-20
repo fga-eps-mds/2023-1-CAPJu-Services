@@ -149,8 +149,8 @@ describe('filterByFlowName', () => {
     reqMock.query = { filter: { type: 'flow', value: 'primeiro' } };
     const flowsMock = [{ idFlow: 1 }];
     expect(filterByFlowName(reqMock, flowsMock)).toStrictEqual({
-      [Op.or]: [{ idFlow: 1 }],
-    })
+      [Op.or]: [...flowsMock],
+    });
   });
 
   test('filter is defined and have two or more flows', () => {
@@ -160,10 +160,34 @@ describe('filterByFlowName', () => {
       { idFlow: 2 },
     ];
     expect(filterByFlowName(reqMock, flowsMock)).toStrictEqual({
-      [Op.or]: [
-        { idFlow: 1 },
-        { idFlow: 2 },
-      ],
-    })
+      [Op.or]: [...flowsMock],
+    });
+  });
+});
+
+describe('filterByStageName', () => {
+  test('filter is undefined', () => {
+    reqMock.query = { filter: undefined };
+    const stagesMock = undefined;
+    expect(filterByStageName(reqMock, stagesMock)).toStrictEqual({});
+  });
+
+  test('filter is defined and have one stage', () => {
+    reqMock.query = { filter: { type: 'stage', value: 'primeiro'} };
+    const stagesMock = [{ idStage: 1 }];
+    expect(filterByStageName(reqMock, stagesMock)).toStrictEqual({
+      [Op.or]: [...stagesMock],
+    });
+  });
+
+  test('filter is defined and have two or mode stages', () => {
+    reqMock.query = { filter: { type: 'stage', value: 'Nome Parecido'} };
+    const stagesMock = [
+      { idStage: 1 },
+      { idStage: 2 },
+    ];
+    expect(filterByStageName(reqMock, stagesMock)).toStrictEqual({
+      [Op.or]: [...stagesMock],
+    });
   });
 });
