@@ -38,7 +38,7 @@ describe('FlowController', () => {
         { idFlow: 2, name: 'Fluxo 2' },
       ]);
 
-      const result = await flowService.findAll();
+      const result = await flowService.findAll({});
 
       expect(result).toEqual([
         { idFlow: 1, name: 'Fluxo 1' },

@@ -32,13 +32,17 @@ describe('ProcessController', () => {
   });
 
   describe('index', () => {
-    test('list all processes (200)', async () => {
+    test('list all processes (200) with filter stage', async () => {
       const reqMockIndex = reqMock;
 
       reqMockIndex.query = {
         ...reqMockIndex.query,
         showArchivedAndFinished: false,
         filterByLegalPriority: false,
+        filter: {
+          type: 'stage',
+          value: 'se',
+        },
       };
 
       jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
@@ -47,22 +51,242 @@ describe('ProcessController', () => {
       });
 
       const mockProcesses = [
-        { id: 1, name: 'Process 1', record: '1234' },
-        { id: 2, name: 'Process 2', record: '1234' },
+        {
+          dataValues: {
+            id: 1,
+            name: 'Process 1',
+            record: '1234',
+            idStage: 1,
+            idFlow: 1,
+          },
+        },
+        {
+          dataValues: {
+            id: 2,
+            name: 'Process 2',
+            record: '1234',
+            idStage: 1,
+            idFlow: 1,
+          },
+        },
       ];
       const mockFlowStages = [
-        { idFlowProcess: 1, idFlow: 1, record: '1234', finalised: true },
+        {
+          idFlowStage: 1,
+          idStageA: 1,
+          idStageB: 2,
+          idFlow: 1,
+          commentary: '',
+          createdAt: '2023-10-20T22:57:32.144Z',
+          updatedAt: '2023-10-20T22:57:32.144Z',
+        },
       ];
+      const mockProcessStage = {
+        idStage: 1,
+        name: 'seried',
+        duration: 5,
+        idUnit: 1,
+        createdAt: '2023-10-22T16:49:21.364Z',
+        updatedAt: '2023-10-22T16:49:21.364Z',
+      };
+
+      const mockAllStages = [
+        {
+          idStage: 1,
+          name: 'seried',
+          duration: 5,
+          idUnit: 1,
+          createdAt: '2023-10-22T16:49:21.364Z',
+          updatedAt: '2023-10-22T16:49:21.364Z',
+        },
+        {
+          idStage: 2,
+          name: 'serieA',
+          duration: 5,
+          idUnit: 1,
+          createdAt: '2023-10-22T16:49:21.364Z',
+          updatedAt: '2023-10-22T16:49:21.364Z',
+        },
+        {
+          idStage: 3,
+          name: 'seriedB',
+          duration: 5,
+          idUnit: 1,
+          createdAt: '2023-10-22T16:49:21.364Z',
+          updatedAt: '2023-10-22T16:49:21.364Z',
+        },
+      ];
+
+      const mockFlow = [
+        {
+          idFlow: 1,
+          name: 'Brasileirao',
+          idUnit: 1,
+          createdAt: '2023-10-20T22:57:32.144Z',
+          updatedAt: '2023-10-20T22:57:32.144Z',
+        },
+      ];
+
+      const mockSequence = {
+        stages: [1, 2],
+        sequences: [{ from: 1, commentary: '', to: 2 }],
+      };
+
+      processController.stageService.findAll = jest
+        .fn()
+        .mockResolvedValue(mockAllStages);
 
       processController.processService.getAllProcess = jest
         .fn()
         .mockResolvedValue(mockProcesses);
+
       processController.flowStageService.findAll = jest
         .fn()
         .mockResolvedValue(mockFlowStages);
       processController.processService.countRows = jest
         .fn()
         .mockResolvedValue(2);
+      processController.stageService.findOneByStageId = jest
+        .fn()
+        .mockResolvedValue(mockProcessStage);
+      processController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue(mockFlow);
+      processController.flowStageService.findAllByIdFlow = jest
+        .fn()
+        .mockResolvedValue(mockFlowStages);
+      processController.flowService.stagesSequencesFromFlowStages = jest
+        .fn()
+        .mockResolvedValue(mockSequence);
+
+      await processController.index(reqMockIndex, resMock);
+
+      expect(resMock.status).toHaveBeenCalledWith(200);
+    });
+
+    test('list all processes (200) with filter flow', async () => {
+      const reqMockIndex = reqMock;
+
+      reqMockIndex.query = {
+        ...reqMockIndex.query,
+        showArchivedAndFinished: false,
+        filterByLegalPriority: false,
+        filter: {
+          type: 'flow',
+          value: 'Pro',
+        },
+      };
+
+      jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
+        idUnit: 1,
+        idRole: 1,
+      });
+
+      const mockProcesses = [
+        {
+          dataValues: {
+            id: 1,
+            name: 'Process 1',
+            record: '1234',
+            idStage: 1,
+            idFlow: 1,
+          },
+        },
+        {
+          dataValues: {
+            id: 2,
+            name: 'Process 2',
+            record: '1234',
+            idStage: 1,
+            idFlow: 1,
+          },
+        },
+      ];
+      const mockFlowStages = [
+        {
+          idFlowStage: 1,
+          idStageA: 1,
+          idStageB: 2,
+          idFlow: 1,
+          commentary: '',
+          createdAt: '2023-10-20T22:57:32.144Z',
+          updatedAt: '2023-10-20T22:57:32.144Z',
+        },
+      ];
+      const mockProcessStage = {
+        idStage: 1,
+        name: 'seried',
+        duration: 5,
+        idUnit: 1,
+        createdAt: '2023-10-22T16:49:21.364Z',
+        updatedAt: '2023-10-22T16:49:21.364Z',
+      };
+
+      const mockAllFlows = [
+        {
+          idFlow: 1,
+          name: 'Brasileirao',
+          idUnit: 1,
+          createdAt: '2023-10-20T22:57:32.144Z',
+          updatedAt: '2023-10-20T22:57:32.144Z',
+        },
+        {
+          idFlow: 2,
+          name: 'Cookie',
+          idUnit: 1,
+          createdAt: '2023-10-20T22:57:32.144Z',
+          updatedAt: '2023-10-20T22:57:32.144Z',
+        },
+        {
+          idFlow: 3,
+          name: 'Empresa',
+          idUnit: 1,
+          createdAt: '2023-10-20T22:57:32.144Z',
+          updatedAt: '2023-10-20T22:57:32.144Z',
+        },
+      ];
+
+      const mockFlow = [
+        {
+          idFlow: 1,
+          name: 'Brasileirao',
+          idUnit: 1,
+          createdAt: '2023-10-20T22:57:32.144Z',
+          updatedAt: '2023-10-20T22:57:32.144Z',
+        },
+      ];
+
+      const mockSequence = {
+        stages: [1, 2],
+        sequences: [{ from: 1, commentary: '', to: 2 }],
+      };
+
+      processController.flowService.findAll = jest
+        .fn()
+        .mockResolvedValue(mockAllFlows);
+
+      processController.processService.getAllProcess = jest
+        .fn()
+        .mockResolvedValue(mockProcesses);
+
+      processController.flowStageService.findAll = jest
+        .fn()
+        .mockResolvedValue(mockFlowStages);
+      processController.processService.countRows = jest
+        .fn()
+        .mockResolvedValue(2);
+      processController.stageService.findOneByStageId = jest
+        .fn()
+        .mockResolvedValue(mockProcessStage);
+      processController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue(mockFlow);
+      processController.flowStageService.findAllByIdFlow = jest
+        .fn()
+        .mockResolvedValue(mockFlowStages);
+      processController.flowService.stagesSequencesFromFlowStages = jest
+        .fn()
+        .mockResolvedValue(mockSequence);
 
       await processController.index(reqMockIndex, resMock);
 

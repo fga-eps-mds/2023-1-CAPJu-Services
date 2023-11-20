@@ -123,13 +123,21 @@ export class StatisticsController {
         limit,
       );
 
+      const formattedProcessInDue = processInDue.map(process => ({
+        ...process,
+        // Adapte o formato da data conforme necessário
+        dueDate: new Date(process.dueDate).toLocaleDateString('pt-BR'),
+      }));
+
       const totalCount = await this.statisticsService.countRowsDueDate(
         minDate,
         maxDate,
       );
       const totalPages = Math.ceil(totalCount / limit) || 0;
 
-      return res.status(200).json({ processInDue, totalPages });
+      return res
+        .status(200)
+        .json({ processInDue: formattedProcessInDue, totalPages });
       // return res.status(200).json(result);
     } catch (error) {
       return res.status(500).json({ message: error });
