@@ -7,6 +7,8 @@ import {
   filterByLegalPriority,
   filterByIdFlow,
   filterByDateRange,
+  filterByFlowName,
+  filterByStageName,
 } from '../../src/utils/filters';
 import { Op } from 'sequelize';
 
@@ -20,11 +22,11 @@ describe('filterByNicknameAndRecord', () => {
     expect(filterByNicknameAndRecord(reqMock)).toStrictEqual({});
   });
   test('Returns filter', () => {
-    reqMock.query = { filter: 13 };
+    reqMock.query = { filter: { type: 'process', value: 13 } };
     expect(filterByNicknameAndRecord(reqMock)).toStrictEqual({
       [Op.or]: [
-        { record: { [Op.like]: `%${reqMock.query.filter}%` } },
-        { nickname: { [Op.like]: `%${reqMock.query.filter}%` } },
+        { record: { [Op.like]: `%${reqMock.query.filter.value}%` } },
+        { nickname: { [Op.like]: `%${reqMock.query.filter.value}%` } },
       ],
     });
   });
@@ -41,7 +43,7 @@ describe('filterByStatus', () => {
   test('Returns status filter', () => {
     reqMock.query = { status: ['status 1', 'status 2'] };
     expect(filterByStatus(reqMock)).toStrictEqual({
-      [Op.or]: [...reqMock.query.status.map(item => ({ status: item }))],
+      [Op.and]: [{ [Op.or]: [...reqMock.query.status.map(item => ({ status: item }))]}],
     });
   });
 });
@@ -67,9 +69,9 @@ describe('filterByFullName', () => {
   });
 
   test('Returns Filter by fullname', () => {
-    reqMock.query = { filter: 'Fulano' };
+    reqMock.query = { filter: { type: 'user', value: 'Fulano'} };
     expect(filterByFullName(reqMock)).toStrictEqual({
-      [Op.or]: [{ fullName: { [Op.like]: `%${reqMock.query.filter}%` } }],
+      [Op.or]: [{ fullName: { [Op.like]: `%${reqMock.query.filter.value}%` } }],
     });
   });
 });
@@ -133,5 +135,35 @@ describe('filterByDateRange', () => {
         ],
       },
     });
+  });
+});
+
+describe('filterByFlowName', () => {
+  test('filter is undefined', () => {
+    reqMock.query = { filter: undefined };
+    const flowsMock = undefined;
+    expect(filterByFlowName(reqMock, flowsMock)).toStrictEqual({});
+  });
+
+  test('filter is defined and have one flow', () => {
+    reqMock.query = { filter: { type: 'flow', value: 'primeiro' } };
+    const flowsMock = [{ idFlow: 1 }];
+    expect(filterByFlowName(reqMock, flowsMock)).toStrictEqual({
+      [Op.or]: [{ idFlow: 1 }],
+    })
+  });
+
+  test('filter is defined and have two or more flows', () => {
+    reqMock.query = { filter: { type: 'flow', value: 'Nome Parecido' } };
+    const flowsMock = [
+      { idFlow: 1 },
+      { idFlow: 2 },
+    ];
+    expect(filterByFlowName(reqMock, flowsMock)).toStrictEqual({
+      [Op.or]: [
+        { idFlow: 1 },
+        { idFlow: 2 },
+      ],
+    })
   });
 });

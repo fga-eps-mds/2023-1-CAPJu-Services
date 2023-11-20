@@ -31,7 +31,7 @@ export function filterByName(req) {
 export function filterByFullName(req) {
   return req.query.filter?.type === 'user'
     ? {
-        [Op.or]: [{ fullName: { [Op.like]: `%${req.query.filter}%` } }],
+        [Op.or]: [{ fullName: { [Op.like]: `%${req.query.filter.value}%` } }],
       }
     : {};
 }
