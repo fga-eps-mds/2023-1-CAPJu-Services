@@ -56,7 +56,7 @@ export function filterByDateRange(req) {
   if (to === undefined || from === undefined) return {};
   return {
     effectiveDate: {
-      [Op.between]: [new Date(from), new Date(to + " 23:59:59.000+00")],
+      [Op.between]: [new Date(from), new Date(to + ' 23:59:59.000+00')],
     },
   };
 }
