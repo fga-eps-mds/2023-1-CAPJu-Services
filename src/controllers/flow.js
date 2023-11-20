@@ -25,7 +25,7 @@ export class FlowController {
 
       const { limit, offset } = _req.query;
 
-      const flows = await this.flowService.findAll(where, offset, limit);
+      const flows = await this.flowService.findAll({ where, offset, limit });
       const totalCount = await this.flowService.countRows({ where });
       const totalPages = Math.ceil(totalCount / parseInt(_req.query.limit, 10));
 
