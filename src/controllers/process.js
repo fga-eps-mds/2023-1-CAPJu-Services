@@ -6,6 +6,9 @@ import {
   filterByStatus,
   filterByIdFlow,
   filterByDateRange,
+  filterByFlowName,
+  filterByStageName,
+  filterByName,
 } from '../utils/filters.js';
 import { tokenToUser } from '../../middleware/authMiddleware.js';
 
@@ -15,6 +18,7 @@ export class ProcessController {
     this.priorityService = services.priorityService;
     this.flowStageService = services.flowStageService;
     this.flowService = services.flowService;
+    this.stageService = services.stageService;
   }
 
   index = async (req, res) => {
@@ -22,12 +26,37 @@ export class ProcessController {
       let where;
       const { idRole, idUnit } = await tokenToUser(req);
 
-      const unitFilter = idRole === 5 ? {} : { idUnit };
+      let stagesForFilter = {};
+      if (req.query.filter?.type === 'stage') {
+        const name = req.query.filter.value;
+        where = {
+          ...filterByName({ query: { filter: name } }),
+        };
+        const stages = await this.stageService.findAll({ where });
+        stagesForFilter = stages.map(stage => {
+          if (stage.name.includes(name)) return { idStage: stage.idStage };
+        });
+      }
 
+      let flowsForFilter = {};
+      if (req.query.filter?.type === 'flow') {
+        const name = req.query.filter.value;
+        where = {
+          ...filterByName({ query: { filter: name } }),
+        };
+        const flows = await this.flowService.findAll({ where });
+        flowsForFilter = flows.map(flow => {
+          if (flow.name.includes(name)) return { idFlow: flow.idFlow };
+        });
+      }
+
+      const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
+        ...filterByStatus(req),
         ...filterByLegalPriority(req),
         ...filterByNicknameAndRecord(req),
-        ...filterByStatus(req),
+        ...filterByFlowName(req, flowsForFilter),
+        ...filterByStageName(req, stagesForFilter),
         ...filterByIdFlow(req),
         ...filterByDateRange(req),
         ...unitFilter,
@@ -44,10 +73,53 @@ export class ProcessController {
       if (!processes || processes.length === 0) {
         return res.status(204).json([]);
       }
-      const totalCount = await this.processService.countRows({ where });
-      const totalPages = Math.ceil(totalCount / limit) || 0;
 
-      return res.status(200).json({ processes, totalPages });
+      const newProcesses = await Promise.all(
+        processes.map(async process => {
+          const processStage = await this.stageService.findOneByStageId(
+            process.idStage,
+          );
+
+          const flow = await this.flowService.findOneByFlowId(process.idFlow);
+
+          const flowStage = await this.flowStageService.findAllByIdFlow(
+            process.idFlow,
+          );
+
+          const { stages, sequences } =
+            await this.flowService.stagesSequencesFromFlowStages(flowStage);
+
+          const flowSequence = {
+            idFlow: flow.idFlow,
+            name: flow.name,
+            idUnit: flow.idUnit,
+            stages,
+            sequences,
+          };
+
+          process.dataValues.flow = flowSequence;
+          process.dataValues.stageName = processStage?.name || 'Não iniciado';
+
+          return process;
+        }),
+      );
+
+      const totalProcesses = await this.processService.countRows({ where });
+      const totalFinished = await this.processService.countRows({
+        where: { ...where, status: 'finished' },
+      });
+      const totalArchived = await this.processService.countRows({
+        where: { ...where, status: 'archived' },
+      });
+      const totalPages = Math.ceil(totalProcesses / limit) || 0;
+
+      return res.status(200).json({
+        processes: newProcesses,
+        totalPages,
+        totalProcesses,
+        totalArchived,
+        totalFinished,
+      });
     } catch (error) {
       return res.status(500).json({
         error: error.message,
