@@ -104,10 +104,22 @@ export class ProcessController {
         }),
       );
 
-      const totalCount = await this.processService.countRows({ where });
-      const totalPages = Math.ceil(totalCount / limit) || 0;
+      const totalProcesses = await this.processService.countRows({ where });
+      const totalFinished = await this.processService.countRows({
+        where: { ...where, status: 'finished' },
+      });
+      const totalArchived = await this.processService.countRows({
+        where: { ...where, status: 'archived' },
+      });
+      const totalPages = Math.ceil(totalProcesses / limit) || 0;
 
-      return res.status(200).json({ processes: newProcesses, totalPages });
+      return res.status(200).json({
+        processes: newProcesses,
+        totalPages,
+        totalProcesses,
+        totalArchived,
+        totalFinished,
+      });
     } catch (error) {
       return res.status(500).json({
         error: error.message,

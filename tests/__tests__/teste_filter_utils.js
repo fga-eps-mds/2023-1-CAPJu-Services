@@ -43,7 +43,9 @@ describe('filterByStatus', () => {
   test('Returns status filter', () => {
     reqMock.query = { status: ['status 1', 'status 2'] };
     expect(filterByStatus(reqMock)).toStrictEqual({
-      [Op.and]: [{ [Op.or]: [...reqMock.query.status.map(item => ({ status: item }))]}],
+      [Op.and]: [
+        { [Op.or]: [...reqMock.query.status.map(item => ({ status: item }))] },
+      ],
     });
   });
 });
@@ -69,7 +71,7 @@ describe('filterByFullName', () => {
   });
 
   test('Returns Filter by fullname', () => {
-    reqMock.query = { filter: { type: 'user', value: 'Fulano'} };
+    reqMock.query = { filter: { type: 'user', value: 'Fulano' } };
     expect(filterByFullName(reqMock)).toStrictEqual({
       [Op.or]: [{ fullName: { [Op.like]: `%${reqMock.query.filter.value}%` } }],
     });
@@ -131,7 +133,7 @@ describe('filterByDateRange', () => {
       effectiveDate: {
         [Op.between]: [
           new Date(reqMock.query.from),
-          new Date(reqMock.query.to),
+          new Date(reqMock.query.to + " 23:59:59.000+00"),
         ],
       },
     });
@@ -155,10 +157,7 @@ describe('filterByFlowName', () => {
 
   test('filter is defined and have two or more flows', () => {
     reqMock.query = { filter: { type: 'flow', value: 'Nome Parecido' } };
-    const flowsMock = [
-      { idFlow: 1 },
-      { idFlow: 2 },
-    ];
+    const flowsMock = [{ idFlow: 1 }, { idFlow: 2 }];
     expect(filterByFlowName(reqMock, flowsMock)).toStrictEqual({
       [Op.or]: [...flowsMock],
     });
@@ -173,7 +172,7 @@ describe('filterByStageName', () => {
   });
 
   test('filter is defined and have one stage', () => {
-    reqMock.query = { filter: { type: 'stage', value: 'primeiro'} };
+    reqMock.query = { filter: { type: 'stage', value: 'primeiro' } };
     const stagesMock = [{ idStage: 1 }];
     expect(filterByStageName(reqMock, stagesMock)).toStrictEqual({
       [Op.or]: [...stagesMock],
@@ -181,11 +180,8 @@ describe('filterByStageName', () => {
   });
 
   test('filter is defined and have two or mode stages', () => {
-    reqMock.query = { filter: { type: 'stage', value: 'Nome Parecido'} };
-    const stagesMock = [
-      { idStage: 1 },
-      { idStage: 2 },
-    ];
+    reqMock.query = { filter: { type: 'stage', value: 'Nome Parecido' } };
+    const stagesMock = [{ idStage: 1 }, { idStage: 2 }];
     expect(filterByStageName(reqMock, stagesMock)).toStrictEqual({
       [Op.or]: [...stagesMock],
     });

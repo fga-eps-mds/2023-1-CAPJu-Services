@@ -41,8 +41,8 @@ describe('ProcessController', () => {
         filterByLegalPriority: false,
         filter: {
           type: 'stage',
-          value: 'se'
-        }
+          value: 'se',
+        },
       };
 
       jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
@@ -137,8 +137,8 @@ describe('ProcessController', () => {
         .mockResolvedValue(mockAllStages);
 
       processController.processService.getAllProcess = jest
-      .fn()
-      .mockResolvedValue(mockProcesses);
+        .fn()
+        .mockResolvedValue(mockProcesses);
 
       processController.flowStageService.findAll = jest
         .fn()
@@ -164,7 +164,6 @@ describe('ProcessController', () => {
       expect(resMock.status).toHaveBeenCalledWith(200);
     });
 
-
     test('list all processes (200) with filter flow', async () => {
       const reqMockIndex = reqMock;
 
@@ -174,8 +173,8 @@ describe('ProcessController', () => {
         filterByLegalPriority: false,
         filter: {
           type: 'flow',
-          value: 'Pro'
-        }
+          value: 'Pro',
+        },
       };
 
       jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
@@ -267,8 +266,8 @@ describe('ProcessController', () => {
         .mockResolvedValue(mockAllFlows);
 
       processController.processService.getAllProcess = jest
-      .fn()
-      .mockResolvedValue(mockProcesses);
+        .fn()
+        .mockResolvedValue(mockProcesses);
 
       processController.flowStageService.findAll = jest
         .fn()
