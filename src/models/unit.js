@@ -1,7 +1,7 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelizeConfig from '../config/sequelize.js';
 
-class UnitModel extends Model {
+class Unit extends Model {
   static init(sequelize) {
     super.init(
       {
@@ -21,6 +21,22 @@ class UnitModel extends Model {
       },
     );
   }
+
+  static associate(models) {
+    this.hasMany(models.User, {
+      foreignKey: 'cpf',
+      as: 'users',
+    });
+    this.hasMany(models.Flow, {
+      foreignKey: 'idFlow',
+      as: 'flow',
+    });
+    this.hasMany(models.Process, {
+      foreignKey: 'record',
+      as: 'procs',
+    });
+  }
 }
-UnitModel.init(sequelizeConfig, Sequelize.DataTypes);
-export default UnitModel;
+
+Unit.init(sequelizeConfig, Sequelize.DataTypes);
+export default Unit;

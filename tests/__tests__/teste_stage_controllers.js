@@ -2,6 +2,8 @@ import 'dotenv/config';
 import { StageController } from '../../src/controllers/stage.js';
 import axios from 'axios';
 
+import * as utils from '../../middleware/authMiddleware.js';
+
 jest.mock('axios');
 
 const reqMock = {};
@@ -126,12 +128,13 @@ describe('StageController', () => {
       duration: 5,
     };
 
+    jest.spyOn(utils, 'userFromReq');
+    utils.userFromReq.mockImplementation(() => {return {unit:{idUnit:1}} }); // This can be useful someday
     stageController.stageService.createStage = jest
       .fn()
       .mockResolvedValue(stageData);
 
     reqMock.body = stageData;
-
     await stageController.store(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith(stageData);

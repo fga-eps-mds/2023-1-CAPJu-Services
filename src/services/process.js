@@ -233,6 +233,10 @@ class ProcessService {
       raw: true,
     });
   }
+  async deleteByIdFlow(idFlow) {
+    return await this.process.destroy({ where: { idFlow } });
+  }
+
 
   async getAndCountAllProcess(where) {
     return await this.process.findAndCountAll(where);
