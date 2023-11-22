@@ -1,7 +1,9 @@
 'use strict';
 
 const argon2 = require('argon2');
-const passHashingParamsPromise = import('../src/config/passHashing.js').then(module => module.default);
+const passHashingParamsPromise = import('../src/config/passHashing.js').then(
+  module => module.default,
+);
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
