@@ -237,7 +237,6 @@ class ProcessService {
     return await this.process.destroy({ where: { idFlow } });
   }
 
-
   async getAndCountAllProcess(where) {
     return await this.process.findAndCountAll(where);
   }

@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 
 const ProcessAudModel = {
   create: jest.fn(),
-}
+};
 
 const ProcessModel = {
   create: jest.fn(),
@@ -13,10 +13,9 @@ const ProcessModel = {
   findAll: jest.fn(),
   findOne: jest.fn(),
   processAud: {
-    create: jest.fn()
-  }
+    create: jest.fn(),
+  },
 };
-
 
 const reqMock = {};
 const resMock = {
@@ -29,7 +28,6 @@ describe('ProcessService', () => {
 
   beforeEach(() => {
     processService = new ProcessService(ProcessModel);
-
   });
 
   afterEach(() => {
@@ -56,16 +54,13 @@ describe('ProcessService', () => {
     //   const updatedProcess = { ...params, status: 'updated' };
     //   ProcessModel.update.mockResolvedValue([1]);
     //   ProcessModel.findOne.mockResolvedValue(updatedProcess);
-
     //   const result = await processService.updateProcess(params, record);
-
     //   expect(result).toEqual(updatedProcess);
     //   expect(ProcessModel.update).toHaveBeenCalledWith(params, {
     //     where: { record },
     //   });
     //   expect(ProcessModel.findOne).toHaveBeenCalledWith({ where: { record } });
     // });
-
     // it('Retornar o processo atualizado se o processo foi atualizado com sucesso', async () => {
     //   const params = { record: '1234567890', idFlow: 1 };
     //   const record = '1234567890';
@@ -76,23 +71,18 @@ describe('ProcessService', () => {
     //   };
     //   ProcessModel.update.mockResolvedValue([1]);
     //   ProcessModel.findOne.mockResolvedValue(updatedProcess);
-
     //   const result = await processService.updateProcess(params, record);
-
     //   expect(result).toEqual(updatedProcess);
     //   expect(ProcessModel.update).toHaveBeenCalledWith(params, {
     //     where: { record },
     //   });
     //   expect(ProcessModel.findOne).toHaveBeenCalledWith({ where: { record } });
     // });
-
     // it('Retornar false se o processo nao foi atualizado', async () => {
     //   reqMock.body = { nickname: "blue", idPriority: 0, status: 'notStarted', record: '1234567890', idFlow: 1 };
     //   reqMock.params = {idProcess: 1};
     //   ProcessModel.update.mockResolvedValue([0]);
-
     //   const result = await processService.updateProcess(reqMock, resMock);
-
     //   expect(result).toEqual({
     //     idFlow: 1,
     //     record: '1234567890',
@@ -106,11 +96,14 @@ describe('ProcessService', () => {
     it('Excluir um processo com o registro fornecido', async () => {
       const record = '1234567890';
       ProcessModel.destroy.mockResolvedValue(1);
-      console.log(ProcessModel.processAud)
+      console.log(ProcessModel.processAud);
       processService.processAud.create = jest
-      .fn()
-      .mockResolvedValue({processAud:null}); // This can be useful in future
-      const result = await processService.deleteProcessByRecord(record, reqMock);
+        .fn()
+        .mockResolvedValue({ processAud: null }); // This can be useful in future
+      const result = await processService.deleteProcessByRecord(
+        record,
+        reqMock,
+      );
 
       expect(ProcessModel.destroy).toHaveBeenCalledWith({ where: { record } });
     });

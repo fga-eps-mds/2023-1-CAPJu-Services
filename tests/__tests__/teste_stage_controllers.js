@@ -129,7 +129,9 @@ describe('StageController', () => {
     };
 
     jest.spyOn(utils, 'userFromReq');
-    utils.userFromReq.mockImplementation(() => {return {unit:{idUnit:1}} }); // This can be useful someday
+    utils.userFromReq.mockImplementation(() => {
+      return { unit: { idUnit: 1 } };
+    }); // This can be useful someday
     stageController.stageService.createStage = jest
       .fn()
       .mockResolvedValue(stageData);

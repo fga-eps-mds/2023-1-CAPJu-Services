@@ -379,45 +379,33 @@ describe('ProcessController', () => {
     //     { id: 1, name: 'Process 1' },
     //     { id: 2, name: 'Process 2' },
     //   ];
-
     //   processController.processService.getProcessByIdFlow = jest
     //     .fn()
     //     .mockResolvedValue(mockProcesses);
-
     //   reqMock.params = { idFlow: 1 };
-
     //   await processController.getProcessByIdFlow(reqMock, resMock);
-
     //   expect(resMock.json).toHaveBeenCalledWith(mockProcesses);
     //   expect(resMock.status).toHaveBeenCalledWith(200);
     // });
-
     // test('no processes found (404)', async () => {
     //   processController.processService.getProcessByIdFlow = jest
     //     .fn()
     //     .mockResolvedValue(null);
-
     //   reqMock.params = { idFlow: 1 };
-
     //   await processController.getProcessByIdFlow(reqMock, resMock);
-
     //   expect(resMock.json).toHaveBeenCalledWith({
     //     error: 'Processos não encontrados nesse fluxo!',
     //     message: 'Processos não encontrados nesse fluxo!',
     //   });
     //   expect(resMock.status).toHaveBeenCalledWith(404);
     // });
-
     // test('internal server error (500)', async () => {
     //   const error = new Error('Internal Server Error');
     //   processController.processService.getProcessByIdFlow = jest
     //     .fn()
     //     .mockRejectedValue(error);
-
     //   reqMock.params = { idFlow: 1 };
-
     //   await processController.getProcessByIdFlow(reqMock, resMock);
-
     //   expect(resMock.json).toHaveBeenCalledWith({
     //     error,
     //     message: `Erro ao procurar processo.`,
@@ -429,45 +417,33 @@ describe('ProcessController', () => {
   describe('getProcessByUniqueKeys', () => {
     // test('process found (200)', async () => {
     //   const mockProcess = { id: 1, name: 'Process 1' };
-
     //   processController.processService.getProcessByUniqueKeys = jest
     //     .fn()
     //     .mockResolvedValue(mockProcess);
-
     //   reqMock.params = { record: '123', idFlow: 1 };
-
     //   await processController.getProcessByUniqueKeys(reqMock, resMock);
-
     //   expect(resMock.json).toHaveBeenCalledWith(mockProcess);
     //   expect(resMock.status).toHaveBeenCalledWith(200);
     // });
-
     // test('process not found (404)', async () => {
     //   processController.processService.getProcessByUniqueKeys = jest
     //     .fn()
     //     .mockResolvedValue(null);
-
     //   reqMock.params = { record: '123', idFlow: 1 };
-
     //   await processController.getProcessByUniqueKeys(reqMock, resMock);
-
     //   expect(resMock.json).toHaveBeenCalledWith({
     //     error: 'Esse processo não existe nesse fluxo!',
     //     message: 'Esse processo não existe nesse fluxo!',
     //   });
     //   expect(resMock.status).toHaveBeenCalledWith(404);
     // });
-
     // test('internal server error (500)', async () => {
     //   const error = new Error('Internal Server Error');
     //   processController.processService.getProcessByUniqueKeys = jest
     //     .fn()
     //     .mockRejectedValue(error);
-
     //   reqMock.params = { record: '123', idFlow: 1 };
-
     //   await processController.getProcessByUniqueKeys(reqMock, resMock);
-
     //   expect(resMock.json).toHaveBeenCalledWith({
     //     error,
     //     message: `Erro ao procurar processo nesse fluxo`,
@@ -748,48 +724,35 @@ describe('ProcessController', () => {
     describe('deleteProcess', () => {
       // test('delete process successfully (200)', async () => {
       //   const mockResult = 1;
-
       //   processController.processService.deleteProcessByRecord = jest
       //     .fn()
       //     .mockResolvedValue(mockResult);
-
       //   reqMock.params = { record: '123' };
-
       //   await processController.deleteProcess(reqMock, resMock);
-
       //   expect(resMock.json).toHaveBeenCalledWith({
       //     message: 'Processo apagado.',
       //   });
       //   expect(resMock.status).toHaveBeenCalledWith(200);
       // });
-
       // test('process not found (404)', async () => {
       //   const mockResult = 0;
-
       //   processController.processService.deleteProcessByRecord = jest
       //     .fn()
       //     .mockResolvedValue(mockResult);
-
       //   reqMock.params = { record: '123' };
-
       //   await processController.deleteProcess(reqMock, resMock);
-
       //   expect(resMock.json).toHaveBeenCalledWith({
       //     error: 'Não há registro 123.',
       //   });
       //   expect(resMock.status).toHaveBeenCalledWith(404);
       // });
-
       // test('internal server error (500)', async () => {
       //   const error = new Error('Internal Server Error');
       //   processController.processService.deleteProcessByRecord = jest
       //     .fn()
       //     .mockRejectedValue(error);
-
       //   reqMock.params = { record: '123' };
-
       //   await processController.deleteProcess(reqMock, resMock);
-
       //   expect(resMock.json).toHaveBeenCalledWith({
       //     error,
       //     message: 'Erro ao apagar processo.',

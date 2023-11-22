@@ -263,8 +263,7 @@ describe('FlowController', () => {
         resMock,
       );
       expect(resMock.json).toHaveBeenCalledWith({
-        message:
-          'Não há dados sobre o fluxos',
+        message: 'Não há dados sobre o fluxos',
       });
 
       expect(resMock.status).toHaveBeenCalledWith(404);
