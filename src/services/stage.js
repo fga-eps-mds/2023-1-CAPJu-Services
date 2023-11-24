@@ -2,6 +2,7 @@ class StageService {
   constructor(StageModel) {
     this.stage = StageModel;
   }
+
   async findAll(where, attributes) {
     const query = {};
     if (where) query.where = where;

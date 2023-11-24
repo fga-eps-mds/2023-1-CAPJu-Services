@@ -50,6 +50,7 @@ export class ProcessController {
       }
 
       where = {
+        ...filterByStatus(req),
         ...filterByLegalPriority(req),
         ...filterByStatus(req),
         ...filterByFlowName(req, flowsForFilter),

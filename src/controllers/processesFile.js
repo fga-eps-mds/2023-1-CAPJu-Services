@@ -106,9 +106,8 @@ export class ProcessesFileController {
     console.log(idProcessesFile);
 
     try {
-      const result = await this.processesFileService.deleteFileById(
-        idProcessesFile,
-      );
+      const result =
+        await this.processesFileService.deleteFileById(idProcessesFile);
 
       if (!result) {
         return res
