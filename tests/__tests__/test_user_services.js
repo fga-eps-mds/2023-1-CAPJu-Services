@@ -296,4 +296,32 @@ describe('UserServices', () => {
       });
     });
   });
+
+  describe('getUsersAdminByIdUnit', () => {
+    it(
+      'deve retornar usuários administrativos com a unidade especificada',
+      async () => {
+        const users = [{
+          fullName: 'John Doe',
+          idRole: 5,
+          accepted: true,
+          cpf: '10987654321',
+          email: 'john@email.com',
+          idUnit: 1,
+          password: 'senha',
+        }];
+
+        userModelMock.findAll.mockResolvedValue(users);
+
+        const result = await userService.getUsersAdminByIdUnit(users[0].idUnit);
+
+        expect(result).toEqual(users);
+        expect(userModelMock.findAll).toHaveBeenCalledWith({
+          where: {
+            idUnit: users[0].idUnit,
+            idRole: 5,
+          },
+        });
+    });
+  });
 });
