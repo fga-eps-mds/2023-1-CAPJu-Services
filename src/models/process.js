@@ -41,6 +41,7 @@ class ProcessModel extends Model {
           type: DataTypes.INTEGER,
           allowNull: true,
           unique: 'unique_processRecord_idStage',
+          defaultValue: null,
         },
         idPriority: {
           type: DataTypes.INTEGER,

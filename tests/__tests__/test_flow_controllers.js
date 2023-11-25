@@ -326,5 +326,4 @@ describe('FlowController', () => {
       expect(resMock.status).toHaveBeenCalledWith(200);
     });
   });
-
 });

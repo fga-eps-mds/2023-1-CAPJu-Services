@@ -32,7 +32,6 @@ describe('ProcessController', () => {
   });
 
   describe('index', () => {
-
     // test('list all processes (200) with filter stage', async () => {
     //   const reqMockIndex = reqMock;
 
@@ -311,7 +310,6 @@ describe('ProcessController', () => {
 
     //   expect(resMock.status).toHaveBeenCalledWith(204);
     // });
-
 
     test('internal server error (500)', async () => {
       const error = new Error('Internal Server Error');
