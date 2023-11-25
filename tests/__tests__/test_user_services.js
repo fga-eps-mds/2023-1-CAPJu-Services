@@ -111,4 +111,39 @@ describe('UserServices', () => {
       expect(userModelMock.findAll).toHaveBeenCalled();
     });
   });
+
+  describe('getNoAcceptedUserByCpf', () => {
+    it('deve retornar um usuário não aceito com o cpf especificado', async () => {
+      const user = {
+        fullName: 'John Doe',
+        idRole: 1,
+        accepted: false,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password: 'senha',
+      };
+
+      const newUser = {
+        fullName: user.fullName,
+        idRole: user.idRole,
+        accepted: user.accepted,
+        cpf: user.cpf,
+        email: user.email,
+        idUnit: user.idUnit,
+      };
+
+      userModelMock.findOne.mockResolvedValue(newUser);
+
+      const result = await userService.getNoAcceptedUserByCpf(user.cpf);
+
+      expect(result).toEqual(newUser);
+      expect(userModelMock.findOne).toHaveBeenCalledWith({ 
+        where: { accepted: false, cpf: user.cpf },
+        attributes: {
+          exclude: ['password'],
+        },
+      });
+    });
+  });
 });
