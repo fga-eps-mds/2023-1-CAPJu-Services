@@ -324,4 +324,30 @@ describe('UserServices', () => {
         });
     });
   });
+
+  describe('getUserByUnit', () => {
+    it('deve retornar o usuário com o cpf e a unidade especificada', async () => {
+      const user = {
+        fullName: 'John Doe',
+        idRole: 5,
+        accepted: true,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password: 'senha',
+      };
+
+      userModelMock.findOne.mockResolvedValue(user);
+
+      const result = await userService.getUserByUnit(user.cpf, user.idUnit);
+
+      expect(result).toEqual(user);
+      expect(userModelMock.findOne).toHaveBeenCalledWith({
+        where: {
+          cpf: user.cpf,
+          idUnit: user.idUnit,
+        },
+      })
+    });
+  });
 });
