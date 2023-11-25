@@ -522,4 +522,99 @@ describe('UserServices', () => {
       expect(userModelMock.update).toHaveBeenCalled();
     });
   });
+
+  describe('updateUserPassword', () => {
+    it('deve retornar verdadeiro por conseguir atualizar', async () => {
+      const user = {
+        fullName: 'John Doe',
+        idRole: 5,
+        accepted: true,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password: 'senha'
+      };
+
+      userModelMock.findOne.mockResolvedValue(user);
+      userModelMock.update.mockResolvedValue([1]);
+
+      const result = await userService.updateUserPassword(user.cpf, user.password, 'outraSenha');
+      
+      expect(result).toEqual(true);
+      expect(userModelMock.findOne).toHaveBeenCalledWith({
+        where: { cpf: user.cpf },
+      });
+      expect(userModelMock.update).toHaveBeenCalledWith(
+        { password: 'outraSenha' },
+        { where: { cpf: user.cpf } },
+      );
+    });
+
+    it('deve retornar falso por não conseguir achar o usuário', async () => {
+      userModelMock.findOne.mockResolvedValue();
+
+      const result = await userService.updateUserPassword(
+        '12345678901',
+        'umaOutraQualquerParaDarErro',
+        'outraSenha'
+      );
+      
+      expect(result).toEqual(false);
+      expect(userModelMock.findOne).toHaveBeenCalledWith({
+        where: { cpf: '12345678901' },
+      });
+    });
+
+    it('deve retornar falso por não receber a senha antiga correta', async () => {
+      const user = {
+        fullName: 'John Doe',
+        idRole: 5,
+        accepted: true,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password: 'senha'
+      };
+
+      userModelMock.findOne.mockResolvedValue(user);
+
+      const result = await userService.updateUserPassword(
+        user.cpf,
+        'umaOutraQualquerParaDarErro',
+        'outraSenha'
+      );
+      
+      expect(result).toEqual(false);
+      expect(userModelMock.findOne).toHaveBeenCalledWith({
+        where: { cpf: user.cpf },
+      });
+    });
+
+    it('deve retornar falso por não conseguir atualizar o usuário', async () => {
+      const user = {
+        fullName: 'John Doe',
+        idRole: 5,
+        accepted: true,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password: 'senha',
+      };
+      
+      userModelMock.findOne.mockResolvedValue(user);
+      userModelMock.update.mockResolvedValue([]);
+
+      const result = await userService.updateUserPassword(
+        user.cpf,
+        user.password,
+        'OutraSenha',
+      );
+
+      expect(result).toEqual(false);
+      expect(userModelMock.findOne).toHaveBeenCalledWith({
+        where: { cpf: user.cpf },
+      });
+      expect(userModelMock.update).toHaveBeenCalled();
+    });
+  });
 });
