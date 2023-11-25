@@ -374,4 +374,24 @@ describe('UserServices', () => {
     });
   });
 
+  describe('createUser', () => {
+    it('deve retornar um usuário criado', async () => {
+      const createUser = {
+        fullName: 'John Doe',
+        idRole: 5,
+        accepted: true,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password: 'senha',
+      };
+
+      userModelMock.create.mockResolvedValue(createUser);
+
+      const result = await userService.createUser(createUser);
+
+      expect(result).toEqual(createUser);
+      expect(userModelMock.create).toHaveBeenCalled();
+    });
+  });
 });
