@@ -221,4 +221,44 @@ describe('UserServices', () => {
         });
     });
   });
+
+  describe('getNoAcceptedUsers', () => {
+    it('deve retornar todos usuários não aceitos', async () => {
+      const users = [
+        {
+          fullName: 'John Doe',
+          idRole: 1,
+          accepted: true,
+          cpf: '10987654321',
+          email: 'john@email.com',
+          idUnit: 1,
+          password: 'senha',
+        },
+        {
+          fullName: 'John Doe 2',
+          idRole: 1,
+          accepted: false,
+          cpf: '12345678901',
+          email: 'john@gmail.com',
+          idUnit: 1,
+          password: 'senha1',
+        },
+      ];
+
+      const newUsers = users.map((user) => {
+        let newUser = {};
+        for (let i in user) {
+          i !== 'password' ? newUser[i] = i : {}
+        }
+        return newUser;
+      });
+
+      userModelMock.findAll.mockResolvedValue([newUsers[0]]);
+
+      const result = await userService.getNoAcceptedUsers();
+
+      expect(result).toEqual([newUsers[0]]);
+      expect(userModelMock.findAll).toHaveBeenCalled();
+    });
+  });
 });
