@@ -1,11 +1,11 @@
 import services from '../services/_index.js';
-import jwt from 'jsonwebtoken';
 import { generateToken } from '../utils/jwt.js';
-import UserModel from '../models/user.js';
 import { filterByFullName } from '../utils/filters.js';
 import { Op } from 'sequelize';
-import { tokenToUser } from '../../middleware/authMiddleware.js';
+import { hash, verify } from 'argon2';
+import passHashing from '../config/passHashing.js';
 import { cpfFilter } from '../utils/cpf.js';
+import { userFromReq } from '../middleware/authMiddleware.js';
 
 export class UserController {
   constructor() {
@@ -15,8 +15,9 @@ export class UserController {
   index = async (req, res) => {
     try {
       let where;
-
-      const { idRole, idUnit } = await tokenToUser(req);
+      const user = await userFromReq(req);
+      const idUnit = user.unit.idUnit;
+      const idRole = user.role.idRole;
       const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
         ...filterByFullName(req),
@@ -138,7 +139,11 @@ export class UserController {
   loginUser = async (req, res) => {
     try {
       const { cpf, password } = req.body;
-      const user = await this.userService.getUserByCpfWithPassword(cpf);
+
+      const user = await this.userService.getUserByCpfWithPasswordRolesAndUnit(
+        cpf,
+      );
+
       if (!user) {
         return res.status(401).json({
           error: 'Usuário inexistente',
@@ -150,18 +155,23 @@ export class UserController {
           message: 'Usuário não aceito',
         });
       }
-      if (user.password === password) {
+
+      const isPasswordCorrect = await verify(
+        user.password,
+        password,
+        passHashing,
+      );
+
+      if (isPasswordCorrect) {
+        const tokenPayload = { ...user.toJSON() };
+        delete tokenPayload.password;
+
+        const jwtToken = generateToken(tokenPayload);
+
         let expiresIn = new Date();
         expiresIn.setDate(expiresIn.getDate() + 3);
-        return res.status(200).json({
-          cpf: user.cpf,
-          fullName: user.fullName,
-          email: user.email,
-          idUnit: user.idUnit,
-          token: generateToken(user.cpf),
-          idRole: user.idRole,
-          expiresIn,
-        });
+
+        return res.status(200).json(jwtToken);
       } else {
         return res.status(401).json({
           error: 'Impossível autenticar',
@@ -169,6 +179,7 @@ export class UserController {
         });
       }
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ error, message: 'erro inesperado' });
     }
   };
@@ -177,11 +188,13 @@ export class UserController {
     try {
       const { fullName, cpf, email, password, idUnit, idRole } = req.body;
 
+      const hashedPassword = await hash(password, passHashing);
+
       const data = {
         fullName,
         cpf: cpfFilter(cpf),
         email,
-        password,
+        password: hashedPassword,
         accepted: false,
         idUnit,
         idRole,
@@ -320,34 +333,6 @@ export class UserController {
         error,
         message: 'Erro ao negar pedido do usuário',
       });
-    }
-  };
-
-  tokenToUser = async (req, res) => {
-    let token;
-
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer')
-    ) {
-      try {
-        // Get token from header
-        token = req.headers.authorization.split(' ')[1];
-
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        // Get user from the token
-        req.user = await UserModel.findByPk(decoded.id);
-        if (req.user.accepted === false) {
-          throw new Error();
-        }
-
-        return req.user;
-      } catch (error) {
-        console.log(error);
-        return res.status(401).send();
-      }
     }
   };
 }

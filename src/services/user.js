@@ -1,4 +1,6 @@
 import { cpfFilter } from '../utils/cpf.js';
+import Unit from '../models/unit.js';
+import Role from '../models/role.js';
 
 class UserService {
   constructor(UserModel) {
@@ -135,6 +137,26 @@ class UserService {
       }
     }
     return false;
+  }
+
+  async getUserByCpfWithPasswordRolesAndUnit(cpf) {
+    return this.user.findOne({
+      where: { cpf: cpfFilter(cpf) },
+      attributes: ['cpf', 'fullName', 'password', 'accepted', 'idRole'],
+
+      include: [
+        {
+          model: Unit,
+          as: 'unit',
+          attributes: ['idUnit', 'name'],
+        },
+        {
+          model: Role,
+          as: 'role',
+          attributes: ['idRole', 'name', 'accessLevel', 'allowedActions'],
+        },
+      ],
+    });
   }
 }
 
