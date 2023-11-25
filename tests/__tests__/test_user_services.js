@@ -181,4 +181,44 @@ describe('UserServices', () => {
       });
     });
   });
+
+  describe('getAcceptedUserByUnitAndCpf', () => {
+    it(
+      'deve retornar o usuário aceito com a unidade e o cpf especificados',
+      async () => {
+        const user = {
+          fullName: 'John Doe',
+          idRole: 1,
+          accepted: true,
+          cpf: '10987654321',
+          email: 'john@email.com',
+          idUnit: 1,
+          password: 'senha',
+        };
+  
+        const newUser = {
+          fullName: user.fullName,
+          idRole: user.idRole,
+          accepted: user.accepted,
+          cpf: user.cpf,
+          email: user.email,
+          idUnit: user.idUnit,
+        };
+
+        userModelMock.findOne.mockResolvedValue(newUser);
+
+        const result = await userService.getAcceptedUserByUnitAndCpf(
+          user.idUnit,
+          user.cpf,
+        );
+
+        expect(result).toEqual(newUser);
+        expect(userModelMock.findOne).toHaveBeenCalledWith({
+          where: { accepted: true, idUnit: user.idUnit, cpf: user.cpf },
+          attributes: {
+            exclude: ['password'],
+          },
+        });
+    });
+  });
 });
