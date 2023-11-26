@@ -52,8 +52,9 @@ export class StatisticsController {
 
       const stages = {};
 
-      const processesbyIdFlow =
-        await this.processService.getProcessByIdFlow(idFlow);
+      const processesbyIdFlow = await this.processService.getProcessByIdFlow(
+        idFlow,
+      );
 
       for (const item of processesbyIdFlow) {
         const stage = await this.stageService.findOneByStageId(item.idStage);

@@ -70,8 +70,9 @@ export class FlowController {
   showByProcessRecord = async (req, res) => {
     try {
       const { record } = req.params;
-      const flowProcesses =
-        await this.processService.getProcessByRecord(record);
+      const flowProcesses = await this.processService.getProcessByRecord(
+        record,
+      );
 
       if (flowProcesses.length > 0) return res.status(200).json(flowProcesses);
 

@@ -135,29 +135,29 @@ export class ProcessController {
 
         const newProcesses = await Promise.all(
           processesWithFlows.map(async process => {
-            // const processStage = await this.stageService.findOneByStageId(
-            //   process.idStage,
-            // );
+            const processStage = await this.stageService.findOneByStageId(
+              process.idStage,
+            );
 
-            // const flow = await this.flowService.findOneByFlowId(process.idFlow);
+            const flow = await this.flowService.findOneByFlowId(process.idFlow);
 
-            // const flowStage = await this.flowStageService.findAllByIdFlow(
-            //   process.idFlow,
-            // );
+            const flowStage = await this.flowStageService.findAllByIdFlow(
+              process.idFlow,
+            );
 
-            // const { stages, sequences } =
-            //   await this.flowService.stagesSequencesFromFlowStages(flowStage);
+            const { stages, sequences } =
+              await this.flowService.stagesSequencesFromFlowStages(flowStage);
 
-            // const flowSequence = {
-            //   idFlow: flow.idFlow,
-            //   name: flow.name,
-            //   idUnit: flow.idUnit,
-            //   stages,
-            //   sequences,
-            // };
+            const flowSequence = {
+              idFlow: flow.idFlow,
+              name: flow.name,
+              idUnit: flow.idUnit,
+              stages,
+              sequences,
+            };
 
-            //process.dataValues.flow = flowSequence;
-            //process.dataValues.stageName = processStage?.name || 'Não iniciado';
+            process.flow = flowSequence;
+            process.stageName = processStage?.name || 'Não iniciado';
 
             return process;
           }),

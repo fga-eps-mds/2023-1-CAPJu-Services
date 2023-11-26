@@ -136,8 +136,9 @@ describe('FlowController', () => {
         ],
       };
 
-      const result =
-        await flowService.stagesSequencesFromFlowStages(flowStages);
+      const result = await flowService.stagesSequencesFromFlowStages(
+        flowStages,
+      );
 
       expect(result).toEqual(expectedResult);
     });
@@ -149,8 +150,9 @@ describe('FlowController', () => {
         sequences: [],
       };
 
-      const result =
-        await flowService.stagesSequencesFromFlowStages(flowStages);
+      const result = await flowService.stagesSequencesFromFlowStages(
+        flowStages,
+      );
 
       expect(result).toEqual(expectedResult);
     });
