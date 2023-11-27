@@ -133,7 +133,7 @@ describe('filterByDateRange', () => {
       effectiveDate: {
         [Op.between]: [
           new Date(reqMock.query.from),
-          new Date(reqMock.query.to + " 23:59:59.000+00"),
+          new Date(reqMock.query.to + ' 23:59:59.000+00'),
         ],
       },
     });

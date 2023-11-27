@@ -24,6 +24,24 @@ export class FlowStageController {
     }
   };
 
+  getFlowStagesByFlowId = async (req, res) => {
+    const { idFlow } = req.params;
+
+    try {
+      const stages = await this.flowStageService.findFlowStagesByFlowId(idFlow);
+
+      if (!stages) {
+        return res
+          .status(404)
+          .json({ message: `Erro ao buscar etapas do fluxo` });
+      }
+
+      return res.status(200).json(stages);
+    } catch (error) {
+      return res.status(500).json({ message: 'Erro a ler as etapas do fluxo' });
+    }
+  };
+
   delete = async (req, res) => {
     const { idFlow, idStageA, idStageB } = req.params;
 

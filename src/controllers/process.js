@@ -2,7 +2,7 @@ import 'dotenv/config';
 import services from '../services/_index.js';
 import {
   filterByLegalPriority,
-  filterByNicknameAndRecord,
+  filterByNicknameOrRecord,
   filterByStatus,
   filterByIdFlow,
   filterByDateRange,
@@ -10,7 +10,7 @@ import {
   filterByStageName,
   filterByName,
 } from '../utils/filters.js';
-import { tokenToUser } from '../../middleware/authMiddleware.js';
+import { getUserRoleAndUnitFilterFromReq } from '../../middleware/authMiddleware.js';
 
 export class ProcessController {
   constructor() {
@@ -24,7 +24,6 @@ export class ProcessController {
   index = async (req, res) => {
     try {
       let where;
-      const { idRole, idUnit } = await tokenToUser(req);
 
       let stagesForFilter = {};
       if (req.query.filter?.type === 'stage') {
@@ -50,79 +49,141 @@ export class ProcessController {
         });
       }
 
-      const unitFilter = idRole === 5 ? {} : { idUnit };
       where = {
         ...filterByStatus(req),
         ...filterByLegalPriority(req),
-        ...filterByNicknameAndRecord(req),
+        ...filterByStatus(req),
         ...filterByFlowName(req, flowsForFilter),
         ...filterByStageName(req, stagesForFilter),
         ...filterByIdFlow(req),
         ...filterByDateRange(req),
-        ...unitFilter,
+        ...filterByNicknameOrRecord(req),
+        ...(await getUserRoleAndUnitFilterFromReq(req)),
       };
+
       const offset = parseInt(req.query.offset) || 0;
-      const limit = parseInt(req.query.limit) || null;
+      const limit = parseInt(req.query.limit) || 10;
 
       const processes = await this.processService.getAllProcess({
         where,
         limit,
         offset,
+        attributes: [
+          'idProcess',
+          'idFlow',
+          'idPriority',
+          'record',
+          'nickname',
+          'status',
+          'finalised',
+          'idStage',
+        ],
       });
 
-      if (!processes || processes.length === 0) {
+      if (!processes?.length) {
         return res.status(204).json([]);
+      } else {
+        const processesWithFlows = [];
+
+        const idFlows = processes.map(p => p.idFlow);
+
+        const flowsStagesRaw = await this.flowStageService.findAll({
+          idFlow: idFlows,
+        });
+
+        const flowStagesOrdered = [];
+
+        flowsStagesRaw.forEach(flowStageRaw => {
+          const flowIndex = flowStagesOrdered.findIndex(
+            fS => fS.idFlow === flowStageRaw.idFlow,
+          );
+          if (flowIndex === -1) {
+            flowStagesOrdered.push({
+              idFlow: flowStageRaw.idFlow,
+              stagesOrdered: [flowStageRaw.idStageA, flowStageRaw.idStageB],
+            });
+          } else {
+            const flow = flowStagesOrdered[flowIndex];
+            flow.stagesOrdered.push(flowStageRaw.idStageB);
+          }
+        });
+
+        for (const process of processes) {
+          const { idFlow, idStage } = process;
+
+          let progress;
+
+          const processFlow = flowStagesOrdered.find(
+            fS => fS.idFlow === idFlow,
+          );
+
+          if (idStage !== null) {
+            const currentStageCount =
+              processFlow.stagesOrdered.findIndex(s => s === idStage) + 1;
+            progress = `${currentStageCount}/${processFlow.stagesOrdered.length}`;
+          } else {
+            progress = `0/${processFlow.stagesOrdered.length}`;
+          }
+
+          processesWithFlows.push({
+            ...process,
+            progress,
+          });
+        }
+
+        console.log(processes);
+
+        const newProcesses = await Promise.all(
+          processesWithFlows.map(async process => {
+            const processStage = await this.stageService.findOneByStageId(
+              process.idStage,
+            );
+
+            const flow = await this.flowService.findOneByFlowId(process.idFlow);
+
+            const flowStage = await this.flowStageService.findAllByIdFlow(
+              process.idFlow,
+            );
+
+            const { stages, sequences } =
+              await this.flowService.stagesSequencesFromFlowStages(flowStage);
+
+            const flowSequence = {
+              idFlow: flow.idFlow,
+              name: flow.name,
+              idUnit: flow.idUnit,
+              stages,
+              sequences,
+            };
+
+            process.flow = flowSequence;
+            process.stageName = processStage?.name || 'Não iniciado';
+
+            return process;
+          }),
+        );
+
+        const totalProcesses = await this.processService.countRows({ where });
+        const totalFinished = await this.processService.countRows({
+          where: { ...where, status: 'finished' },
+        });
+        const totalArchived = await this.processService.countRows({
+          where: { ...where, status: 'archived' },
+        });
+        const totalPages = Math.ceil(totalProcesses / limit) || 0;
+
+        return res.status(200).json({
+          processes: newProcesses,
+          totalPages,
+          totalProcesses,
+          totalArchived,
+          totalFinished,
+        });
       }
-
-      const newProcesses = await Promise.all(
-        processes.map(async process => {
-          const processStage = await this.stageService.findOneByStageId(
-            process.idStage,
-          );
-
-          const flow = await this.flowService.findOneByFlowId(process.idFlow);
-
-          const flowStage = await this.flowStageService.findAllByIdFlow(
-            process.idFlow,
-          );
-
-          const { stages, sequences } =
-            await this.flowService.stagesSequencesFromFlowStages(flowStage);
-
-          const flowSequence = {
-            idFlow: flow.idFlow,
-            name: flow.name,
-            idUnit: flow.idUnit,
-            stages,
-            sequences,
-          };
-
-          process.dataValues.flow = flowSequence;
-          process.dataValues.stageName = processStage?.name || 'Não iniciado';
-
-          return process;
-        }),
-      );
-
-      const totalProcesses = await this.processService.countRows({ where });
-      const totalFinished = await this.processService.countRows({
-        where: { ...where, status: 'finished' },
-      });
-      const totalArchived = await this.processService.countRows({
-        where: { ...where, status: 'archived' },
-      });
-      const totalPages = Math.ceil(totalProcesses / limit) || 0;
-
-      return res.status(200).json({
-        processes: newProcesses,
-        totalPages,
-        totalProcesses,
-        totalArchived,
-        totalFinished,
-      });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
-        error: error.message,
+        error,
         message: 'Erro ao buscar processos',
       });
     }
@@ -148,10 +209,30 @@ export class ProcessController {
     }
   };
 
-  getProcessByIdFlow = async (req, res) => {
+  getProcessById = async (req, res) => {
+    const { idProcess } = req.params;
+    try {
+      const process = await this.processService.getProcessById(idProcess);
+      if (!process) {
+        return res.status(404).json({
+          error: 'Esse processo não existe!',
+          message: 'Esse processo não existe!',
+        });
+      } else {
+        return res.status(200).json(process);
+      }
+    } catch (error) {
+      return res.status(500).json({
+        error: `${error}`,
+        message: `Erro ao procurar processo`,
+      });
+    }
+  };
+
+  getProcessesByIdFlow = async (req, res) => {
     const idFlow = req.params.idFlow;
     try {
-      const process = await this.processService.getProcessByIdFlow(idFlow);
+      const process = await this.processService.getProcessesByIdFlow(idFlow);
       if (!process) {
         return res.status(404).json({
           error: 'Processos não encontrados nesse fluxo!',
@@ -161,7 +242,6 @@ export class ProcessController {
         return res.status(200).json(process);
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: `Erro ao procurar processo.`,
@@ -195,19 +275,23 @@ export class ProcessController {
 
   store = async (req, res) => {
     try {
-      let { record, nickname, priority, idFlow } = req.body;
-      let idPriority = priority;
+      let {
+        record: paramRecord,
+        nickname,
+        priority: idPriority,
+        idFlow,
+      } = req.body;
 
-      const recordStatus = this.processService.validateRecord(record);
+      let { filteredRecord: record, valid: isRecordValid } =
+        this.processService.validateRecord(paramRecord);
 
-      if (!recordStatus.valid) {
+      if (!isRecordValid) {
         return res.status(400).json({
           error: 'Registro fora do padrão CNJ',
           message: `Registro '${req.body?.record}' está fora do padrão CNJ`,
         });
       }
 
-      record = recordStatus.filteredRecord;
       let flow;
 
       try {
@@ -221,17 +305,21 @@ export class ProcessController {
 
       try {
         if (flow) {
-          await this.processService.createProcess({
-            record,
-            idUnit: flow.idUnit,
-            nickname,
-            idFlow,
-            idPriority,
-            finalised: false,
-          });
+          const data = await this.processService.createProcessAndAud(
+            {
+              record,
+              idUnit: flow.idUnit,
+              nickname,
+              idFlow,
+              idPriority,
+              finalised: false,
+            },
+            req,
+          );
 
           return res.status(200).json({
             message: `Processo criado com sucesso.`,
+            data,
           });
         }
       } catch (error) {
@@ -266,62 +354,11 @@ export class ProcessController {
 
   updateProcess = async (req, res) => {
     try {
-      const { nickname, status } = req.body;
-
-      const recordStatus = this.processService.validateRecord(
-        req.params.record,
-      );
-
-      if (!recordStatus.valid) {
-        return res.status(400).json({
-          error: 'Registro fora do padrão CNJ',
-          message: `Registro '${req.params.record}' está fora do padrão CNJ`,
-        });
-      }
-
-      let record = recordStatus.filteredRecord;
-      let process;
-
-      try {
-        process = await this.processService.getProcessByRecord(record);
-      } catch (error) {
-        return res.status(500).json({ error: 'Falha ao buscar processo.' });
-      }
-
-      const flowStages = await this.flowStageService.findAllByIdFlow(
-        process.idFlow,
-      );
-      if (flowStages.length === 0) {
-        return res.status(404).json({ error: 'Não há etapas neste fluxo' });
-      }
-
-      const startingProcess =
-        process.status === 'notStarted' && req.body.status === 'inProgress'
-          ? {
-              idStage: flowStages[0].idStageA || process.idStage,
-              effectiveDate: new Date(),
-              status: 'inProgress',
-            }
-          : {
-              idStage: flowStages[0].idStageA || process.idStage,
-              effectiveDate: new Date(),
-              status,
-            };
-
-      const updatedProcess = await this.processService.updateProcess(
-        {
-          nickname,
-          ...startingProcess,
-        },
-        process.record,
-      );
+      const updatedProcess = await this.processService.updateProcess(req, res);
 
       if (updatedProcess) {
         return res.status(200).json(updatedProcess);
       }
-      return res
-        .status(500)
-        .json({ message: 'Não foi possível atualizar o processo.' });
     } catch (error) {
       return res.status(500).json({ error: `${error}` });
     }
@@ -329,11 +366,12 @@ export class ProcessController {
 
   deleteProcess = async (req, res) => {
     try {
-      const result = await this.processService.deleteProcessByRecord(
-        req.params.record,
+      const result = await this.processService.deleteProcessById(
+        req.params.idProcess,
+        req,
       );
 
-      if (result === 0) {
+      if (!result) {
         return res
           .status(404)
           .json({ error: `Não há registro ${req.params.record}.` });
@@ -348,61 +386,46 @@ export class ProcessController {
   };
 
   updateProcessStage = async (req, res) => {
-    const { record, from, to, idFlow } = req.body;
-
-    if (
-      isNaN(parseInt(from)) ||
-      isNaN(parseInt(to)) ||
-      isNaN(parseInt(idFlow))
-    ) {
-      return res.status(400).json({
-        error: 'Identificadores inválidos',
-        message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`,
-      });
-    }
-
     try {
-      const flowStages = await this.flowStageService.findAllByIdFlow(idFlow);
+      const result = await this.processService.updateProcessStage(req, res);
 
-      let canAdvance = false;
-
-      if (flowStages?.length > 0) {
-        for (const flowStage of flowStages) {
-          if (
-            (flowStage.idStageA === from && flowStage.idStageB === to) ||
-            (flowStage.idStageB === from && flowStage.idStageA === to)
-          ) {
-            canAdvance = true;
-            break;
-          }
-        }
-      }
-
-      if (!canAdvance) {
-        return res.status(409).json({
-          error: 'Transição impossível',
-          message: `Não há a transição da etapa '${to}' para '${from}' no fluxo '${idFlow}'`,
-        });
-      }
-      const result = await this.processService.updateProcess(
-        {
-          idStage: to,
-          effectiveDate: new Date(),
-        },
-        record,
-      );
       if (result) {
         return res.status(200).json({
           message: 'Etapa atualizada com sucesso.',
         });
       }
-
-      return res.status(400).json({ message: 'Erro ao atualizar processo.' });
     } catch (error) {
-      return res.status(500).json({
-        error: `${error}`,
-        message: `Erro ao atualizar processo '${record}' para etapa '${to}`,
-      });
+      return res.status(500).json({ error: `${error}` });
+    }
+  };
+
+  finalizeProcess = async (req, res) => {
+    try {
+      const finalizedProcess = await this.processService.finalizeProcess(
+        req,
+        res,
+      );
+
+      if (finalizedProcess) {
+        return res.status(200).json(finalizedProcess);
+      }
+    } catch (error) {
+      return res.status(500).json({ error: `${error}` });
+    }
+  };
+
+  archiveProcess = async (req, res) => {
+    try {
+      const archivedProcess = await this.processService.archiveProcess(
+        req,
+        res,
+      );
+
+      if (archivedProcess) {
+        return res.status(200).json(archivedProcess);
+      }
+    } catch (error) {
+      return res.status(500).json({ error: `${error}` });
     }
   };
 }

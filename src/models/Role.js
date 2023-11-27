@@ -1,41 +1,43 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 import sequelizeConfig from '../config/sequelize.js';
 
-class StageModel extends Model {
+class RoleModel extends Model {
   static init(sequelize) {
     super.init(
       {
-        idStage: {
+        idRole: {
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
+          allowNull: false,
+        },
+        name: {
+          type: DataTypes.STRING,
           allownull: false,
         },
-        name: DataTypes.STRING(100),
-        duration: {
+        accessLevel: {
           type: DataTypes.SMALLINT,
           allowNull: false,
         },
-        idUnit: {
-          type: DataTypes.INTEGER,
-          foreignKey: true,
+        allowedActions: {
+          type: DataTypes.ARRAY(DataTypes.STRING),
           allowNull: false,
         },
       },
       {
         sequelize,
-        tableName: 'stage',
+        tableName: 'role',
       },
     );
   }
+
   static associate(models) {
-    this.belongsToMany(models.Flow, {
-      foreignKey: 'idStage',
-      through: 'idFlowStage',
-      as: 'flow',
+    this.hasMany(models.User, {
+      foreignKey: 'cpf',
+      as: 'users',
     });
-    this.hasMany(models.Process, { foreignKey: 'record', as: 'process' });
   }
 }
-StageModel.init(sequelizeConfig, Sequelize.DataTypes);
-export default StageModel;
+
+RoleModel.init(sequelizeConfig, Sequelize.DataTypes);
+export default RoleModel;

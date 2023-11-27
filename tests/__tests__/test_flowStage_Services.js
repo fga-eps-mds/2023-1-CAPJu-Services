@@ -1,5 +1,7 @@
 import { Op } from 'sequelize';
 import FlowStageService from '../../src/services/flowStage';
+import sequelizeConfig from '../../src/config/sequelize.js';
+import { QueryTypes } from 'sequelize';
 
 const FlowStageModel = {
   findAll: jest.fn(),
@@ -7,6 +9,10 @@ const FlowStageModel = {
   create: jest.fn(),
   destroy: jest.fn(),
 };
+
+jest.mock('../../src/config/sequelize.js', () => ({
+  query: jest.fn(),
+}));
 
 describe('FlowStageService', () => {
   let flowStageService;
@@ -96,6 +102,43 @@ describe('FlowStageService', () => {
           },
         },
       });
+    });
+  });
+
+  describe('findFlowStagesByFlowId', () => {
+    it('retornar o tempo medio de um fluxo', async () => {
+      const flowId = 3;
+
+      const query_results = [
+        {
+          idStage: 1,
+          name: 'Primeira Etapa',
+          duration: 5,
+        },
+        {
+          idStage: 2,
+          name: 'Segunda Etapa',
+          duration: 2,
+        },
+        {
+          idStage: 3,
+          name: 'Terceira Etapa',
+          duration: 2,
+        },
+      ];
+
+      sequelizeConfig.query.mockResolvedValue(query_results);
+      const result = await flowStageService.findFlowStagesByFlowId(flowId);
+
+      expect(result).toEqual(query_results);
+
+      expect(sequelizeConfig.query).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          replacements: [flowId, flowId],
+          type: QueryTypes.SELECT,
+        }),
+      );
     });
   });
 });

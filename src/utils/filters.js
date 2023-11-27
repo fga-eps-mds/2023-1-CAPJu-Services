@@ -28,6 +28,14 @@ export function filterByName(req) {
     : {};
 }
 
+export function filterByIdFlow(req) {
+  return req.query.idFlow
+    ? {
+        idFlow: req.query.idFlow,
+      }
+    : {};
+}
+
 export function filterByFullName(req) {
   return req.query.filter?.type === 'user'
     ? {
@@ -37,17 +45,28 @@ export function filterByFullName(req) {
 }
 
 export function filterByLegalPriority(req) {
-  if (req.query.filterByLegalPriority == 'true') {
+  if (req.query.filterByLegalPriority === 'true') {
     return { idPriority: { [Op.not]: 0 } };
   } else {
     return { idPriority: { [Op.not]: null } };
   }
 }
 
-export function filterByIdFlow(req) {
-  return req.query.idFlow
+export function filterByNicknameOrRecord(req) {
+  return req.query.nicknameOrRecordFilter
     ? {
-        idFlow: req.query.idFlow,
+        [Op.or]: [
+          {
+            record: {
+              [Op.like]: `%${req.query.nicknameOrRecordFilter.trim()}%`,
+            },
+          },
+          {
+            nickname: {
+              [Op.like]: `%${req.query.nicknameOrRecordFilter.trim()}%`,
+            },
+          },
+        ],
       }
     : {};
 }

@@ -5,15 +5,19 @@ class ProcessModel extends Model {
   static init(sequelize) {
     super.init(
       {
+        idProcess: {
+          type: DataTypes.INTEGER,
+          primaryKey: true,
+          autoIncrement: true,
+          allowNull: false,
+        },
         record: {
           type: DataTypes.STRING(20),
-          primaryKey: true,
           allowNull: false,
+          unique: 'unique_processRecord_idStage',
         },
         idFlow: {
           type: DataTypes.INTEGER,
-          primaryKey: true,
-          foreignKey: true,
           allowNull: false,
         },
         nickname: {
@@ -35,8 +39,8 @@ class ProcessModel extends Model {
         },
         idStage: {
           type: DataTypes.INTEGER,
-          foreignKey: true,
           allowNull: true,
+          unique: 'unique_processRecord_idStage',
           defaultValue: null,
         },
         idPriority: {
@@ -54,6 +58,12 @@ class ProcessModel extends Model {
       {
         sequelize,
         tableName: 'process',
+        indexes: [
+          {
+            unique: true,
+            fields: ['record', 'idStage'],
+          },
+        ],
       },
     );
   }
@@ -63,11 +73,7 @@ class ProcessModel extends Model {
       as: 'processPriority',
     });
     this.belongsTo(models.Stage, { foreignKey: 'idStage', as: 'processStage' });
-    this.belongsToMany(models.Flow, {
-      foreignKey: 'record',
-      through: 'idFlowProcess',
-      as: 'process',
-    });
+    this.belongsTo(models.Flow, { foreignKey: 'idFlow', as: 'flowInfo' });
   }
 }
 ProcessModel.init(sequelizeConfig, Sequelize.DataTypes);
