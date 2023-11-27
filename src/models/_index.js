@@ -39,7 +39,6 @@ const models = {
   User,
   FlowUser,
   ProcessAud,
-  UnitModel,
   Note,
   ProcessesFile,
   ProcessesFileItem,
