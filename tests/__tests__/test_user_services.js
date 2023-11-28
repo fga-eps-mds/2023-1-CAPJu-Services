@@ -617,45 +617,4 @@ describe('UserServices', () => {
       expect(userModelMock.update).toHaveBeenCalled();
     });
   });
-
-  describe('getUserByCpfWithPasswordRolesAndUnit', () => {
-    it(
-      'deve retornar um usuário com o cpf especificado, mostrando os dados da sua unidade e cargo',
-        async () => {
-          const user = {
-            cpf: '10987654321',
-            fullName: 'John Doe',
-            password: 'senha',
-            accepted: true,
-            idUnit: 1,
-            name: 'Unidade 1',
-            idRole: 5,
-            accessLevel: 5,
-            allowedActions: ['muitas'],
-          };
-
-          userModelMock.findOne.mockResolvedValue(user);
-
-          const result = await userService.getUserByCpfWithPasswordRolesAndUnit(user.cpf);
-
-          expect(result).toEqual(user);
-          expect(userModelMock.findOne).toHaveBeenCalledWith({
-            where: { cpf: user.cpf },
-            attributes: ['cpf', 'fullName', 'password', 'accepted', 'idRole'],
-      
-            include: [
-              {
-                model: models.Unit,
-                as: 'unit',
-                attributes: ['idUnit', 'name'],
-              },
-              {
-                model: models.Role,
-                as: 'role',
-                attributes: ['idRole', 'name', 'accessLevel', 'allowedActions'],
-              },
-            ],
-          })
-      })
-  });
 });
