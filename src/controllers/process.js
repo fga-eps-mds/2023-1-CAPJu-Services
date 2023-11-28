@@ -21,7 +21,7 @@ export class ProcessController {
     this.flowService = services.flowService;
     this.stageService = services.stageService;
   }
-  
+
   index = async (req, res) => {
     try {
       let where;
