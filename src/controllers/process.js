@@ -3,6 +3,7 @@ import services from '../services/_index.js';
 import {
   filterByLegalPriority,
   filterByNicknameOrRecord,
+  filterByNicknameAndRecord,
   filterByStatus,
   filterByIdFlow,
   filterByDateRange,
@@ -20,7 +21,7 @@ export class ProcessController {
     this.flowService = services.flowService;
     this.stageService = services.stageService;
   }
-
+  
   index = async (req, res) => {
     try {
       let where;
@@ -52,12 +53,12 @@ export class ProcessController {
       where = {
         ...filterByStatus(req),
         ...filterByLegalPriority(req),
-        ...filterByStatus(req),
         ...filterByFlowName(req, flowsForFilter),
         ...filterByStageName(req, stagesForFilter),
         ...filterByIdFlow(req),
         ...filterByDateRange(req),
         ...filterByNicknameOrRecord(req),
+        ...filterByNicknameAndRecord(req),
         ...(await getUserRoleAndUnitFilterFromReq(req)),
       };
 
@@ -130,8 +131,6 @@ export class ProcessController {
             progress,
           });
         }
-
-        console.log(processes);
 
         const newProcesses = await Promise.all(
           processesWithFlows.map(async process => {

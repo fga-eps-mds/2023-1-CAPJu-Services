@@ -1,14 +1,14 @@
 import { Op } from 'sequelize';
 
 export function filterByNicknameAndRecord(req) {
-  return req.query.filter?.type === 'process'
-    ? {
+  console.log("EUUUUU KAREAIO");
+  return {
         [Op.or]: [
           { record: { [Op.like]: `%${req.query.filter.value}%` } },
           { nickname: { [Op.like]: `%${req.query.filter.value}%` } },
         ],
       }
-    : {};
+    // : {};
 }
 
 export function filterByStatus(req) {
