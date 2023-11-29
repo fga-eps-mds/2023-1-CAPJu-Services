@@ -34,7 +34,9 @@ export class ProcessController {
         };
         const stages = await this.stageService.findAll({ where });
         stagesForFilter = stages.map(stage => {
-          if (stage.name.includes(name)) return { idStage: stage.idStage };
+          if (stage.name.toLowerCase().includes(name.toLowerCase())) {
+            return { idStage: stage.idStage };
+          }
         });
       }
 
@@ -46,7 +48,9 @@ export class ProcessController {
         };
         const flows = await this.flowService.findAll({ where });
         flowsForFilter = flows.map(flow => {
-          if (flow.name.includes(name)) return { idFlow: flow.idFlow };
+          if (flow.name.toLowerCase().includes(name.toLowerCase())) {
+            return { idFlow: flow.idFlow };
+          }
         });
       }
 
