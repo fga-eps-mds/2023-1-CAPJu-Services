@@ -118,4 +118,64 @@ describe('FlowStageControlers', () => {
     });
     expect(resMock.status).toHaveBeenCalledWith(500);
   });
+
+  test('getFlowStagesByFlowId (200)', async () => {
+    const idFlow = 1;
+    const mockData = [
+      {
+        idFlowStage:1,
+        idStageA:1,
+        idStageB:2,
+        idFlow:1,
+      },
+      {
+        idFlowStage:2,
+        idStageA:2,
+        idStageB:3,
+        idFlow:1,
+      }
+    ];
+
+    flowStageController.flowStageService.findFlowStagesByFlowId = jest
+      .fn()
+      .mockResolvedValue(mockData);
+
+    reqMock.params = { idFlow: idFlow };
+
+    await flowStageController.getFlowStagesByFlowId(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith(mockData);
+    expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test('getFlowStagesByFlowId - Erro ao buscar (404)', async () => {
+    const idFlow = 1;
+    const mockData = undefined;
+
+    flowStageController.flowStageService.findFlowStagesByFlowId = jest
+      .fn()
+      .mockResolvedValue(mockData);
+
+    reqMock.params = { idFlow: idFlow };
+
+    await flowStageController.getFlowStagesByFlowId(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({ message: `Erro ao buscar etapas do fluxo` });
+    expect(resMock.status).toHaveBeenCalledWith(404);
+  });
+
+  test('getFlowStagesByFlowId - Erro ao buscar (500)', async () => {
+    const idFlow = 1;
+
+    flowStageController.flowStageService.findFlowStagesByFlowId = jest
+      .fn()
+      .mockRejectedValue();
+
+    reqMock.params = { idFlow: idFlow };
+
+    await flowStageController.getFlowStagesByFlowId(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith({ message: 'Erro a ler as etapas do fluxo' });
+    expect(resMock.status).toHaveBeenCalledWith(500);
+  });
 });
