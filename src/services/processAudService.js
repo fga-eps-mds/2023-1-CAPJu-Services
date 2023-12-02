@@ -43,6 +43,10 @@ class ProcessAudService {
     );
   }
 
+  async delete(params) {
+    return await this.processAudRepository.destroy({ ...params });
+  }
+
   async findAllPaged(req) {
     const { offset = 0, limit = 10 } = req.query;
 
