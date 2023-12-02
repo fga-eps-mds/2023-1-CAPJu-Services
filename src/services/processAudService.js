@@ -213,9 +213,9 @@ class ProcessAudService {
 
   getStatusPt = status => {
     const statuses = {
-      inProgress: 'em progresso',
-      archived: 'arquivado',
-      finished: 'finalizado',
+      inProgress: 'em andamento',
+      archived: 'interrompido',
+      finished: 'concluído',
       notStarted: 'não iniciado',
     };
 
