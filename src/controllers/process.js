@@ -77,7 +77,7 @@ export class ProcessController {
           'status',
           'finalised',
           'idStage',
-          'effectiveDate'
+          'effectiveDate',
         ],
       });
 
