@@ -13,7 +13,7 @@ export class StageController {
 
   index = async (req, res) => {
     try {
-      let limit;
+      let limit = req.query.limit;
       let where = {
         ...filterByName(req),
         ...(await getUserRoleAndUnitFilterFromReq(req)),
