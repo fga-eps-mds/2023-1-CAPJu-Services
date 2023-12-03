@@ -1,11 +1,15 @@
-import { Op } from 'sequelize';
+import {Op} from 'sequelize';
 import xlsx from 'node-xlsx';
 import XLSX from 'xlsx-js-style';
 import models from '../models/_index.js';
 import ProcessService from './process.js';
 import FlowService from './flow.js';
 import PriorityService from './priority.js';
-import { logger } from '../utils/logger.js';
+import {promises as fs} from 'fs';
+import path from 'path';
+import {fileURLToPath} from 'url';
+import {convertCsvToXlsx} from '@aternus/csv-to-xlsx';
+import {logger} from '../utils/logger.js';
 import sequelizeConfig from '../config/sequelize.js';
 
 const validProcessesHeader = [
@@ -145,16 +149,29 @@ export class ProcessesFileService {
     });
   };
 
-  findFileById = async (idProcessesFile, dataFlag) => {
-    return await this.processesFileRepository.findOne({
+  findFileById = async (idProcessesFile, original, format) => {
+
+    const fileKey = original ? 'dataOriginalFile' : 'dataResultingFile';
+
+    const file = await this.processesFileRepository.findOne({
       where: { idProcessesFile },
       attributes: [
         'idProcessesFile',
-        dataFlag === 'original' ? 'dataOriginalFile' : 'dataResultingFile',
+        fileKey,
         'fileName',
       ],
       raw: true,
     });
+
+    // Assuming the original file will be stored in .xlsx
+    if (!original && format === 'csv') {
+      const buffer = file[fileKey];
+      file[fileKey]['data'] = await this.convertXlsxToCsv(buffer);
+    }
+
+    console.log(file[fileKey])
+
+    return file;
   };
 
   deleteFileById = async idProcessesFile => {
@@ -191,19 +208,27 @@ export class ProcessesFileService {
     );
 
     for (const file of files) {
+
       try {
+
+        let { dataOriginalFile, fileName } = file;
+
+        if(this.isFileType(fileName, 'csv')) {
+          dataOriginalFile = await this.convertCsvBufferToXlsx(dataOriginalFile, fileName);
+        }
+
         logger.info(
-          `Iniciando processamento arquivo [${file.idProcessesFile}-${file.fileName}]`,
+          `Iniciando processamento arquivo [${file.idProcessesFile}-${fileName}]`,
         );
 
         logger.info(
-          `Iniciando parser arquivo [${file.idProcessesFile}-${file.fileName}]`,
+          `Iniciando parser arquivo [${file.idProcessesFile}-${fileName}]`,
         );
 
-        const workbook = xlsx.parse(file.dataOriginalFile);
+        const workbook = xlsx.parse(dataOriginalFile);
 
         logger.info(
-          `Parser arquivo [${file.idProcessesFile}-${file.fileName}] concluído`,
+          `Parser arquivo [${file.idProcessesFile}-${fileName}] concluído`,
         );
 
         const headerIndex = workbook[0].data.findIndex(row => row.length);
@@ -278,7 +303,7 @@ export class ProcessesFileService {
           let rowIndex = 0;
 
           logger.info(
-            `Populando mapa arquivo [${file.idProcessesFile}-${file.fileName}]`,
+            `Populando mapa arquivo [${file.idProcessesFile}-${fileName}]`,
           );
 
           while (rowIndex < numberOfRows) {
@@ -310,7 +335,7 @@ export class ProcessesFileService {
           }
 
           logger.info(
-            `Mapa populado [${file.idProcessesFile}-${file.fileName}]`,
+            `Mapa populado [${file.idProcessesFile}-${fileName}]`,
           );
 
           const processes = [];
@@ -524,6 +549,7 @@ export class ProcessesFileService {
         );
       }
     }
+
   };
 
   findMaxContentLengthPerColumn = sheetData => {
@@ -607,4 +633,37 @@ export class ProcessesFileService {
     }
     return filter;
   }
+
+  isFileType = (fileName, extension) => this.extractExtensionFromFileName(fileName) === extension;
+
+  extractExtensionFromFileName = (fileName) => fileName.split('.').pop().toLowerCase();
+
+  convertCsvBufferToXlsx = async (dataOriginalFile, originalFileName) => {
+
+    const __dirname = fileURLToPath(new URL('.', import.meta.url));
+
+    const tempCsvFilePath = path.join(__dirname, originalFileName);
+    const tempXlsxFilePath = tempCsvFilePath.replace('.csv', '.xlsx');
+
+    await fs.writeFile(tempCsvFilePath, dataOriginalFile);
+
+    convertCsvToXlsx(tempCsvFilePath, tempXlsxFilePath);
+
+    const xlsxBuffer = await fs.readFile(tempXlsxFilePath);
+
+    await fs.unlink(tempCsvFilePath);
+    await fs.unlink(tempXlsxFilePath);
+
+    return xlsxBuffer;
+
+  }
+
+  convertXlsxToCsv = (buffer) => {
+    const bufferData = Buffer.from(buffer);
+    const workbook = XLSX.read(bufferData, { type: 'buffer' });
+    const firstSheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheetName];
+    return Buffer.from(XLSX.utils.sheet_to_csv(worksheet));
+  }
+
 }

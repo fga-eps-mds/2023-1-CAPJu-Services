@@ -2,6 +2,81 @@ import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 import { QueryTypes } from 'sequelize';
 import sequelizeConfig from '../src/config/sequelize.js';
+import UserEndpointAccessLogModel from '../src/models/userEndpointAccessLog.js';
+import routesPermissions from "../src/routes/routesPermissions.js";
+import services from "../src/services/_index.js";
+
+const publicEndpoints = [
+  /**
+   * /^\/endpoint1/,
+   * /^\/ednpoint2/,
+   * ...
+   * /^\/ednpointn/,
+   * **/
+];
+
+async function authenticate(req, res, next) {
+  const isPublicEndpoint = publicEndpoints.some(pattern => pattern.test(req.originalUrl));
+  let isAccepted = true;
+  let message = null;
+
+  if(isPublicEndpoint) {
+    await registerEndpointLogEvent({ req, isAccepted, message });
+    next();
+    return;
+  }
+
+  if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer')) {
+    isAccepted = false;
+    message = 'Nenhum token fornecido!';
+  } else {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      const decodedUser = jwt.verify(token, process.env.JWT_SECRET).id;
+
+      const userData = await services.userService.findUserWithRole(decodedUser.cpf, ['accepted'])
+
+      if (!userData || userData.accepted === false) {
+        isAccepted = false;
+        message = 'Autenticação falhou!';
+      } else {
+        ({ isAccepted, message } = checkPermissions({ req, isAccepted, message, userData }));
+      }
+    } catch (error) {
+      isAccepted = false;
+      message = error.name === 'TokenExpiredError' ? 'O token expirou!' : 'Autenticação falhou!';
+    }
+  }
+
+  await registerEndpointLogEvent({ req, isAccepted, message });
+
+  if (!isAccepted) {
+    return res.status(401).json({ message });
+  }
+
+  next();
+}
+
+function getRequiredPermissions(req) {
+  const requestPath = req.path;
+  let matchingPermissions = null;
+  let wasFound = false;
+  for (let parentRoute of routesPermissions) {
+    if(wasFound)
+      break;
+    for (const childRoute of parentRoute.childRoutes) {
+      const fullPath = parentRoute.parentPath + (childRoute.path === '' ? '' : childRoute.path);
+      const regexPath = fullPath.replace(/\/:[^\/]+/g, '/[^/]+');
+      const regex = new RegExp(`^${regexPath}$`);
+      if (regex.test(requestPath) && childRoute?.method === req.method) {
+        matchingPermissions = childRoute.permissions;
+        wasFound = true;
+        break;
+      }
+    }
+  }
+  return matchingPermissions;
+}
 
 async function tokenToUser(req, res) {
   let token;
@@ -33,60 +108,16 @@ async function tokenToUser(req, res) {
   }
 }
 
-async function authenticate(req, res, next) {
-  if (
-    !req.headers.authorization ||
-    !req.headers.authorization.startsWith('Bearer')
-  ) {
-    return res.status(401).json({ message: 'No token provided' });
+function checkPermissions({ req, isAccepted, message, userData }) {
+  let requiredPermissions = getRequiredPermissions(req);
+  if(requiredPermissions) {
+    requiredPermissions = Array.isArray(requiredPermissions) ? requiredPermissions : [requiredPermissions];
+    if (!requiredPermissions.every(p => userData.role.allowedActions.includes(p))) {
+      isAccepted = false;
+      message = 'Permissão negada!';
+    }
   }
-
-  try {
-    const token = req.headers.authorization.split(' ')[1];
-
-    const decodedUser = jwt.verify(token, process.env.JWT_SECRET).id;
-
-    const userData = await sequelizeConfig.query(
-      `select * from users u where cpf = :cpf limit 1`,
-      {
-        type: QueryTypes.SELECT,
-        replacements: { cpf: decodedUser.cpf },
-        logging: false,
-      },
-    );
-
-    if (!userData) {
-      return res.status(401).json({ message: 'User not found' });
-    }
-
-    if (userData[0].accepted === false) {
-      return res.status(401).json({ message: 'Authentication failed' });
-    }
-
-    next();
-  } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token has expired' });
-    }
-    return res.status(401).json({ message: 'Authentication failed' });
-  }
-}
-
-function authorize(permissionName) {
-  return async (req, res, next) => {
-    try {
-      const user = await userFromReq(req);
-
-      if (!user.role.allowedActions.includes(permissionName)) {
-        return res.status(403).json({ message: 'Permission denied' });
-      }
-
-      next();
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal Server Error' });
-    }
-  };
+  return { isAccepted, message };
 }
 
 async function userFromReq(req) {
@@ -103,10 +134,29 @@ async function getUserRoleAndUnitFilterFromReq(req) {
   else return { idRole, idUnit };
 }
 
+async function registerEndpointLogEvent({ req, isAccepted, message }) {
+  let userCPF;
+  try {
+    userCPF = (await userFromReq(req)).cpf;
+  } catch (e) { userCPF = null; }
+  try {
+    await UserEndpointAccessLogModel.create({
+      endpoint: req.originalUrl,
+      httpVerb: req.method,
+      attemptTimestamp: new Date(),
+      userCPF,
+      isAccepted,
+      message,
+      service: 'ProcessManagment',
+    });
+  } catch (error) {
+    console.error('Error logging request: ', error);
+  }
+}
+
 export {
   tokenToUser,
   authenticate,
-  authorize,
   userFromReq,
   getUserRoleAndUnitFilterFromReq,
 };
