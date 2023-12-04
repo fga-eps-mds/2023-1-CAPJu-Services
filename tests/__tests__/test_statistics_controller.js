@@ -463,7 +463,7 @@ describe('statisticsController', () => {
     expect(resMock.json).toHaveBeenCalledWith(
       {
         processInDue: mockResponse,
-        totalPages: 1
+        totalPages: 0
       }
     );
   });
