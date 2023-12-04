@@ -5,7 +5,7 @@ export function filterByNicknameAndRecord(req) {
     ? {
         [Op.or]: [
           { record: { [Op.like]: `%${req.query.filter.value}%` } },
-          { nickname: { [Op.like]: `%${req.query.filter.value}%` } },
+          { nickname: { [Op.iLike]: `%${req.query.filter.value}%` } },
         ],
       }
     : {};
@@ -23,7 +23,7 @@ export function filterByStatus(req) {
 export function filterByName(req) {
   return req.query.filter
     ? {
-        [Op.or]: [{ name: { [Op.like]: `%${req.query.filter}%` } }],
+        [Op.or]: [{ name: { [Op.iLike]: `%${req.query.filter}%` } }],
       }
     : {};
 }
@@ -39,7 +39,7 @@ export function filterByIdFlow(req) {
 export function filterByFullName(req) {
   return req.query.filter?.type === 'user'
     ? {
-        [Op.or]: [{ fullName: { [Op.like]: `%${req.query.filter.value}%` } }],
+        [Op.or]: [{ fullName: { [Op.iLike]: `%${req.query.filter.value}%` } }],
       }
     : {};
 }
@@ -58,12 +58,12 @@ export function filterByNicknameOrRecord(req) {
         [Op.or]: [
           {
             record: {
-              [Op.like]: `%${req.query.nicknameOrRecordFilter.trim()}%`,
+              [Op.iLike]: `%${req.query.nicknameOrRecordFilter.trim()}%`,
             },
           },
           {
             nickname: {
-              [Op.like]: `%${req.query.nicknameOrRecordFilter.trim()}%`,
+              [Op.iLike]: `%${req.query.nicknameOrRecordFilter.trim()}%`,
             },
           },
         ],

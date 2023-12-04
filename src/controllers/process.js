@@ -3,6 +3,7 @@ import services from '../services/_index.js';
 import {
   filterByLegalPriority,
   filterByNicknameOrRecord,
+  filterByNicknameAndRecord,
   filterByStatus,
   filterByIdFlow,
   filterByDateRange,
@@ -33,7 +34,9 @@ export class ProcessController {
         };
         const stages = await this.stageService.findAll({ where });
         stagesForFilter = stages.map(stage => {
-          if (stage.name.includes(name)) return { idStage: stage.idStage };
+          if (stage.name.toLowerCase().includes(name.toLowerCase())) {
+            return { idStage: stage.idStage };
+          }
         });
       }
 
@@ -45,19 +48,21 @@ export class ProcessController {
         };
         const flows = await this.flowService.findAll({ where });
         flowsForFilter = flows.map(flow => {
-          if (flow.name.includes(name)) return { idFlow: flow.idFlow };
+          if (flow.name.toLowerCase().includes(name.toLowerCase())) {
+            return { idFlow: flow.idFlow };
+          }
         });
       }
 
       where = {
         ...filterByStatus(req),
         ...filterByLegalPriority(req),
-        ...filterByStatus(req),
         ...filterByFlowName(req, flowsForFilter),
         ...filterByStageName(req, stagesForFilter),
         ...filterByIdFlow(req),
         ...filterByDateRange(req),
         ...filterByNicknameOrRecord(req),
+        ...filterByNicknameAndRecord(req),
         ...(await getUserRoleAndUnitFilterFromReq(req)),
       };
 
@@ -131,8 +136,6 @@ export class ProcessController {
             progress,
           });
         }
-
-        console.log(processes);
 
         const newProcesses = await Promise.all(
           processesWithFlows.map(async process => {
