@@ -114,6 +114,18 @@ class UserService {
     return false;
   }
 
+  async updateUserFullName(cpf, fullName) {
+    const user = await this.getUserByCpf(cpf);
+    if (user) {
+      const [updatedRows] = await this.user.update(
+        { fullName: fullName },
+        { where: { cpf: cpfFilter(cpf) } },
+      );
+      if (updatedRows) return true;
+    }
+    return false;
+  }
+
   async updateUserRole(cpf, idRole) {
     const user = await this.getUserByCpf(cpf);
     if (user) {
