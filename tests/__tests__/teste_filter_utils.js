@@ -26,7 +26,7 @@ describe('filterByNicknameAndRecord', () => {
     expect(filterByNicknameAndRecord(reqMock)).toStrictEqual({
       [Op.or]: [
         { record: { [Op.like]: `%${reqMock.query.filter.value}%` } },
-        { nickname: { [Op.like]: `%${reqMock.query.filter.value}%` } },
+        { nickname: { [Op.iLike]: `%${reqMock.query.filter.value}%` } },
       ],
     });
   });
@@ -59,7 +59,7 @@ describe('filterByName', () => {
   test('Returns Filter by name', () => {
     reqMock.query = { filter: 'Fulano' };
     expect(filterByName(reqMock)).toStrictEqual({
-      [Op.or]: [{ name: { [Op.like]: `%${reqMock.query.filter}%` } }],
+      [Op.or]: [{ name: { [Op.iLike]: `%${reqMock.query.filter}%` } }],
     });
   });
 });
@@ -73,7 +73,9 @@ describe('filterByFullName', () => {
   test('Returns Filter by fullname', () => {
     reqMock.query = { filter: { type: 'user', value: 'Fulano' } };
     expect(filterByFullName(reqMock)).toStrictEqual({
-      [Op.or]: [{ fullName: { [Op.like]: `%${reqMock.query.filter.value}%` } }],
+      [Op.or]: [
+        { fullName: { [Op.iLike]: `%${reqMock.query.filter.value}%` } },
+      ],
     });
   });
 });
