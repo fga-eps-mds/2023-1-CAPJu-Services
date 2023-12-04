@@ -184,11 +184,16 @@ class ProcessService {
     return (await this.getProcessById(idProcess, ['record']))?.record;
   }
 
-  async deleteProcessById(idProcess, req) {
+  async deleteProcessById(idProcess) {
     let result;
+
     await sequelizeConfig.transaction(async transaction => {
       await this.noteRepository.destroy({ where: { idProcess }, transaction });
       await this.processesFileItemRepository.destroy({
+        where: { idProcess },
+        transaction,
+      });
+      await this.processAud.delete({
         where: { idProcess },
         transaction,
       });
@@ -196,15 +201,8 @@ class ProcessService {
         where: { idProcess },
         transaction,
       });
-      if (result)
-        await this.processAud.create(
-          idProcess,
-          null,
-          'DELETE',
-          req,
-          transaction,
-        );
     });
+
     return result;
   }
 

@@ -130,7 +130,6 @@ export class FlowController {
 
           let timeFirst;
           let timeLast;
-          console.log('------>>>>>>>>>>>>>>>>>', at);
           Object.values(grupos).forEach(trem => {
             console.log(trem);
             if (trem[begin]) {
@@ -388,6 +387,8 @@ export class FlowController {
               message: `Não existe a etapa com identificador '${idStageA}'`,
             });
         }
+
+        await this.flowStageService.deleteFlowStageByIdFlow(updatedFlow.idFlow);
 
         for (const sequence of sequences) {
           const data = {

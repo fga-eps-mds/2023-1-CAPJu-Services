@@ -25,7 +25,7 @@ module.exports = {
       emitedBy: {
         type: Sequelize.STRING(11),
         allowNull: false,
-        references: { model: 'user', key: 'cpf' },
+        references: { model: 'users', key: 'cpf' },
         onDelete: 'RESTRICT',
       },
     });
