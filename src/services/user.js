@@ -125,6 +125,7 @@ class UserService {
     }
     return false;
   }
+
   async updateUserPassword(cpf, oldPassword, newPassword) {
     const user = await this.getUserByCpfWithPassword(cpf);
     if (user) {
@@ -158,6 +159,7 @@ class UserService {
       ],
     });
   }
+
 }
 
 export default UserService;
