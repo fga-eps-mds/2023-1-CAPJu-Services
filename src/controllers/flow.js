@@ -381,7 +381,7 @@ export class FlowController {
         }
 
         await this.flowStageService.deleteFlowStageByIdFlow(updatedFlow.idFlow);
-        
+
         for (const sequence of sequences) {
           const data = {
             idFlow: updatedFlow.idFlow,

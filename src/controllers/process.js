@@ -66,7 +66,7 @@ export class ProcessController {
 
       const processes = await this.processService.getAllProcess({
         where,
-        limit,
+        limit: limit > 0 ? limit : undefined,
         offset,
         attributes: [
           'idProcess',
@@ -77,6 +77,7 @@ export class ProcessController {
           'status',
           'finalised',
           'idStage',
+          'effectiveDate',
         ],
       });
 
