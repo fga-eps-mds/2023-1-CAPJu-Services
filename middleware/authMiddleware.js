@@ -26,25 +26,32 @@ async function authenticate(req, res, next) {
     return;
   }
 
-  if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer')) {
+  const authorizationHeader = req.headers.authorization;
+
+  if (!authorizationHeader || !authorizationHeader.startsWith('Bearer')) {
     isAccepted = false;
     message = 'Nenhum token fornecido!';
   } else {
     try {
-      const token = req.headers.authorization.split(' ')[1];
+      const token = authorizationHeader.split(' ')[1];
       const decodedUser = jwt.verify(token, process.env.JWT_SECRET).id;
 
-      const userData = await services.userService.findUserWithRole(decodedUser.cpf, ['accepted'])
+      const userData = await services.userService.findUserWithRole(decodedUser.cpf);
 
       if (!userData || userData.accepted === false) {
-        isAccepted = false;
-        message = 'Autenticação falhou!';
-      } else {
-        ({ isAccepted, message } = checkPermissions({ req, isAccepted, message, userData }));
+        throw new Error('');
       }
+
+      const hasActiveSession = await services.userAccessLogService.hasActiveSessionRelatedToJWT(token);
+      if (!hasActiveSession) {
+        throw new Error('Token não associado a uma sessão ativa.');
+      }
+
+      ({ isAccepted, message } = checkPermissions({ req, isAccepted, message, userData }));
+
     } catch (error) {
       isAccepted = false;
-      message = error.name === 'TokenExpiredError' ? 'O token expirou!' : 'Autenticação falhou!';
+      message = error.name === 'TokenExpiredError' ? 'O token expirou!' : (error.message || 'Autenticação falhou!');
     }
   }
 

@@ -1,16 +1,16 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
 import {
-  filterByLegalPriority,
-  filterByNicknameOrRecord,
-  filterByStatus,
-  filterByIdFlow,
   filterByDateRange,
   filterByFlowName,
-  filterByStageName,
+  filterByIdFlow,
+  filterByLegalPriority,
   filterByName,
+  filterByNicknameOrRecord,
+  filterByStageName,
+  filterByStatus,
 } from '../utils/filters.js';
-import { getUserRoleAndUnitFilterFromReq } from '../../middleware/authMiddleware.js';
+import {getUserRoleAndUnitFilterFromReq} from '../../middleware/authMiddleware.js';
 
 export class ProcessController {
   constructor() {
@@ -132,8 +132,7 @@ export class ProcessController {
           });
         }
 
-        console.log(processes);
-
+        // THIS AMMOUNT OF QUERIES HAS TO BE FIXED!
         const newProcesses = await Promise.all(
           processesWithFlows.map(async process => {
             const processStage = await this.stageService.findOneByStageId(
@@ -149,7 +148,7 @@ export class ProcessController {
             const { stages, sequences } =
               await this.flowService.stagesSequencesFromFlowStages(flowStage);
 
-            const flowSequence = {
+            process.flow = {
               idFlow: flow.idFlow,
               name: flow.name,
               idUnit: flow.idUnit,
@@ -157,7 +156,6 @@ export class ProcessController {
               sequences,
             };
 
-            process.flow = flowSequence;
             process.stageName = processStage?.name || 'Não iniciado';
 
             return process;
@@ -182,7 +180,6 @@ export class ProcessController {
         });
       }
     } catch (error) {
-      console.log(error);
       return res.status(500).json({
         error,
         message: 'Erro ao buscar processos',
