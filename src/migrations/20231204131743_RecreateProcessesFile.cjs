@@ -5,7 +5,7 @@ module.exports = {
 
         await queryInterface.bulkDelete('processesFileItem', null, {});
 
-        await queryInterface.dropTable('processesFile');
+        await queryInterface.bulkDelete('processesFile', null, {});
 
         await queryInterface.createTable('processesFile', {
             idProcessesFile: {
