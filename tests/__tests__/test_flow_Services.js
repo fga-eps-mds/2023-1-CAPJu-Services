@@ -8,6 +8,7 @@ const FlowModelMock = {
   create: jest.fn(),
   update: jest.fn(),
   destroy: jest.fn(),
+  count: jest.fn()
 };
 
 jest.mock('../../src/config/sequelize.js', () => ({
@@ -38,13 +39,56 @@ describe('FlowController', () => {
         { idFlow: 2, name: 'Fluxo 2' },
       ]);
 
-      const result = await flowService.findAll({});
+      const result = await flowService.findAll({},);
 
       expect(result).toEqual([
         { idFlow: 1, name: 'Fluxo 1' },
         { idFlow: 2, name: 'Fluxo 2' },
       ]);
       expect(FlowModelMock.findAll).toHaveBeenCalled();
+    });
+
+    it('Retornar uma lista de fluxos - Infinity', async () => {
+      FlowModelMock.findAll.mockResolvedValue([
+        { idFlow: 1, name: 'Fluxo 1' },
+        { idFlow: 2, name: 'Fluxo 2' },
+      ]);
+
+      const result = await flowService.findAll({}, {}, 5, Infinity);
+
+      expect(result).toEqual([
+        { idFlow: 1, name: 'Fluxo 1' },
+        { idFlow: 2, name: 'Fluxo 2' },
+      ]);
+      expect(FlowModelMock.findAll).toHaveBeenCalled();
+    });
+  });
+
+  describe('findAllRawWithAttributes', () => {
+    it('Retornar uma lista de fluxos', async () => {
+      FlowModelMock.findAll.mockResolvedValue([
+        { idFlow: 1, name: 'Fluxo 1' },
+        { idFlow: 2, name: 'Fluxo 2' },
+      ]);
+
+      const result = await flowService.findAllRawWithAttributes({}, {});
+
+      expect(result).toEqual([
+        { idFlow: 1, name: 'Fluxo 1' },
+        { idFlow: 2, name: 'Fluxo 2' },
+      ]);
+      expect(FlowModelMock.findAll).toHaveBeenCalled();
+    });
+  });
+
+  describe('countRows', () => {
+    it('Success', async () => {
+      FlowModelMock.count.mockResolvedValue(1);
+
+      const result = await flowService.countRows({});
+
+      expect(result).toEqual(1);
+      expect(FlowModelMock.count).toHaveBeenCalled();
     });
   });
 
@@ -61,6 +105,24 @@ describe('FlowController', () => {
       expect(result).toEqual({ idFlow: flowId, name: 'Fluxo 1' });
       expect(FlowModelMock.findOne).toHaveBeenCalledWith({
         where: { idFlow: flowId },
+      });
+    });
+
+    it('Retornar um fluxo com o ID especificado com atributos', async () => {
+      const flowId = 1;
+      FlowModelMock.findOne.mockResolvedValue({
+        idFlow: flowId,
+        name: 'Fluxo 1',
+      });
+
+      const result = await flowService.findOneByFlowId(flowId, [{name:'FGA'}]);
+
+      expect(result).toEqual({ idFlow: flowId, name: 'Fluxo 1' });
+      expect(FlowModelMock.findOne).toHaveBeenCalledWith({
+        where: { idFlow: flowId },
+        attributes: [{
+          name: 'FGA'
+        }]
       });
     });
   });
