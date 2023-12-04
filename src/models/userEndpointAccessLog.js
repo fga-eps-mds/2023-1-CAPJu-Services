@@ -33,7 +33,7 @@ class UserEndpointAccessLogModel extends Model {
                     defaultValue: false,
                 },
                 service: {
-                    type: DataTypes.ENUM('User', 'ProcessManagment', 'Unit', 'Role', 'Unit'),
+                    type: DataTypes.ENUM('User', 'ProcessManagment', 'Unit', 'Role', 'Mailer', 'Note'),
                     allowNull: false,
                 },
                 message: {
