@@ -6,9 +6,9 @@ import { hash, verify } from 'argon2';
 import passHashing from '../config/passHashing.js';
 import { cpfFilter } from '../utils/cpf.js';
 import { userFromReq } from '../../middleware/authMiddleware.js';
-import requestIp from "request-ip";
-import { v4 as uuidv4 } from "uuid";
-import jwt from "jsonwebtoken";
+import requestIp from 'request-ip';
+import { v4 as uuidv4 } from 'uuid';
+import jwt from 'jsonwebtoken';
 
 export class UserController {
   constructor() {
@@ -141,7 +141,9 @@ export class UserController {
     try {
       const { cpf: userCPF, password } = req.body;
 
-      const user = await this.userService.getUserByCpfWithPasswordRolesAndUnit(userCPF);
+      const user = await this.userService.getUserByCpfWithPasswordRolesAndUnit(
+        userCPF,
+      );
 
       if (!user) {
         return res.status(401).json({
@@ -163,10 +165,13 @@ export class UserController {
       );
 
       if (isPasswordCorrect) {
-
         const reqIp = requestIp.getClientIp(req);
 
-        const hasSessionActiveOnAnotherStation = await this.userAccessLogService.hasSessionActiveOnAnotherStation(user.cpf, reqIp);
+        const hasSessionActiveOnAnotherStation =
+          await this.userAccessLogService.hasSessionActiveOnAnotherStation(
+            user.cpf,
+            reqIp,
+          );
 
         if (hasSessionActiveOnAnotherStation) {
           return res.status(409).json({
@@ -179,7 +184,7 @@ export class UserController {
 
         do {
           sessionId = uuidv4();
-        } while (await this.userAccessLogService.isSessionIdPresent(sessionId))
+        } while (await this.userAccessLogService.isSessionIdPresent(sessionId));
 
         const tokenPayload = { ...user.toJSON(), sessionId };
         delete tokenPayload.password;
@@ -207,41 +212,38 @@ export class UserController {
 
   logoutUser = async (req, res) => {
     try {
-
       const { cpf: userCPF } = await userFromReq(req);
 
       const { logoutInitiator } = req.params;
 
       await this.userAccessLogService.update(
-          {
-            logoutTimestamp: new Date(),
-            logoutInitiator,
+        {
+          logoutTimestamp: new Date(),
+          logoutInitiator,
+        },
+        {
+          where: {
+            userCPF,
+            logoutTimestamp: null,
           },
-          {
-            where: {
-              userCPF,
-              logoutTimestamp: null,
-            }
-          }
+        },
       );
 
-      return res
-          .json({ message: 'Logout realizado com sucesso' })
-          .status(200);
-
+      return res.json({ message: 'Logout realizado com sucesso' }).status(200);
     } catch (error) {
-      console.log(error)
-      return res.status(500).json({ error, message: 'Erro ao realizar logout' });
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao realizar logout' });
     }
   };
 
   logoutExpiredSession = async (req, res) => {
     try {
-
       const authorizationHeader = req.headers.authorization;
 
       if (!authorizationHeader || !authorizationHeader.startsWith('Bearer')) {
-        return res.status(200).json({ message: 'Nenhum token fornecido!', })
+        return res.status(200).json({ message: 'Nenhum token fornecido!' });
       }
 
       const token = authorizationHeader.split(' ')[1];
@@ -257,69 +259,67 @@ export class UserController {
       const { sessionId } = await userFromReq(req);
 
       await this.userAccessLogService.update(
-          {
-            logoutTimestamp: new Date(),
-            logoutInitiator: 'tokenExpired',
+        {
+          logoutTimestamp: new Date(),
+          logoutInitiator: 'tokenExpired',
+        },
+        {
+          where: {
+            sessionId,
           },
-          {
-            where: {
-              sessionId,
-            },
-          }
+        },
       );
 
       return res.status(200).json({});
-
     } catch (error) {
-      return res.status(500).json({ error, message: 'Erro ao realizar logout' });
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao realizar logout' });
     }
   };
 
   logoutAsAdmin = async (req, res) => {
-
     try {
-
       const { sessionId } = req.params;
 
       await this.userAccessLogService.update(
-          {
-            logoutTimestamp: new Date(),
-            logoutInitiator: 'adminInitiated',
+        {
+          logoutTimestamp: new Date(),
+          logoutInitiator: 'adminInitiated',
+        },
+        {
+          where: {
+            sessionId,
           },
-          {
-            where: {
-              sessionId,
-            }
-          }
+        },
       );
 
       return res
-          .json({ message: 'Usuário deslogado com sucesso!' })
-          .status(200);
-
+        .json({ message: 'Usuário deslogado com sucesso!' })
+        .status(200);
     } catch (error) {
-      console.log(error)
-      return res.status(500).json({ error, message: 'Erro ao realizar logout' });
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao realizar logout' });
     }
-
   };
 
   getSessionStatus = async (req, res) => {
-
     try {
-
       const { sessionId } = req.params;
 
       return res
-          .json({ ...await this.userAccessLogService.isSessionActive(sessionId) })
-          .status(200);
-
+        .json({
+          ...(await this.userAccessLogService.isSessionActive(sessionId)),
+        })
+        .status(200);
     } catch (error) {
-      return res.status(500).json({ error, message: 'Erro ao realizar logout' });
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao realizar logout' });
     }
-
   };
-
 
   store = async (req, res) => {
     try {

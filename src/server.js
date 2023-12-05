@@ -3,7 +3,7 @@ import cors from 'cors';
 import 'dotenv/config';
 import applicationRoutes from './routes/_index.js';
 import sequelizeConfig from './config/sequelize.js';
-import {authenticate} from '../middleware/authMiddleware.js';
+import { authenticate } from '../middleware/authMiddleware.js';
 import requestIp from 'request-ip';
 
 const app = express();

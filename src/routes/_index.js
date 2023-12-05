@@ -1,6 +1,6 @@
 import express from 'express';
 import UserRoutes from './user.js';
-import UserAccessLogRoutes from "./userAccessLog.js";
+import UserAccessLogRoutes from './userAccessLog.js';
 
 const applicationRoutes = express.Router();
 

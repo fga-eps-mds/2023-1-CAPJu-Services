@@ -1,7 +1,6 @@
 'use strict';
 
 const { DataTypes } = require('sequelize');
-
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('userAccessLog', {
@@ -15,7 +14,7 @@ module.exports = {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       loginTimestamp: {
         type: DataTypes.DATE,
@@ -34,7 +33,13 @@ module.exports = {
         allowNull: false,
       },
       logoutInitiator: {
-        type: DataTypes.ENUM('adminInitiated', 'userRequested', 'tokenExpired', 'timeoutDueToInactivity', 'sessionRenewalOnSameStation'),
+        type: DataTypes.ENUM(
+          'adminInitiated',
+          'userRequested',
+          'tokenExpired',
+          'timeoutDueToInactivity',
+          'sessionRenewalOnSameStation',
+        ),
         allowNull: true,
         defaultValue: null,
       },
@@ -47,7 +52,7 @@ module.exports = {
         type: DataTypes.STRING(11),
         allowNull: false,
         onDelete: 'RESTRICT',
-        references: { model: 'users', key: 'cpf' }
+        references: { model: 'users', key: 'cpf' },
       },
     });
   },
