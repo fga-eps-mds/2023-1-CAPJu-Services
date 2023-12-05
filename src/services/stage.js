@@ -22,7 +22,7 @@ class StageService {
   }
 
   async findByUnit(data) {
-    return this.stage.findAll({ data });
+    return this.stage.findAll(data);
   }
 
   async countStage(data) {
