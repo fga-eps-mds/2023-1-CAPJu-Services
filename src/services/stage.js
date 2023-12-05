@@ -25,8 +25,8 @@ class StageService {
     return this.stage.findAll(data);
   }
 
-  async countStage(data) {
-    return this.stage.count({ data });
+  async countStage({ where }) {
+    return this.stage.count({ where });
   }
 
   async deleteStage(idStage) {
