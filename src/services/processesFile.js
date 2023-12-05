@@ -634,7 +634,7 @@ export class ProcessesFileService {
     fileName.split('.').pop().toLowerCase();
 
   convertCsvBufferToXlsx = async (dataOriginalFile, originalFileName) => {
-    const __dirname = fileURLToPath(new URL('.', import.meta.url));
+    const __dirname = path.resolve(__dirname, '..', '..', '..'); // Adjust the path as necessary
 
     const tempCsvFilePath = path.join(__dirname, originalFileName);
     const tempXlsxFilePath = tempCsvFilePath.replace('.csv', '.xlsx');
