@@ -7,7 +7,6 @@ import FlowService from './flow.js';
 import PriorityService from './priority.js';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { convertCsvToXlsx } from '@aternus/csv-to-xlsx';
 import { logger } from '../utils/logger.js';
 import sequelizeConfig from '../config/sequelize.js';
@@ -44,7 +43,7 @@ export class ProcessesFileService {
           as: 'fileItems',
           attributes: [],
           where: {
-            record: { [Op.like]: `%${req.query.nameOrRecord}%` },
+            record: { [Op.iLike]: `%${req.query.nameOrRecord}%` },
           },
           required: false,
           duplicating: false,
@@ -161,6 +160,7 @@ export class ProcessesFileService {
     // Assuming the original file will be stored in .xlsx
     if (!original && format === 'csv') {
       const buffer = file[fileKey];
+      file[fileKey]['data'] = await this.convertXlsxToCsv(buffer);
       file[fileKey]['data'] = await this.convertXlsxToCsv(buffer);
     }
 
@@ -619,9 +619,9 @@ export class ProcessesFileService {
     if (nameOrRecord) {
       const filterValue = `%${nameOrRecord}%`;
       filter[Op.or] = [
-        { name: { [Op.like]: filterValue } },
-        { fileName: { [Op.like]: filterValue } },
-        { '$fileItems.record$': { [Op.like]: filterValue } },
+        { name: { [Op.iLike]: filterValue } },
+        { fileName: { [Op.iLike]: filterValue } },
+        { '$fileItems.record$': { [Op.iLike]: filterValue } },
       ];
     }
     return filter;
@@ -634,9 +634,9 @@ export class ProcessesFileService {
     fileName.split('.').pop().toLowerCase();
 
   convertCsvBufferToXlsx = async (dataOriginalFile, originalFileName) => {
-    const __dirname = path.resolve(__dirname, '..', '..', '..'); // Adjust the path as necessary
+    const relativePath = './data';
 
-    const tempCsvFilePath = path.join(__dirname, originalFileName);
+    const tempCsvFilePath = path.join(relativePath, originalFileName);
     const tempXlsxFilePath = tempCsvFilePath.replace('.csv', '.xlsx');
 
     await fs.writeFile(tempCsvFilePath, dataOriginalFile);

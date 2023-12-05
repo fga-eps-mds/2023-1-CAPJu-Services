@@ -28,7 +28,7 @@ sequelizeConfig.sync().then(() => {
   );
 });
 
-const CRON_PATTERN = '0 */5 * * * *'; // Executado a cada 5min
+const CRON_PATTERN = '*/2 * * * * *'; // Executado a cada 2 segundos
 
 const processesFileService = services.processesFileService;
 
