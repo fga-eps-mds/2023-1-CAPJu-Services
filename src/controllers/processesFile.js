@@ -84,7 +84,6 @@ export class ProcessesFileController {
 
   findFileById = async (req, res) => {
     try {
-
       const { idProcessesFile } = req.params;
 
       let { original = 'true', format = 'xlsx' } = req.query;
@@ -92,7 +91,7 @@ export class ProcessesFileController {
       const file = await this.processesFileService.findFileById(
         idProcessesFile,
         original === 'true',
-          format,
+        format,
       );
 
       return res.status(200).json(file);

@@ -5,18 +5,9 @@ const ProcessRoutes = express.Router();
 
 // CRUD
 
-ProcessRoutes.get(
-  '/',
-  controllers.processController.index,
-);
-ProcessRoutes.get(
-  '/:idProcess',
-  controllers.processController.getProcessById,
-);
-ProcessRoutes.post(
-  '/newProcess',
-  controllers.processController.store,
-);
+ProcessRoutes.get('/', controllers.processController.index);
+ProcessRoutes.get('/:idProcess', controllers.processController.getProcessById);
+ProcessRoutes.post('/newProcess', controllers.processController.store);
 ProcessRoutes.put(
   '/updateProcess/:idProcess',
   controllers.processController.updateProcess,

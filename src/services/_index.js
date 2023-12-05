@@ -9,8 +9,8 @@ import StatisticsService from './statistics.js';
 import ProcessAudService from './processAudService.js';
 import { UnitService } from './unit.js';
 import { ProcessesFileService } from './processesFile.js';
-import {UserService} from './user.js';
-import UserAccessLogService from "./userAccessLog.js";
+import { UserService } from './user.js';
+import UserAccessLogService from './userAccessLog.js';
 
 const flowService = new FlowService(models.Flow);
 const priorityService = new PriorityService(models.Priority);

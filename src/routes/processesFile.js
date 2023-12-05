@@ -4,10 +4,8 @@ const ProcessesFileRoutes = express.Router();
 const controller = controllers.processesFileController;
 
 ProcessesFileRoutes.get('/findAllPaged', controller.findAllPaged);
-ProcessesFileRoutes.get(
-  '/findAllItemsPaged',
-  controller.findAllItemsPaged,
-);
+
+ProcessesFileRoutes.get('/findAllItemsPaged', controller.findAllItemsPaged);
 ProcessesFileRoutes.post('/newFile', controller.create);
 ProcessesFileRoutes.delete(
   '/deleteFile/:idProcessesFile',

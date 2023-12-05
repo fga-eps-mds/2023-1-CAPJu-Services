@@ -1,32 +1,29 @@
 import models from '../models/_index.js';
 
 export class UserService {
+  constructor() {
+    this.repository = models.User;
+    this.roleRepository = models.Role;
+  }
 
-    constructor() {
-        this.repository = models.User;
-        this.roleRepository = models.Role;
-    }
+  async findUserWithRole(cpf, attributes) {
+    let userData = await this.repository.findOne({
+      where: { cpf },
+      attributes: [...(attributes || []), 'idRole'],
+      raw: true,
+    });
 
-    async findUserWithRole(cpf, attributes) {
+    if (!userData) return;
 
-        let userData = await this.repository.findOne({
-            where: { cpf },
-            attributes: [ ...(attributes || []), 'idRole' ],
-            raw: true,
-        });
+    const { idRole } = userData;
 
-        if(!userData)
-            return;
+    const { allowedActions } = await this.roleRepository.findOne({
+      where: { idRole },
+      attributes: ['allowedActions'],
+    });
 
-        const { idRole } = userData;
+    userData = { ...userData, role: { idRole, allowedActions } };
 
-        const { allowedActions } = await this.roleRepository.findOne({
-            where: { idRole },
-            attributes: ['allowedActions'],
-        });
-
-        userData = { ...userData, role: { idRole, allowedActions } };
-
-        return userData;
-    }
+    return userData;
+  }
 }

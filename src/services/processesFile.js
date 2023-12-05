@@ -1,15 +1,15 @@
-import {Op} from 'sequelize';
+import { Op } from 'sequelize';
 import xlsx from 'node-xlsx';
 import XLSX from 'xlsx-js-style';
 import models from '../models/_index.js';
 import ProcessService from './process.js';
 import FlowService from './flow.js';
 import PriorityService from './priority.js';
-import {promises as fs} from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
-import {fileURLToPath} from 'url';
-import {convertCsvToXlsx} from '@aternus/csv-to-xlsx';
-import {logger} from '../utils/logger.js';
+import { fileURLToPath } from 'url';
+import { convertCsvToXlsx } from '@aternus/csv-to-xlsx';
+import { logger } from '../utils/logger.js';
 import sequelizeConfig from '../config/sequelize.js';
 
 const validProcessesHeader = [
@@ -150,16 +150,11 @@ export class ProcessesFileService {
   };
 
   findFileById = async (idProcessesFile, original, format) => {
-
     const fileKey = original ? 'dataOriginalFile' : 'dataResultingFile';
 
     const file = await this.processesFileRepository.findOne({
       where: { idProcessesFile },
-      attributes: [
-        'idProcessesFile',
-        fileKey,
-        'fileName',
-      ],
+      attributes: ['idProcessesFile', fileKey, 'fileName'],
       raw: true,
     });
 
@@ -169,7 +164,7 @@ export class ProcessesFileService {
       file[fileKey]['data'] = await this.convertXlsxToCsv(buffer);
     }
 
-    console.log(file[fileKey])
+    console.log(file[fileKey]);
 
     return file;
   };
@@ -208,13 +203,14 @@ export class ProcessesFileService {
     );
 
     for (const file of files) {
-
       try {
-
         let { dataOriginalFile, fileName } = file;
 
-        if(this.isFileType(fileName, 'csv')) {
-          dataOriginalFile = await this.convertCsvBufferToXlsx(dataOriginalFile, fileName);
+        if (this.isFileType(fileName, 'csv')) {
+          dataOriginalFile = await this.convertCsvBufferToXlsx(
+            dataOriginalFile,
+            fileName,
+          );
         }
 
         logger.info(
@@ -334,9 +330,7 @@ export class ProcessesFileService {
             rowIndex++;
           }
 
-          logger.info(
-            `Mapa populado [${file.idProcessesFile}-${fileName}]`,
-          );
+          logger.info(`Mapa populado [${file.idProcessesFile}-${fileName}]`);
 
           const processes = [];
 
@@ -549,7 +543,6 @@ export class ProcessesFileService {
         );
       }
     }
-
   };
 
   findMaxContentLengthPerColumn = sheetData => {
@@ -634,12 +627,13 @@ export class ProcessesFileService {
     return filter;
   }
 
-  isFileType = (fileName, extension) => this.extractExtensionFromFileName(fileName) === extension;
+  isFileType = (fileName, extension) =>
+    this.extractExtensionFromFileName(fileName) === extension;
 
-  extractExtensionFromFileName = (fileName) => fileName.split('.').pop().toLowerCase();
+  extractExtensionFromFileName = fileName =>
+    fileName.split('.').pop().toLowerCase();
 
   convertCsvBufferToXlsx = async (dataOriginalFile, originalFileName) => {
-
     const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
     const tempCsvFilePath = path.join(__dirname, originalFileName);
@@ -655,15 +649,13 @@ export class ProcessesFileService {
     await fs.unlink(tempXlsxFilePath);
 
     return xlsxBuffer;
+  };
 
-  }
-
-  convertXlsxToCsv = (buffer) => {
+  convertXlsxToCsv = buffer => {
     const bufferData = Buffer.from(buffer);
     const workbook = XLSX.read(bufferData, { type: 'buffer' });
     const firstSheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[firstSheetName];
     return Buffer.from(XLSX.utils.sheet_to_csv(worksheet));
-  }
-
+  };
 }

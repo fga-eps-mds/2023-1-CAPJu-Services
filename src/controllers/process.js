@@ -10,7 +10,7 @@ import {
   filterByStageName,
   filterByStatus,
 } from '../utils/filters.js';
-import {getUserRoleAndUnitFilterFromReq} from '../../middleware/authMiddleware.js';
+import { getUserRoleAndUnitFilterFromReq } from '../../middleware/authMiddleware.js';
 
 export class ProcessController {
   constructor() {

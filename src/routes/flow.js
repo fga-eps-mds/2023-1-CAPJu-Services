@@ -2,30 +2,16 @@ import express from 'express';
 import controllers from '../controllers/_index.js';
 
 const FlowRoutes = express.Router();
-FlowRoutes.get(
-  '/',
-  controllers.flowController.index,
-);
-FlowRoutes.post(
-  '/newFlow',
-  controllers.flowController.store,
-);
-FlowRoutes.put(
-  '/',
-  controllers.flowController.update,
-);
-FlowRoutes.delete(
-  '/:idFlow',
-  controllers.flowController.delete,
-);
+
+FlowRoutes.get('/', controllers.flowController.index);
+FlowRoutes.post('/newFlow', controllers.flowController.store);
+FlowRoutes.put('/', controllers.flowController.update);
+FlowRoutes.delete('/:idFlow', controllers.flowController.delete);
 FlowRoutes.get(
   '/process/:record',
   controllers.flowController.showByProcessRecord,
 );
-FlowRoutes.get(
-  '/:idFlow',
-  controllers.flowController.showByFlowId,
-);
+FlowRoutes.get('/:idFlow', controllers.flowController.showByFlowId);
 FlowRoutes.get(
   '/flowSequences/:idFlow',
   controllers.flowController.showByFlowIdWithSequence,
