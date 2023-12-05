@@ -180,6 +180,17 @@ export class UserController {
           });
         }
 
+        const hasSessionActiveOnStation =
+          await this.userAccessLogService.hasSessionActiveOnStation(reqIp);
+
+        if (hasSessionActiveOnStation) {
+          return res.status(409).json({
+            error: 'Sessão ativa existente',
+            message:
+              'Estação já possui uma sessão ativa. Faça logout e tente entrar novamente.',
+          });
+        }
+
         let sessionId;
 
         do {
@@ -212,6 +223,11 @@ export class UserController {
 
   logoutUser = async (req, res) => {
     try {
+      const tokenResult = await this.verifyToken(req);
+      if (tokenResult.error) {
+        return res.status(401).json({ message: tokenResult.message });
+      }
+
       const { cpf: userCPF } = await userFromReq(req);
 
       const { logoutInitiator } = req.params;
@@ -240,20 +256,9 @@ export class UserController {
 
   logoutExpiredSession = async (req, res) => {
     try {
-      const authorizationHeader = req.headers.authorization;
-
-      if (!authorizationHeader || !authorizationHeader.startsWith('Bearer')) {
-        return res.status(200).json({ message: 'Nenhum token fornecido!' });
-      }
-
-      const token = authorizationHeader.split(' ')[1];
-
-      try {
-        jwt.verify(token, process.env.JWT_SECRET);
-      } catch (error) {
-        if (error.name !== 'TokenExpiredError') {
-          return res.status(401).json({ message: 'Autenticação falhou!' });
-        }
+      const tokenResult = await this.verifyToken(req);
+      if (tokenResult.error) {
+        return res.status(401).json({ message: tokenResult.message });
       }
 
       const { sessionId } = await userFromReq(req);
@@ -307,6 +312,11 @@ export class UserController {
 
   getSessionStatus = async (req, res) => {
     try {
+      const tokenResult = await this.verifyToken(req);
+      if (tokenResult.error) {
+        return res.status(401).json({ message: tokenResult.message });
+      }
+
       const { sessionId } = req.params;
 
       return res
@@ -470,6 +480,26 @@ export class UserController {
         error,
         message: 'Erro ao negar pedido do usuário',
       });
+    }
+  };
+
+  verifyToken = async req => {
+    const authorizationHeader = req.headers.authorization;
+
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer')) {
+      return { error: true, message: 'Nenhum token fornecido!' };
+    }
+
+    const token = authorizationHeader.split(' ')[1];
+
+    try {
+      jwt.verify(token, process.env.JWT_SECRET);
+      return { error: false };
+    } catch (error) {
+      if (error.name !== 'TokenExpiredError') {
+        return { error: true, message: 'Autenticação falhou!' };
+      }
+      return { error: true, tokenExpired: true };
     }
   };
 }

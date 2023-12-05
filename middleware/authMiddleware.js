@@ -7,16 +7,20 @@ import sequelizeConfig from '../src/config/sequelize.js';
 import { QueryTypes } from 'sequelize';
 
 const publicEndpoints = [
-  /^\/login$/,
-  /^\/newUser$/,
+  /^\/login(?:\/|$)/,
+  /^\/newUser(?:\/|$)/,
   /^\/updateUserPassword\/.+$/,
-  /^\/logoutExpiredSession$/,
+  /^\/logoutExpiredSession(?:\/|$)/,
+  /^\/sessionStatus(?:\/|$)/,
+  /^\/logout(?:\/|$)/,
 ];
 
 async function authenticate(req, res, next) {
   const isPublicEndpoint = publicEndpoints.some(pattern =>
     pattern.test(req.originalUrl),
   );
+  console.log(req.originalUrl)
+  console.log(isPublicEndpoint);
   let isAccepted = true;
   let message = null;
 

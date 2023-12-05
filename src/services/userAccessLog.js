@@ -22,6 +22,18 @@ class UserAccessLogService {
     });
   }
 
+  async hasSessionActiveOnStation(reqIp) {
+    return await this.repository.findOne({
+      where: {
+        logoutTimestamp: null,
+        stationIp: reqIp,
+      },
+      attributes: ['id'],
+      order: [['id', 'DESC']],
+      raw: true,
+    });
+  }
+
   async createAndFillExpired({
     loginTimestamp,
     stationIp,
@@ -147,14 +159,15 @@ class UserAccessLogService {
 
   extractFiltersFromReq(req) {
     const filter = {};
-    const { nameOrEmailOrCpf, active = false } = req.query;
+    const { nameOrEmailOrCpf, active = 'false' } = req.query;
 
     if (nameOrEmailOrCpf) {
       const filterValue = `%${nameOrEmailOrCpf}%`;
       filter[Op.or] = [
-        { '$userInfo.email$': { [Op.like]: filterValue } },
-        { '$userInfo.fullName$': { [Op.like]: filterValue } },
-        { '$userInfo.cpf$': { [Op.like]: filterValue } },
+        { '$userInfo.email$': { [Op.iLike]: filterValue } },
+        { '$userInfo.fullName$': { [Op.iLike]: filterValue } },
+        { '$userInfo.cpf$': { [Op.iLike]: filterValue } },
+        { '$userInfo.unit.name$': { [Op.iLike]: filterValue } },
       ];
     }
 
