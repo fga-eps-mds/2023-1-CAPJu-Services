@@ -1,8 +1,7 @@
-import UserService from "../../src/services/user";
-import models from "../../src/models/_index"
+import UserService from '../../src/services/user';
+import models from '../../src/models/_index';
 
 describe('UserServices', () => {
-
   let userService;
   const userModelMock = {
     count: jest.fn(),
@@ -55,10 +54,10 @@ describe('UserServices', () => {
         },
       ];
 
-      const newUsers = users.map((user) => {
+      const newUsers = users.map(user => {
         let newUser = {};
         for (let i in user) {
-          i !== 'password' ? newUser[i] = i : {}
+          i !== 'password' ? (newUser[i] = i) : {};
         }
         return newUser;
       });
@@ -95,10 +94,10 @@ describe('UserServices', () => {
         },
       ];
 
-      const newUsers = users.map((user) => {
+      const newUsers = users.map(user => {
         let newUser = {};
         for (let i in user) {
-          i !== 'password' ? newUser[i] = i : {}
+          i !== 'password' ? (newUser[i] = i) : {};
         }
         return newUser;
       });
@@ -138,7 +137,7 @@ describe('UserServices', () => {
       const result = await userService.getNoAcceptedUserByCpf(user.cpf);
 
       expect(result).toEqual(newUser);
-      expect(userModelMock.findOne).toHaveBeenCalledWith({ 
+      expect(userModelMock.findOne).toHaveBeenCalledWith({
         where: { accepted: false, cpf: user.cpf },
         attributes: {
           exclude: ['password'],
@@ -183,42 +182,40 @@ describe('UserServices', () => {
   });
 
   describe('getAcceptedUserByUnitAndCpf', () => {
-    it(
-      'deve retornar o usuário aceito com a unidade e o cpf especificados',
-      async () => {
-        const user = {
-          fullName: 'John Doe',
-          idRole: 1,
-          accepted: true,
-          cpf: '10987654321',
-          email: 'john@email.com',
-          idUnit: 1,
-          password: 'senha',
-        };
-  
-        const newUser = {
-          fullName: user.fullName,
-          idRole: user.idRole,
-          accepted: user.accepted,
-          cpf: user.cpf,
-          email: user.email,
-          idUnit: user.idUnit,
-        };
+    it('deve retornar o usuário aceito com a unidade e o cpf especificados', async () => {
+      const user = {
+        fullName: 'John Doe',
+        idRole: 1,
+        accepted: true,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password: 'senha',
+      };
 
-        userModelMock.findOne.mockResolvedValue(newUser);
+      const newUser = {
+        fullName: user.fullName,
+        idRole: user.idRole,
+        accepted: user.accepted,
+        cpf: user.cpf,
+        email: user.email,
+        idUnit: user.idUnit,
+      };
 
-        const result = await userService.getAcceptedUserByUnitAndCpf(
-          user.idUnit,
-          user.cpf,
-        );
+      userModelMock.findOne.mockResolvedValue(newUser);
 
-        expect(result).toEqual(newUser);
-        expect(userModelMock.findOne).toHaveBeenCalledWith({
-          where: { accepted: true, idUnit: user.idUnit, cpf: user.cpf },
-          attributes: {
-            exclude: ['password'],
-          },
-        });
+      const result = await userService.getAcceptedUserByUnitAndCpf(
+        user.idUnit,
+        user.cpf,
+      );
+
+      expect(result).toEqual(newUser);
+      expect(userModelMock.findOne).toHaveBeenCalledWith({
+        where: { accepted: true, idUnit: user.idUnit, cpf: user.cpf },
+        attributes: {
+          exclude: ['password'],
+        },
+      });
     });
   });
 
@@ -245,10 +242,10 @@ describe('UserServices', () => {
         },
       ];
 
-      const newUsers = users.map((user) => {
+      const newUsers = users.map(user => {
         let newUser = {};
         for (let i in user) {
-          i !== 'password' ? newUser[i] = i : {}
+          i !== 'password' ? (newUser[i] = i) : {};
         }
         return newUser;
       });
@@ -298,10 +295,9 @@ describe('UserServices', () => {
   });
 
   describe('getUsersAdminByIdUnit', () => {
-    it(
-      'deve retornar usuários administrativos com a unidade especificada',
-      async () => {
-        const users = [{
+    it('deve retornar usuários administrativos com a unidade especificada', async () => {
+      const users = [
+        {
           fullName: 'John Doe',
           idRole: 5,
           accepted: true,
@@ -309,19 +305,20 @@ describe('UserServices', () => {
           email: 'john@email.com',
           idUnit: 1,
           password: 'senha',
-        }];
+        },
+      ];
 
-        userModelMock.findAll.mockResolvedValue(users);
+      userModelMock.findAll.mockResolvedValue(users);
 
-        const result = await userService.getUsersAdminByIdUnit(users[0].idUnit);
+      const result = await userService.getUsersAdminByIdUnit(users[0].idUnit);
 
-        expect(result).toEqual(users);
-        expect(userModelMock.findAll).toHaveBeenCalledWith({
-          where: {
-            idUnit: users[0].idUnit,
-            idRole: 5,
-          },
-        });
+      expect(result).toEqual(users);
+      expect(userModelMock.findAll).toHaveBeenCalledWith({
+        where: {
+          idUnit: users[0].idUnit,
+          idRole: 5,
+        },
+      });
     });
   });
 
@@ -347,30 +344,30 @@ describe('UserServices', () => {
           cpf: user.cpf,
           idUnit: user.idUnit,
         },
-      })
+      });
     });
   });
 
   describe('getUserByCpfWithPassword', () => {
-    it(
-      'deve retornar o usuário com o cpf especificado e mostrando a senha dele',
-      async () => {
-        const user = {
-          fullName: 'John Doe',
-          idRole: 5,
-          accepted: true,
-          cpf: '10987654321',
-          email: 'john@email.com',
-          idUnit: 1,
-          password: 'senha',
-        };
+    it('deve retornar o usuário com o cpf especificado e mostrando a senha dele', async () => {
+      const user = {
+        fullName: 'John Doe',
+        idRole: 5,
+        accepted: true,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password: 'senha',
+      };
 
-        userModelMock.findOne.mockResolvedValue(user);
+      userModelMock.findOne.mockResolvedValue(user);
 
-        const result = await userService.getUserByCpfWithPassword(user.cpf);
+      const result = await userService.getUserByCpfWithPassword(user.cpf);
 
-        expect(result).toEqual(user);
-        expect(userModelMock.findOne).toHaveBeenCalledWith({ where: { cpf: user.cpf }, })
+      expect(result).toEqual(user);
+      expect(userModelMock.findOne).toHaveBeenCalledWith({
+        where: { cpf: user.cpf },
+      });
     });
   });
 
@@ -409,8 +406,11 @@ describe('UserServices', () => {
       userModelMock.findOne.mockResolvedValue(user);
       userModelMock.update.mockResolvedValue([1]);
 
-      const result = await userService.updateUserEmail(user.cpf, 'johnDoe@email.com');
-      
+      const result = await userService.updateUserEmail(
+        user.cpf,
+        'johnDoe@email.com',
+      );
+
       expect(result).toEqual(true);
       expect(userModelMock.findOne).toHaveBeenCalledWith({
         where: { cpf: user.cpf },
@@ -442,11 +442,14 @@ describe('UserServices', () => {
         email: 'john@email.com',
         idUnit: 1,
       };
-      
+
       userModelMock.findOne.mockResolvedValue(user);
       userModelMock.update.mockResolvedValue([]);
 
-      const result = await userService.updateUserEmail(user.cpf, 'johnDoe@email.com');
+      const result = await userService.updateUserEmail(
+        user.cpf,
+        'johnDoe@email.com',
+      );
 
       expect(result).toEqual(false);
       expect(userModelMock.findOne).toHaveBeenCalledWith({
@@ -474,7 +477,7 @@ describe('UserServices', () => {
       userModelMock.update.mockResolvedValue([1]);
 
       const result = await userService.updateUserRole(user.cpf, 1);
-      
+
       expect(result).toEqual(true);
       expect(userModelMock.findOne).toHaveBeenCalledWith({
         where: { cpf: user.cpf },
@@ -506,7 +509,7 @@ describe('UserServices', () => {
         email: 'john@email.com',
         idUnit: 1,
       };
-      
+
       userModelMock.findOne.mockResolvedValue(user);
       userModelMock.update.mockResolvedValue([]);
 
@@ -532,14 +535,18 @@ describe('UserServices', () => {
         cpf: '10987654321',
         email: 'john@email.com',
         idUnit: 1,
-        password: 'senha'
+        password: 'senha',
       };
 
       userModelMock.findOne.mockResolvedValue(user);
       userModelMock.update.mockResolvedValue([1]);
 
-      const result = await userService.updateUserPassword(user.cpf, user.password, 'outraSenha');
-      
+      const result = await userService.updateUserPassword(
+        user.cpf,
+        user.password,
+        'outraSenha',
+      );
+
       expect(result).toEqual(true);
       expect(userModelMock.findOne).toHaveBeenCalledWith({
         where: { cpf: user.cpf },
@@ -556,9 +563,9 @@ describe('UserServices', () => {
       const result = await userService.updateUserPassword(
         '12345678901',
         'umaOutraQualquerParaDarErro',
-        'outraSenha'
+        'outraSenha',
       );
-      
+
       expect(result).toEqual(false);
       expect(userModelMock.findOne).toHaveBeenCalledWith({
         where: { cpf: '12345678901' },
@@ -573,7 +580,7 @@ describe('UserServices', () => {
         cpf: '10987654321',
         email: 'john@email.com',
         idUnit: 1,
-        password: 'senha'
+        password: 'senha',
       };
 
       userModelMock.findOne.mockResolvedValue(user);
@@ -581,9 +588,9 @@ describe('UserServices', () => {
       const result = await userService.updateUserPassword(
         user.cpf,
         'umaOutraQualquerParaDarErro',
-        'outraSenha'
+        'outraSenha',
       );
-      
+
       expect(result).toEqual(false);
       expect(userModelMock.findOne).toHaveBeenCalledWith({
         where: { cpf: user.cpf },
@@ -600,7 +607,7 @@ describe('UserServices', () => {
         idUnit: 1,
         password: 'senha',
       };
-      
+
       userModelMock.findOne.mockResolvedValue(user);
       userModelMock.update.mockResolvedValue([]);
 

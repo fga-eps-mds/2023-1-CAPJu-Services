@@ -126,6 +126,23 @@ export class UserController {
     }
   };
 
+  showEmailByCpf = async (req, res) => {
+    try {
+      const { cpf } = req.params;
+      const user = await this.userService.getUserByCpf(cpf);
+
+      if (!user) {
+        return res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+
+      return res.status(200).json({ email: user.email });
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao buscar email por CPF' });
+    }
+  };
+
   showUserByUnit = async (req, res) => {
     try {
       const { cpf, idUnit } = req.params;
