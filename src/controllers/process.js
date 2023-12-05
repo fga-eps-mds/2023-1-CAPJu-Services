@@ -1,14 +1,15 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
 import {
+  filterByLegalPriority,
+  filterByNicknameOrRecord,
+  filterByNicknameAndRecord,
+  filterByStatus,
+  filterByIdFlow,
   filterByDateRange,
   filterByFlowName,
-  filterByIdFlow,
-  filterByLegalPriority,
-  filterByName,
-  filterByNicknameOrRecord,
   filterByStageName,
-  filterByStatus,
+  filterByName,
 } from '../utils/filters.js';
 import { getUserRoleAndUnitFilterFromReq } from '../../middleware/authMiddleware.js';
 
@@ -33,7 +34,9 @@ export class ProcessController {
         };
         const stages = await this.stageService.findAll({ where });
         stagesForFilter = stages.map(stage => {
-          if (stage.name.includes(name)) return { idStage: stage.idStage };
+          if (stage.name.toLowerCase().includes(name.toLowerCase())) {
+            return { idStage: stage.idStage };
+          }
         });
       }
 
@@ -45,19 +48,21 @@ export class ProcessController {
         };
         const flows = await this.flowService.findAll({ where });
         flowsForFilter = flows.map(flow => {
-          if (flow.name.includes(name)) return { idFlow: flow.idFlow };
+          if (flow.name.toLowerCase().includes(name.toLowerCase())) {
+            return { idFlow: flow.idFlow };
+          }
         });
       }
 
       where = {
         ...filterByStatus(req),
         ...filterByLegalPriority(req),
-        ...filterByStatus(req),
         ...filterByFlowName(req, flowsForFilter),
         ...filterByStageName(req, stagesForFilter),
         ...filterByIdFlow(req),
         ...filterByDateRange(req),
         ...filterByNicknameOrRecord(req),
+        ...filterByNicknameAndRecord(req),
         ...(await getUserRoleAndUnitFilterFromReq(req)),
       };
 
@@ -132,7 +137,6 @@ export class ProcessController {
           });
         }
 
-        // THIS AMMOUNT OF QUERIES HAS TO BE FIXED!
         const newProcesses = await Promise.all(
           processesWithFlows.map(async process => {
             const processStage = await this.stageService.findOneByStageId(
@@ -148,7 +152,7 @@ export class ProcessController {
             const { stages, sequences } =
               await this.flowService.stagesSequencesFromFlowStages(flowStage);
 
-            process.flow = {
+            const flowSequence = {
               idFlow: flow.idFlow,
               name: flow.name,
               idUnit: flow.idUnit,
@@ -156,6 +160,7 @@ export class ProcessController {
               sequences,
             };
 
+            process.flow = flowSequence;
             process.stageName = processStage?.name || 'Não iniciado';
 
             return process;
@@ -180,6 +185,7 @@ export class ProcessController {
         });
       }
     } catch (error) {
+      console.log(error);
       return res.status(500).json({
         error,
         message: 'Erro ao buscar processos',
