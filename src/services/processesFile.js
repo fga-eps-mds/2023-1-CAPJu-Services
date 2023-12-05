@@ -22,7 +22,7 @@ const validPrioritiesHeaders = ['Prioridade', 'Prioridades', 'prioridades'];
 
 export class ProcessesFileService {
   constructor(ProcessesFileModel) {
-    this.processesFileRepository = ProcessesFileModel;
+    this.repository = ProcessesFileModel;
     this.processService = new ProcessService(models.Process);
     this.flowService = new FlowService(models.Flow);
     this.priorityService = new PriorityService(models.Priority);
@@ -51,7 +51,7 @@ export class ProcessesFileService {
       ];
     }
 
-    const data = await this.processesFileRepository.findAll({
+    const data = await this.repository.findAll({
       where,
       offset,
       limit,
@@ -67,7 +67,7 @@ export class ProcessesFileService {
       ],
     });
 
-    const totalCount = await this.processesFileRepository.count({
+    const totalCount = await this.repository.count({
       where,
       include,
     });
@@ -86,7 +86,7 @@ export class ProcessesFileService {
   };
 
   findById = async idProcessesFile => {
-    return await this.processesFileRepository.findOne({
+    return await this.repository.findOne({
       where: {
         idProcessesFile,
       },
@@ -104,7 +104,7 @@ export class ProcessesFileService {
       where,
       offset,
       limit,
-      order: [['status', 'ASC']],
+      order: [['status', 'DESC']],
       include: [
         {
           model: models.Process,
@@ -138,7 +138,7 @@ export class ProcessesFileService {
     return (({ idProcessesFile, status }) => ({
       idProcessesFile,
       status,
-    }))(await this.processesFileRepository.create(data));
+    }))(await this.repository.create(data));
   };
 
   updateFileItem = async (idProcessesFileItem, newData) => {
@@ -151,7 +151,7 @@ export class ProcessesFileService {
   findFileById = async (idProcessesFile, original, format) => {
     const fileKey = original ? 'dataOriginalFile' : 'dataResultingFile';
 
-    const file = await this.processesFileRepository.findOne({
+    const file = await this.repository.findOne({
       where: { idProcessesFile },
       attributes: ['idProcessesFile', fileKey, 'fileName'],
       raw: true,
@@ -173,14 +173,14 @@ export class ProcessesFileService {
     await this.processesFileItemRepository.destroy({
       where: { idProcessesFile },
     });
-    return await this.processesFileRepository.destroy({
+    return await this.repository.destroy({
       where: { idProcessesFile },
     });
   };
 
   executeJob = async () => {
     // logic based on the assumption that the files will be small.
-    const files = await this.processesFileRepository.findAll({
+    const files = await this.repository.findAll({
       where: { status: 'waiting' },
       raw: true,
       order: [['idProcessesFile', 'ASC']],
@@ -197,7 +197,7 @@ export class ProcessesFileService {
 
     const idProcessesFile = files.map(f => f.idProcessesFile);
 
-    await this.processesFileRepository.update(
+    await this.repository.update(
       { status: 'inProgress' },
       { where: { idProcessesFile }, returning: false },
     );
@@ -397,6 +397,13 @@ export class ProcessesFileService {
               }
             }
 
+            if (fileItem.nickname && fileItem.nickname.length > 50) {
+              message = message.concat(
+                `Apelido não pode exceder os 50 caracteres \n`,
+              );
+              status = 'error';
+            }
+
             const idPriority = this.getPriorityIdByDescriptionOrAbbreviation(
               fileItem.priority,
             );
@@ -404,6 +411,7 @@ export class ProcessesFileService {
               message = message.concat(
                 `Prioridade ${fileItem.priority} não encontrada \n`,
               );
+              status = 'error';
             } else {
               Object.assign(process, { idPriority });
             }
@@ -506,7 +514,7 @@ export class ProcessesFileService {
               processesFileItems,
               { transaction, returning: false, logging: false },
             );
-            await this.processesFileRepository.update(
+            await this.repository.update(
               { status: 'imported', message: null, importedAt: new Date() },
               { where: { idProcessesFile: file.idProcessesFile } },
               { transaction, returning: false, logging: false },
@@ -517,7 +525,7 @@ export class ProcessesFileService {
               bookType: 'xlsx',
             });
 
-            await this.processesFileRepository.update(
+            await this.repository.update(
               { dataResultingFile: Buffer.from(outputFile) },
               {
                 where: { idProcessesFile: file.idProcessesFile },
@@ -529,7 +537,7 @@ export class ProcessesFileService {
         }
       } catch (error) {
         logger.error(`Erro ao processar planilha: ${error}`);
-        await this.processesFileRepository.update(
+        await this.repository.update(
           {
             status: 'error',
             message: error.message,
