@@ -41,7 +41,6 @@ export class UserController {
           });
           totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
         } else if (accepted === 'false') {
-          console.log('pega false');
           users = await this.userService.getNoAcceptedUsers({
             where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
             offset: req.query.offset,
