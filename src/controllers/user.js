@@ -47,7 +47,6 @@ export class UserController {
             offset: req.query.offset,
             limit: req.query.limit,
           });
-          console.log(users);
           totalCount = await this.userService.countRows({
             // fazer o count
             where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
@@ -273,7 +272,6 @@ export class UserController {
     try {
       const { cpf } = req.params;
       const { oldPassword, newPassword } = req.body;
-      console.log('>>>>>>>>>>>>>>>>>>>>', cpf, oldPassword, newPassword);
       const updated = await this.userService.updateUserPassword(
         cpf,
         oldPassword,
