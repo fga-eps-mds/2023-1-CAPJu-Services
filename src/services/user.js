@@ -1,6 +1,8 @@
 import { cpfFilter } from '../utils/cpf.js';
 import Unit from '../models/unit.js';
 import Role from '../models/role.js';
+import passHashing from '../config/passHashing.js';
+import { hash, verify } from 'argon2';
 
 class UserService {
   constructor(UserModel) {
@@ -139,10 +141,16 @@ class UserService {
   }
   async updateUserPassword(cpf, oldPassword, newPassword) {
     const user = await this.getUserByCpfWithPassword(cpf);
+    const hashedPassword = await hash(newPassword, passHashing);
+    const isPasswordCorrect = await verify(
+      user.password,
+      oldPassword,
+      passHashing,
+    );
     if (user) {
-      if (user.password === oldPassword) {
+      if (isPasswordCorrect) {
         const [updatedRows] = await this.user.update(
-          { password: newPassword },
+          { password: hashedPassword },
           { where: { cpf: cpfFilter(cpf) } },
         );
         if (updatedRows) return true;
@@ -150,11 +158,17 @@ class UserService {
     }
     return false;
   }
-
   async getUserByCpfWithPasswordRolesAndUnit(cpf) {
     return this.user.findOne({
       where: { cpf: cpfFilter(cpf) },
-      attributes: ['cpf', 'fullName', 'password', 'accepted', 'idRole'],
+      attributes: [
+        'cpf',
+        'fullName',
+        'email',
+        'password',
+        'accepted',
+        'idRole',
+      ],
 
       include: [
         {
