@@ -70,5 +70,29 @@ describe('authMiddleware test', () => {
       const result = await tokenToUser(req, resMock);
       expect(resMock.status).toHaveBeenCalledWith(401);
     });
+
+    it('user was accepted', async () => {
+      let req = {
+        headers: {
+          authorization: 'Bearer jwtblabla',
+        },
+      };
+
+      jest
+        .spyOn(jwt, 'verify')
+        .mockImplementation(() => ({ id: 'fakeUserId' }));
+
+      jest
+        .spyOn(sequelizeConfig, 'query')
+        .mockResolvedValue([{ accepted: true }]);
+
+      let resMock = {
+        status: jest.fn().mockReturnThis(),
+      };
+
+      const result = await tokenToUser(req, resMock);
+      expect(result).toEqual({ accepted: true });
+    }); 
+
   });
 });
