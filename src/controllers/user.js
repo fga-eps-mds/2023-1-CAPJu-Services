@@ -165,32 +165,6 @@ export class UserController {
       );
 
       if (isPasswordCorrect) {
-        const reqIp = requestIp.getClientIp(req);
-
-        const hasSessionActiveOnAnotherStation =
-          await this.userAccessLogService.hasSessionActiveOnAnotherStation(
-            user.cpf,
-            reqIp,
-          );
-
-        if (hasSessionActiveOnAnotherStation) {
-          return res.status(409).json({
-            error: 'Sessão ativa existente',
-            message: 'Usuário já tem uma sessão ativa em outra estação',
-          });
-        }
-
-        const hasSessionActiveOnStation =
-          await this.userAccessLogService.hasSessionActiveOnStation(reqIp);
-
-        if (hasSessionActiveOnStation) {
-          return res.status(409).json({
-            error: 'Sessão ativa existente',
-            message:
-              'Estação já possui uma sessão ativa. Faça logout e tente entrar novamente.',
-          });
-        }
-
         let sessionId;
 
         do {
@@ -202,8 +176,8 @@ export class UserController {
 
         const jwtToken = generateToken(tokenPayload);
 
-        await this.userAccessLogService.createAndFillExpired({
-          stationIp: reqIp,
+        await this.userAccessLogService.renewAndCreateSession({
+          stationIp: requestIp.getClientIp(req),
           jwtToken,
           sessionId,
           userCPF: user.cpf,
@@ -213,11 +187,11 @@ export class UserController {
       } else {
         return res.status(401).json({
           error: 'Impossível autenticar',
-          message: 'Senha ou usuário incorretos',
+          message: 'Credenciais inválidas',
         });
       }
     } catch (error) {
-      return res.status(500).json({ error, message: 'erro inesperado' });
+      return res.status(500).json({ error, message: 'Erro inesperado' });
     }
   };
 

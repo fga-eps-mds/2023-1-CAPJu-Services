@@ -1,41 +1,15 @@
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import models from '../models/_index.js';
 import jwt from 'jsonwebtoken';
+import 'dotenv/config';
 
 class UserAccessLogService {
   constructor(UserAccessLogModel) {
     this.repository = UserAccessLogModel;
   }
 
-  async hasSessionActiveOnAnotherStation(userCPF, reqIp) {
-    return await this.repository.findOne({
-      where: {
-        userCPF: userCPF,
-        logoutTimestamp: null,
-        stationIp: {
-          [Op.ne]: reqIp,
-        },
-      },
-      attributes: ['id'],
-      order: [['id', 'DESC']],
-      raw: true,
-    });
-  }
-
-  async hasSessionActiveOnStation(reqIp) {
-    return await this.repository.findOne({
-      where: {
-        logoutTimestamp: null,
-        stationIp: reqIp,
-      },
-      attributes: ['id'],
-      order: [['id', 'DESC']],
-      raw: true,
-    });
-  }
-
-  async createAndFillExpired({
-    loginTimestamp,
+  async renewAndCreateSession({
+    loginTimestampParam,
     stationIp,
     jwtToken,
     userCPF,
@@ -50,16 +24,28 @@ class UserAccessLogService {
         where: {
           userCPF: userCPF,
           logoutTimestamp: null,
+          stationIp,
         },
       },
     );
+    const loginTimestamp = loginTimestampParam || new Date();
     return await this.repository.create({
-      loginTimestamp: loginTimestamp || new Date(),
+      loginTimestamp,
       sessionId,
       stationIp,
       jwtToken,
       userCPF,
+      expirationTimestamp: this.calculateExpirationTimestamp(loginTimestamp),
     });
+  }
+
+  calculateExpirationTimestamp(loginTimestamp) {
+    const expirationTimestamp = new Date(loginTimestamp);
+    expirationTimestamp.setMinutes(
+      expirationTimestamp.getMinutes() +
+        parseInt(process.env.JWT_EXPIRATION_TIME_IN_MINUTES),
+    );
+    return expirationTimestamp;
   }
 
   async update(values, options) {
@@ -180,10 +166,31 @@ class UserAccessLogService {
 
   getMessageFromLogoutInitiator(logoutInitiator) {
     return {
+      tokenExpired: 'Sessão expirada. Realize o login novamente',
       adminInitiated: 'Sessão encerrada pelo administrador',
       sessionRenewalOnSameStation:
         'Uma nova sessão foi iniciada nesta estação.',
     }[logoutInitiator];
+  }
+
+  async clearExpiredSessions({ message }) {
+    const now = new Date();
+    await this.repository.update(
+      {
+        logoutTimestamp: now,
+        logoutInitiator: 'tokenExpired',
+        message: message || null,
+      },
+      {
+        where: {
+          logoutTimestamp: null,
+          expirationTimestamp: {
+            [Op.lte]: now,
+          },
+        },
+        logging: false,
+      },
+    );
   }
 }
 

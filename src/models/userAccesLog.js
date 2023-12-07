@@ -25,6 +25,10 @@ class UserAccessLogModel extends Model {
           type: DataTypes.DATE,
           allowNull: true,
         },
+        expirationTimestamp: {
+          type: DataTypes.DATE,
+          allowNull: false,
+        },
         stationIp: {
           type: DataTypes.STRING(45),
           allowNull: false,
