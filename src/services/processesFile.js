@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 import xlsx from 'node-xlsx';
 import XLSX from 'xlsx-js-style';
 import models from '../models/_index.js';
@@ -32,7 +32,7 @@ export class ProcessesFileService {
   findAllPaged = async req => {
     const { offset = 0, limit = 10 } = req.query;
 
-    const where = await this.extractFiltersFromReq(req);
+    const where = this.buildFileFilters(req);
 
     let include;
 
@@ -64,7 +64,37 @@ export class ProcessesFileService {
         'status',
         'message',
         'createdAt',
+        [
+          literal(`(
+        SELECT COUNT(*)
+        FROM "processesFileItem"
+        WHERE
+          "processesFileItem"."idProcessesFile" = "ProcessesFileModel"."idProcessesFile"
+      )`),
+          'allItemsCount',
+        ],
+        [
+          literal(`(
+        SELECT COUNT(*)
+        FROM "processesFileItem"
+        WHERE
+          "processesFileItem"."idProcessesFile" = "ProcessesFileModel"."idProcessesFile" AND
+          "processesFileItem"."status" = 'error'
+      )`),
+          'errorItemCount',
+        ],
+        [
+          literal(`(
+        SELECT COUNT(*)
+        FROM "processesFileItem"
+        WHERE
+          "processesFileItem"."idProcessesFile" = "ProcessesFileModel"."idProcessesFile" AND
+          "processesFileItem"."status" IN ('imported', 'manuallyImported')
+      )`),
+          'importedItemsCount',
+        ],
       ],
+      logging: false,
     });
 
     const totalCount = await this.repository.count({
@@ -96,9 +126,9 @@ export class ProcessesFileService {
   };
 
   findAllItemsPaged = async req => {
-    const { offset = 0, limit = 10, idProcessesFile } = req.query;
+    const { offset = 0, limit = 10 } = req.query;
 
-    const where = { idProcessesFile };
+    const where = this.buildFileItemsFilters(req);
 
     const data = await this.processesFileItemRepository.findAll({
       where,
@@ -163,8 +193,6 @@ export class ProcessesFileService {
       file[fileKey]['data'] = await this.convertXlsxToCsv(buffer);
       file[fileKey]['data'] = await this.convertXlsxToCsv(buffer);
     }
-
-    console.log(file[fileKey]);
 
     return file;
   };
@@ -621,7 +649,7 @@ export class ProcessesFileService {
     };
   };
 
-  async extractFiltersFromReq(req) {
+  buildFileFilters(req) {
     const filter = {};
     const { nameOrRecord } = req.query;
     if (nameOrRecord) {
@@ -630,6 +658,22 @@ export class ProcessesFileService {
         { name: { [Op.iLike]: filterValue } },
         { fileName: { [Op.iLike]: filterValue } },
         { '$fileItems.record$': { [Op.iLike]: filterValue } },
+      ];
+    }
+    return filter;
+  }
+
+  buildFileItemsFilters(req) {
+    const filter = {};
+    const { idProcessesFile, filter: mainFieldsFilter } = req.query;
+    if (idProcessesFile) filter.idProcessesFile = idProcessesFile;
+    if (mainFieldsFilter) {
+      const filterValue = `%${mainFieldsFilter}%`;
+      filter[Op.or] = [
+        { record: { [Op.iLike]: filterValue } },
+        { nickname: { [Op.iLike]: filterValue } },
+        { priority: { [Op.iLike]: filterValue } },
+        { flow: { [Op.iLike]: filterValue } },
       ];
     }
     return filter;
