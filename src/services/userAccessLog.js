@@ -1,4 +1,4 @@
-import { Op, Sequelize } from 'sequelize';
+import { Op } from 'sequelize';
 import models from '../models/_index.js';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
