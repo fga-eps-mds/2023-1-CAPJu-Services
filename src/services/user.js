@@ -142,15 +142,15 @@ class UserService {
   async updateUserPassword(cpf, oldPassword, newPassword) {
     const user = await this.getUserByCpfWithPassword(cpf);
     if (user) {
-        const isPasswordCorrect = await verify(
-          user.password,
-          oldPassword,
-          passHashing,
-          );
-        if (isPasswordCorrect) {
-          const hashedPassword = await hash(newPassword, passHashing);
-          console.log("----> SENHA ", hashedPassword)
-          const [updatedRows] = await this.user.update(
+      const isPasswordCorrect = await verify(
+        user.password,
+        oldPassword,
+        passHashing,
+      );
+      if (isPasswordCorrect) {
+        const hashedPassword = await hash(newPassword, passHashing);
+        console.log('----> SENHA ', hashedPassword);
+        const [updatedRows] = await this.user.update(
           { password: hashedPassword },
           { where: { cpf: cpfFilter(cpf) } },
         );
