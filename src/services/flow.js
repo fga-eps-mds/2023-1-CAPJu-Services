@@ -7,7 +7,7 @@ class FlowService {
     this.flow = FlowModel;
   }
 
-  async findAll(where, attributes, offset, limit) {
+  async findAll({ where, attributes, offset, limit }) {
     const options = {
       where: where,
       offset: offset || 0,
