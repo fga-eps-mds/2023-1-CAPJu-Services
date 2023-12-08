@@ -3,7 +3,6 @@ import axios from 'axios';
 import { FlowController } from '../../src/controllers/flow.js';
 import * as utils from '../../middleware/authMiddleware.js';
 
-
 //jest.mock('../services/_index.js');
 jest.mock('axios');
 
@@ -32,57 +31,48 @@ describe('FlowController', () => {
         idFlow: 1,
         idStageA: 1,
         idStageB: 2,
-        commentary: 'commentary'
-      }
+        commentary: 'commentary',
+      },
     ];
 
     const sequences = {
-      stages: [1,2],
-      sequences: [1,2]
-    }
+      stages: [1, 2],
+      sequences: [1, 2],
+    };
 
     const MockResponse = {
-      flows:[
-           {
-             idFlow: 1,
-             idUnit: undefined,
-             name: "Flow 1",
-             sequences:[
-               1,
-               2,
-             ],
-             stages: [
-               1,
-               2,
-             ],
-           },
-         ],
-         totalPages: 1,
-      }
+      flows: [
+        {
+          idFlow: 1,
+          idUnit: undefined,
+          name: 'Flow 1',
+          sequences: [1, 2],
+          stages: [1, 2],
+        },
+      ],
+      totalPages: 1,
+    };
 
     flowController.flowService.findAll = jest
       .fn()
       .mockResolvedValue(mockFlowProcesses);
 
-    flowController.flowService.countRows = jest
-      .fn()
-      .mockResolvedValue(1);
+    flowController.flowService.countRows = jest.fn().mockResolvedValue(1);
 
     flowController.flowStageService.findAllByIdFlow = jest
       .fn()
       .mockResolvedValue(stages);
-      
+
     flowController.flowService.stagesSequencesFromFlowStages = jest
       .fn()
       .mockResolvedValue(sequences);
 
     jest.spyOn(utils, 'getUserRoleAndUnitFilterFromReq');
     utils.getUserRoleAndUnitFilterFromReq.mockImplementation(() => {
-      return { idUnit: 1, idRole: 1  };
+      return { idUnit: 1, idRole: 1 };
     });
 
-
-    reqMock.query = {limit: 10, offset: 10};
+    reqMock.query = { limit: 10, offset: 10 };
     await flowController.index(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith(MockResponse);
@@ -93,14 +83,9 @@ describe('FlowController', () => {
     const mockFlowProcesses = [{ id: 1, idFlow: 1, name: 'Flow 1' }];
     const error = new Error('Internal Server Error');
 
+    flowController.flowService.findAll = jest.fn().mockRejectedValue(error);
 
-    flowController.flowService.findAll = jest
-      .fn()
-      .mockRejectedValue(error);
-
-
-
-    reqMock.query = {limit: 10, offset: 10};
+    reqMock.query = { limit: 10, offset: 10 };
     await flowController.index(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith(error);

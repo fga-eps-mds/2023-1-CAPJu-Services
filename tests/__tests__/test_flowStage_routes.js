@@ -123,17 +123,17 @@ describe('FlowStageControlers', () => {
     const idFlow = 1;
     const mockData = [
       {
-        idFlowStage:1,
-        idStageA:1,
-        idStageB:2,
-        idFlow:1,
+        idFlowStage: 1,
+        idStageA: 1,
+        idStageB: 2,
+        idFlow: 1,
       },
       {
-        idFlowStage:2,
-        idStageA:2,
-        idStageB:3,
-        idFlow:1,
-      }
+        idFlowStage: 2,
+        idStageA: 2,
+        idStageB: 3,
+        idFlow: 1,
+      },
     ];
 
     flowStageController.flowStageService.findFlowStagesByFlowId = jest
@@ -160,7 +160,9 @@ describe('FlowStageControlers', () => {
 
     await flowStageController.getFlowStagesByFlowId(reqMock, resMock);
 
-    expect(resMock.json).toHaveBeenCalledWith({ message: `Erro ao buscar etapas do fluxo` });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: `Erro ao buscar etapas do fluxo`,
+    });
     expect(resMock.status).toHaveBeenCalledWith(404);
   });
 
@@ -175,7 +177,9 @@ describe('FlowStageControlers', () => {
 
     await flowStageController.getFlowStagesByFlowId(reqMock, resMock);
 
-    expect(resMock.json).toHaveBeenCalledWith({ message: 'Erro a ler as etapas do fluxo' });
+    expect(resMock.json).toHaveBeenCalledWith({
+      message: 'Erro a ler as etapas do fluxo',
+    });
     expect(resMock.status).toHaveBeenCalledWith(500);
   });
 });

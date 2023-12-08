@@ -82,11 +82,9 @@ describe('statisticsController', () => {
 
     await statisticsController.getProcessByStepInFlow(reqMock, resMock);
 
-    expect(resMock.json).toHaveBeenCalledWith(
-      {
-        error: 'É necessário fornecer um id de um fluxo' 
-      }
-    );
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: 'É necessário fornecer um id de um fluxo',
+    });
     expect(resMock.status).toHaveBeenCalledWith(412);
   });
 
@@ -96,11 +94,9 @@ describe('statisticsController', () => {
 
     await statisticsController.getProcessByStepInFlow(reqMock, resMock);
 
-    expect(resMock.json).toHaveBeenCalledWith(
-      {
-        error: 'É necessário fornecer um id de uma etapa' 
-      }
-    );
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: 'É necessário fornecer um id de uma etapa',
+    });
     expect(resMock.status).toHaveBeenCalledWith(412);
   });
 
@@ -153,12 +149,9 @@ describe('statisticsController', () => {
   });
 
   test('getProcessCountByStepInFlow - process found (200)', async () => {
-    const mockProcesses = [
-      { id: 1, name: 'Process 1', idFlow: 1 },
-    ];
+    const mockProcesses = [{ id: 1, name: 'Process 1', idFlow: 1 }];
 
-
-    const mockStages = { };
+    const mockStages = {};
 
     const getProcessByIdFlowSpy = jest
       .spyOn(ProcessService.prototype, 'getProcessByIdFlow')
@@ -176,8 +169,8 @@ describe('statisticsController', () => {
     expect(resMock.json).toHaveBeenCalledWith({
       stages: {
         nao_iniciado: {
-          idStage: "nao_iniciado",
-          name: "nao iniciado",
+          idStage: 'nao_iniciado',
+          name: 'nao iniciado',
           countProcess: 1,
         },
       },
@@ -190,8 +183,7 @@ describe('statisticsController', () => {
       { id: 1, name: 'Process 1', idStage: null, idFlow: 1 },
     ];
 
-
-    const mockStages = { };
+    const mockStages = {};
 
     const getProcessByIdFlowSpy = jest
       .spyOn(ProcessService.prototype, 'getProcessByIdFlow')
@@ -209,8 +201,8 @@ describe('statisticsController', () => {
     expect(resMock.json).toHaveBeenCalledWith({
       stages: {
         nao_iniciado: {
-          idStage: "nao_iniciado",
-          name: "nao iniciado",
+          idStage: 'nao_iniciado',
+          name: 'nao iniciado',
           countProcess: 1,
         },
       },
@@ -256,11 +248,9 @@ describe('statisticsController', () => {
 
     await statisticsController.getProcessCountByStepInFlow(reqMock, resMock);
 
-    expect(resMock.json).toHaveBeenCalledWith(
-    { 
-        error: 'É necessário fornecer um id de um fluxo' 
-    }
-    );
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: 'É necessário fornecer um id de um fluxo',
+    });
     expect(resMock.status).toHaveBeenCalledWith(412);
   });
 
@@ -309,21 +299,24 @@ describe('statisticsController', () => {
   });
 
   test('getAllProcessByStepInStage - process no idFlow (412)', async () => {
-   reqMock.params = { idStage: 1 };
+    reqMock.params = { idStage: 1 };
 
     await statisticsController.getAllProcessByStepInStage(reqMock, resMock);
 
-    expect(resMock.json).toHaveBeenCalledWith({ error: 'É necessário fornecer um id de um fluxo' });
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: 'É necessário fornecer um id de um fluxo',
+    });
     expect(resMock.status).toHaveBeenCalledWith(412);
   });
 
   test('getAllProcessByStepInStage - process no idStage (412)', async () => {
-    reqMock.params = { idFlow: 1};
+    reqMock.params = { idFlow: 1 };
 
     await statisticsController.getAllProcessByStepInStage(reqMock, resMock);
 
-
-    expect(resMock.json).toHaveBeenCalledWith({ error: 'É necessário fornecer um id de uma etapa' });
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: 'É necessário fornecer um id de uma etapa',
+    });
     expect(resMock.status).toHaveBeenCalledWith(412);
   });
 
@@ -344,7 +337,8 @@ describe('statisticsController', () => {
 
   test('getProcessByDueDateInFlow - process found (200)', async () => {
     const mockProcesses = [
-      { record: '4905241-90.2023.6.17.7722',
+      {
+        record: '4905241-90.2023.6.17.7722',
         nickname: 'Process 1',
         idStage: 1,
         idFlow: 1,
@@ -353,12 +347,13 @@ describe('statisticsController', () => {
         effectiveDate: '11/24/2023',
         nameStage: 'Etapa 1',
         nameFlow: 'Fluxo 1',
-        dueDate: '11/25/2023 02:34:08.878+00'
-    }
+        dueDate: '11/25/2023 02:34:08.878+00',
+      },
     ];
 
     const mockResponse = [
-      { record: '4905241-90.2023.6.17.7722',
+      {
+        record: '4905241-90.2023.6.17.7722',
         nickname: 'Process 1',
         idStage: 1,
         idFlow: 1,
@@ -367,34 +362,33 @@ describe('statisticsController', () => {
         effectiveDate: '11/24/2023',
         nameStage: 'Etapa 1',
         nameFlow: 'Fluxo 1',
-        dueDate: '24/11/2023'
-    }
+        dueDate: '24/11/2023',
+      },
     ];
-    reqMock.query = { offset:5, limit: 10}
+    reqMock.query = { offset: 5, limit: 10 };
     reqMock.params = { minDate: '11/23/2023', maxDate: '11/26/2023' };
 
     statisticsController.statisticsService.SearchDueDate = jest
-    .fn()
-    .mockResolvedValue(mockProcesses);
+      .fn()
+      .mockResolvedValue(mockProcesses);
 
     statisticsController.statisticsService.countRowsDueDate = jest
-    .fn()
-    .mockResolvedValue(mockProcesses.length);
+      .fn()
+      .mockResolvedValue(mockProcesses.length);
 
-    await statisticsController.getProcessByDueDateInFlow(reqMock,resMock);
+    await statisticsController.getProcessByDueDateInFlow(reqMock, resMock);
 
     expect(resMock.status).toHaveBeenCalledWith(200);
-    expect(resMock.json).toHaveBeenCalledWith(
-      {
-        processInDue: mockResponse,
-        totalPages: 1
-      }
-    );
+    expect(resMock.json).toHaveBeenCalledWith({
+      processInDue: mockResponse,
+      totalPages: 1,
+    });
   });
 
   test('getProcessByDueDateInFlow - process found (200)', async () => {
     const mockProcesses = [
-      { record: '4905241-90.2023.6.17.7722',
+      {
+        record: '4905241-90.2023.6.17.7722',
         nickname: 'Process 1',
         idStage: 1,
         idFlow: 1,
@@ -403,12 +397,13 @@ describe('statisticsController', () => {
         effectiveDate: '11/24/2023',
         nameStage: 'Etapa 1',
         nameFlow: 'Fluxo 1',
-        dueDate: '11/25/2023 02:34:08.878+00'
-    }
+        dueDate: '11/25/2023 02:34:08.878+00',
+      },
     ];
 
     const mockResponse = [
-      { record: '4905241-90.2023.6.17.7722',
+      {
+        record: '4905241-90.2023.6.17.7722',
         nickname: 'Process 1',
         idStage: 1,
         idFlow: 1,
@@ -417,86 +412,78 @@ describe('statisticsController', () => {
         effectiveDate: '11/24/2023',
         nameStage: 'Etapa 1',
         nameFlow: 'Fluxo 1',
-        dueDate: '24/11/2023'
-    }
+        dueDate: '24/11/2023',
+      },
     ];
-    reqMock.query = { offset:5, limit: 10}
+    reqMock.query = { offset: 5, limit: 10 };
     reqMock.params = { minDate: '11/23/2023', maxDate: '11/26/2023' };
 
     statisticsController.statisticsService.SearchDueDate = jest
-    .fn()
-    .mockResolvedValue(mockProcesses);
+      .fn()
+      .mockResolvedValue(mockProcesses);
 
     statisticsController.statisticsService.countRowsDueDate = jest
-    .fn()
-    .mockResolvedValue(mockProcesses.length);
+      .fn()
+      .mockResolvedValue(mockProcesses.length);
 
-    await statisticsController.getProcessByDueDateInFlow(reqMock,resMock);
+    await statisticsController.getProcessByDueDateInFlow(reqMock, resMock);
 
     expect(resMock.status).toHaveBeenCalledWith(200);
-    expect(resMock.json).toHaveBeenCalledWith(
-      {
-        processInDue: mockResponse,
-        totalPages: 1
-      }
-    );
+    expect(resMock.json).toHaveBeenCalledWith({
+      processInDue: mockResponse,
+      totalPages: 1,
+    });
   });
 
   test('getProcessByDueDateInFlow - process found - second ternary (200)', async () => {
     const mockProcesses = [];
 
     const mockResponse = [];
-    reqMock.query = {}
+    reqMock.query = {};
     reqMock.params = { minDate: '11/23/2023', maxDate: '11/26/2023' };
 
     statisticsController.statisticsService.SearchDueDate = jest
-    .fn()
-    .mockResolvedValue(mockProcesses);
+      .fn()
+      .mockResolvedValue(mockProcesses);
 
     statisticsController.statisticsService.countRowsDueDate = jest
-    .fn()
-    .mockResolvedValue(mockProcesses.length);
+      .fn()
+      .mockResolvedValue(mockProcesses.length);
 
-    await statisticsController.getProcessByDueDateInFlow(reqMock,resMock);
+    await statisticsController.getProcessByDueDateInFlow(reqMock, resMock);
 
     expect(resMock.status).toHaveBeenCalledWith(200);
-    expect(resMock.json).toHaveBeenCalledWith(
-      {
-        processInDue: mockResponse,
-        totalPages: 0
-      }
-    );
+    expect(resMock.json).toHaveBeenCalledWith({
+      processInDue: mockResponse,
+      totalPages: 0,
+    });
   });
 
   test('getProcessByDueDateInFlow - error (500)', async () => {
     const error = new Error('Internal Server Error');
 
-    reqMock.query = { offset:5, limit: 10}
+    reqMock.query = { offset: 5, limit: 10 };
     reqMock.params = { minDate: '11/23/2023', maxDate: '11/26/2023' };
 
     statisticsController.statisticsService.SearchDueDate = jest
-    .fn()
-    .mockRejectedValue(error);
+      .fn()
+      .mockRejectedValue(error);
 
-    await statisticsController.getProcessByDueDateInFlow(reqMock,resMock);
+    await statisticsController.getProcessByDueDateInFlow(reqMock, resMock);
 
     expect(resMock.status).toHaveBeenCalledWith(500);
-    expect(resMock.json).toHaveBeenCalledWith(
-      { message: error }
-    );
+    expect(resMock.json).toHaveBeenCalledWith({ message: error });
   });
 
   test('getProcessByDueDateInFlow - no minDate and maxDate (412)', async () => {
-    reqMock.query = { offset:5, limit: 10}
-    reqMock.params = {}
+    reqMock.query = { offset: 5, limit: 10 };
+    reqMock.params = {};
 
-    await statisticsController.getProcessByDueDateInFlow(reqMock,resMock);
+    await statisticsController.getProcessByDueDateInFlow(reqMock, resMock);
 
     expect(resMock.status).toHaveBeenCalledWith(412);
-    expect(resMock.json).toHaveBeenCalledWith(
-      { 
-        error: 'É necessário indicar o período de vencimento!' 
-      }
-    );
+    expect(resMock.json).toHaveBeenCalledWith({
+      error: 'É necessário indicar o período de vencimento!',
+    });
   });
 });

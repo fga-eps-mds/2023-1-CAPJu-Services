@@ -8,7 +8,7 @@ const FlowModelMock = {
   create: jest.fn(),
   update: jest.fn(),
   destroy: jest.fn(),
-  count: jest.fn()
+  count: jest.fn(),
 };
 
 jest.mock('../../src/config/sequelize.js', () => ({
@@ -39,7 +39,7 @@ describe('FlowController', () => {
         { idFlow: 2, name: 'Fluxo 2' },
       ]);
 
-      const result = await flowService.findAll({},);
+      const result = await flowService.findAll({});
 
       expect(result).toEqual([
         { idFlow: 1, name: 'Fluxo 1' },
@@ -115,14 +115,18 @@ describe('FlowController', () => {
         name: 'Fluxo 1',
       });
 
-      const result = await flowService.findOneByFlowId(flowId, [{name:'FGA'}]);
+      const result = await flowService.findOneByFlowId(flowId, [
+        { name: 'FGA' },
+      ]);
 
       expect(result).toEqual({ idFlow: flowId, name: 'Fluxo 1' });
       expect(FlowModelMock.findOne).toHaveBeenCalledWith({
         where: { idFlow: flowId },
-        attributes: [{
-          name: 'FGA'
-        }]
+        attributes: [
+          {
+            name: 'FGA',
+          },
+        ],
       });
     });
   });

@@ -72,7 +72,6 @@ describe('FlowStageService', () => {
     });
   });
 
-
   describe('createFlowStage', () => {
     it(' criar um novo estágio do fluxo com os parâmetros fornecidos', async () => {
       const payload = { idFlow: 1, idStageA: 1, idStageB: 2 };

@@ -97,23 +97,30 @@ describe('flow endpoints', () => {
     });
 
     test('showByFlowId - (200)', async () => {
-      const flowMock  ={ idFlow: 1, name: 'Flow 1', idUnit: 1 }
-      
+      const flowMock = { idFlow: 1, name: 'Flow 1', idUnit: 1 };
+
       const stagesMock = {
-        stages: [1,2],
-        sequences: [1,2]
-      }
+        stages: [1, 2],
+        sequences: [1, 2],
+      };
 
       const responseMock = {
-        idFlow: 1, 
-        idUnit: 1, 
-        name: "Flow 1", 
-        sequences: [1, 2], 
-        stages: [1, 2]}
+        idFlow: 1,
+        idUnit: 1,
+        name: 'Flow 1',
+        sequences: [1, 2],
+        stages: [1, 2],
+      };
 
-      services.flowService.findOneByFlowId = jest.fn().mockResolvedValue(flowMock);
-      services.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue(1);
-      services.flowService.stagesSequencesFromFlowStages = jest.fn().mockResolvedValue(stagesMock);
+      services.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue(flowMock);
+      services.flowStageService.findAllByIdFlow = jest
+        .fn()
+        .mockResolvedValue(1);
+      services.flowService.stagesSequencesFromFlowStages = jest
+        .fn()
+        .mockResolvedValue(stagesMock);
 
       await controllers.flowController.showByFlowId(reqMock, resMock);
 
@@ -122,12 +129,11 @@ describe('flow endpoints', () => {
     });
 
     test('showByFlowId - (500)', async () => {
-
       const error = new Error('Internal Server Error');
 
       services.flowService.findOneByFlowId = jest.fn().mockRejectedValue(error);
 
-      reqMock.params ={ idFlow: 1}
+      reqMock.params = { idFlow: 1 };
       await controllers.flowController.showByFlowId(reqMock, resMock);
 
       expect(resMock.status).toHaveBeenCalledWith(500);
@@ -252,7 +258,7 @@ describe('flow endpoints', () => {
     });
 
     test('showByFlowIdWithSequence - show flow by flow id with sequence (200)', async () => {
-      reqMock.params = { idFlow: 1}
+      reqMock.params = { idFlow: 1 };
 
       const mockFlow = { idFlow: 1, name: 'flow x', idUnit: 1 };
       const mockStages = [
@@ -260,25 +266,27 @@ describe('flow endpoints', () => {
           idFlow: 1,
           idStageA: 1,
           idStageB: 2,
-          commentary: 'commentary'
-        }
+          commentary: 'commentary',
+        },
       ];
 
       const mockResponse = {
         idFlow: 1,
         idUnit: 1,
-        name: "flow x",
+        name: 'flow x',
         sequences: [
-        {
-              commentary: "commentary",
-              from: 1,
-              to: 2,
-            },
-          ],
-       }
+          {
+            commentary: 'commentary',
+            from: 1,
+            to: 2,
+          },
+        ],
+      };
 
       flowServiceMock.findOneByFlowId = jest.fn().mockResolvedValue(mockFlow);
-      services.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue(mockStages);
+      services.flowStageService.findAllByIdFlow = jest
+        .fn()
+        .mockResolvedValue(mockStages);
 
       await flowController.showByFlowIdWithSequence(reqMock, resMock);
 
@@ -288,13 +296,16 @@ describe('flow endpoints', () => {
 
     test('showByFlowIdWithSequence - show flow by flow id with sequence (500)', async () => {
       const error = new Error('Internal Server Error');
-      resMock.params = { idFlow: 1}
+      resMock.params = { idFlow: 1 };
 
       flowServiceMock.findOneByFlowId = jest.fn().mockRejectedValue(error);
       await flowController.showByFlowIdWithSequence(reqMock, resMock);
 
       expect(resMock.status).toHaveBeenCalledWith(500);
-      expect(resMock.json).toHaveBeenCalledWith({ error, message: 'Impossível ler sequências' });
+      expect(resMock.json).toHaveBeenCalledWith({
+        error,
+        message: 'Impossível ler sequências',
+      });
     });
 
     it('should return 404 when flow is not found', async () => {

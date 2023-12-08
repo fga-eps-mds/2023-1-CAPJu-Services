@@ -65,7 +65,7 @@ export class StatisticsController {
 
         stages[key] = {
           name: stage?.name ?? 'nao iniciado',
-          idStage: key ,
+          idStage: key,
           countProcess: ++stages[key].countProcess,
         };
       }
