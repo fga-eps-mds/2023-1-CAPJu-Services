@@ -1,9 +1,10 @@
-import { generateToken } from '../../src/utils/jwt.js';
+import { generateToken, jwtToken } from '../../src/utils/jwt.js';
 import { tokenToUser } from '../../middleware/authMiddleware';
 import UserService from '../../src/services/user.js';
 import models from '../../src/models/_index.js';
 import jwt from 'jsonwebtoken';
 import sequelizeConfig from '../../src/config/sequelize';
+//import "dotenv/config.js"
 
 describe('authMiddleware test', () => {
   beforeEach(() => {
@@ -42,10 +43,9 @@ describe('authMiddleware test', () => {
 
     it('without token', async () => {
       let req;
-      let res = { status: true, json: jest.fn() };
+      let res = { status: true };
       req = { headers: {} };
       const teste = await tokenToUser(req, res);
-
       expect(res.status).toBe(true);
     });
 
@@ -93,6 +93,30 @@ describe('authMiddleware test', () => {
 
       const result = await tokenToUser(req, resMock);
       expect(result).toEqual({ accepted: true });
+    }); 
+  });
+
+  describe('test jwtToken', () => {
+    const env = process.env;
+
+    it('should use process.env.JWT_SECRET if available', () => {
+      jest.resetModules();
+      process.env = { JWT_SECRET: 'mockedSecret' };
+
+      const { jwtToken: modifiedJwtToken } = require('../../src/utils/jwt.js');
+
+      expect(modifiedJwtToken).toBe('mockedSecret');
     });
+
+    it('should use default value "ABC" if process.env.JWT_SECRET is not available', () => {
+      jest.resetModules();
+      process.env = { JWT_SECRET: undefined };
+
+      const { jwtToken: modifiedJwtToken } = require('../../src/utils/jwt.js');
+
+      expect(modifiedJwtToken).toBe('ABC');
+    });
+
+    process.env = env;
   });
 });
