@@ -43,6 +43,10 @@ class ProcessAudService {
     );
   }
 
+  async delete(params) {
+    return await this.processAudRepository.destroy({ ...params });
+  }
+
   async findAllPaged(req) {
     const { offset = 0, limit = 10 } = req.query;
 
@@ -209,9 +213,9 @@ class ProcessAudService {
 
   getStatusPt = status => {
     const statuses = {
-      inProgress: 'em progresso',
-      archived: 'arquivado',
-      finished: 'finalizado',
+      inProgress: 'em andamento',
+      archived: 'interrompido',
+      finished: 'concluído',
       notStarted: 'não iniciado',
     };
 
