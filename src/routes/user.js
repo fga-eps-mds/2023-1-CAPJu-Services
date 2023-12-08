@@ -32,6 +32,11 @@ UserRoutes.put(
   controllers.userController.updateUserEmail,
 );
 UserRoutes.put(
+  '/updateUserFullName/:cpf',
+  authenticate,
+  controllers.userController.updateUserFullName,
+);
+UserRoutes.put(
   '/updateUserRole',
   authenticate,
   controllers.userController.updateUserRole,
