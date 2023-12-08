@@ -20,7 +20,8 @@ export class StageController {
 
       const data = { where, offset: req.query.offset, limit: req.query.limit };
       const stages = await this.stageService.findByUnit(data);
-      const totalCount = await this.stageService.countStage(where);
+      const totalCount = await this.stageService.countStage({ where });
+
       const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
 
       if (!stages || stages.length === 0) {
