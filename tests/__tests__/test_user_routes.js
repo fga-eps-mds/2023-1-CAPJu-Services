@@ -665,7 +665,7 @@ describe('UserController', () => {
     });
   });
 
-  describe('acceptRequest', () => {
+  describe('updateUserEmail', () => {
     it('Should return accepted message email changed for a valid cpf and email (status 200)', async () => {
       reqMock = {
         params: { cpf: '12345678901' },
@@ -727,6 +727,63 @@ describe('UserController', () => {
       expect(resMock.json).toHaveBeenCalledWith({
         error: expect.any(Error),
         message: 'Erro ao atualizar email',
+      });
+    });
+  });
+
+  describe('updateUserRole', () => {
+    it('Should return accepted message role changed for a valid idRole and cpf (status 200)', async () => {
+      reqMock.body = { idRole: 2, cpf: '12345678901' };
+
+      userServiceMock.updateUserRole = jest.fn().mockResolvedValue(true);
+
+      await userController.updateUserRole(reqMock, resMock);
+
+      expect(userServiceMock.updateUserRole).toHaveBeenCalledWith(
+        '12345678901',
+        2,
+      );
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Role atualizado com sucesso',
+      });
+    });
+
+    it('should return 400 if role is do not changed', async () => {
+      userServiceMock.updateUserRole = jest.fn().mockResolvedValue(null);
+
+      reqMock.body = { idRole: 2, cpf: '12345678901' };
+
+      await userController.updateUserRole(reqMock, resMock);
+
+      expect(userServiceMock.updateUserRole).toHaveBeenCalledWith(
+        '12345678901',
+        2,
+      );
+      expect(resMock.status).toHaveBeenCalledWith(400);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Role não atualizada',
+      });
+    });
+
+    it('should return 500 if an error occurs', async () => {
+      const errorMessage = 'Internal server error';
+      userServiceMock.updateUserRole = jest
+        .fn()
+        .mockRejectedValue(new Error(errorMessage));
+
+      reqMock.body = { idRole: 2, cpf: '12345678901' };
+
+      await userController.updateUserRole(reqMock, resMock);
+
+      expect(userServiceMock.updateUserRole).toHaveBeenCalledWith(
+        '12345678901',
+        2,
+      );
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        message: 'Erro ao atualizar role',
       });
     });
   });
