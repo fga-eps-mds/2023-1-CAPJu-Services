@@ -362,7 +362,7 @@ describe('statisticsController', () => {
         effectiveDate: '11/24/2023',
         nameStage: 'Etapa 1',
         nameFlow: 'Fluxo 1',
-        dueDate: '25/11/2023',
+        dueDate: '24/11/2023',
       },
     ];
     reqMock.query = { offset: 5, limit: 10 };
@@ -412,7 +412,7 @@ describe('statisticsController', () => {
         effectiveDate: '11/24/2023',
         nameStage: 'Etapa 1',
         nameFlow: 'Fluxo 1',
-        dueDate: '25/11/2023',
+        dueDate: '24/11/2023',
       },
     ];
     reqMock.query = { offset: 5, limit: 10 };
