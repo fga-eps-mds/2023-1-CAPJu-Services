@@ -153,7 +153,6 @@ class UserService {
       );
       if (isPasswordCorrect) {
         const hashedPassword = await hash(newPassword, passHashing);
-        console.log('----> SENHA ', hashedPassword);
         const [updatedRows] = await this.user.update(
           { password: hashedPassword },
           { where: { cpf: cpfFilter(cpf) } },
