@@ -1,64 +1,212 @@
-// import { UserController } from '../../src/controllers/user.js';
-// import UserService from '../../src/services/user.js';
-// import models from '../../src/models/_index.js';
+import { UserController } from '../../src/controllers/user.js';
+import UserService from '../../src/services/user.js';
+import models from '../../src/models/_index.js';
 
 describe('UserController', () => {
-  // let userController;
-  // let userServiceMock;
-  // let reqMock;
-  // let resMock;
+  let userController;
+  let userServiceMock;
+  let reqMock;
+  let resMock;
 
   beforeEach(() => {
-    // userServiceMock = new UserService(models.User);
-    // userController = new UserController();
-    // userController.userService = userServiceMock;
-    // reqMock = {
-    //   params: {},
-    //   query: {},
-    //   body: {
-    //     idRole: 1,
-    //     idUnit: 1,
-    //   },
-    // };
-    // resMock = {
-    //   status: jest.fn().mockReturnThis(),
-    //   json: jest.fn(),
-    // };
+    userServiceMock = new UserService(models.User);
+    userController = new UserController();
+    userController.userService = userServiceMock;
+    reqMock = {
+      params: {},
+      query: {},
+      body: {
+        idRole: 1,
+        idUnit: 1,
+      },
+    };
+    resMock = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+  });
+
+  describe('loginUser', () => {
+    // it('should authenticate user with valid credentials', async () => {
+    //   const user = { cpf: '1234567890', password: 'password', accepted: true };
+    //   const token = 'jwt_token';
+    //   userServiceMock.getUserByCpfWithPassword = jest
+    //     .fn()
+    //     .mockResolvedValue(user);
+    //   jwtUtils.generateToken = jest.fn().mockReturnValue(token);
+    //   reqMock.body = user;
+    //   await userController.loginUser(reqMock, resMock);
+    //   expect(userServiceMock.getUserByCpfWithPassword).toHaveBeenCalledWith(
+    //     '1234567890',
+    //   );
+    //   expect(jwtUtils.generateToken).toHaveBeenCalledWith('1234567890');
+    //   expect(resMock.status).toHaveBeenCalledWith(200);
+    //   expect(resMock.json).toHaveBeenCalledWith({
+    //     cpf: '1234567890',
+    //     fullName: user.fullName,
+    //     email: user.email,
+    //     idUnit: user.idUnit,
+    //     token,
+    //     idRole: user.idRole,
+    //     expiresIn: expect.any(Date),
+    //   });
+    // });
+    // it('should return 401 if user does not exist', async () => {
+    //   userServiceMock.getUserByCpfWithPassword = jest
+    //     .fn()
+    //     .mockResolvedValue(null);
+    //   reqMock.body = { cpf: '1234567890', password: 'password' };
+    //   await userController.loginUser(reqMock, resMock);
+    //   expect(userServiceMock.getUserByCpfWithPassword).toHaveBeenCalledWith(
+    //     '1234567890',
+    //   );
+    //   expect(resMock.status).toHaveBeenCalledWith(401);
+    //   expect(resMock.json).toHaveBeenCalledWith({
+    //     error: 'Usuário inexistente',
+    //     message: 'Usuário inexistente',
+    //   });
+    // });
+    // it('should return 401 if user is not accepted', async () => {
+    //   const user = { cpf: '1234567890', password: 'password', accepted: false };
+    //   userServiceMock.getUserByCpfWithPassword = jest
+    //     .fn()
+    //     .mockResolvedValue(user);
+    //   reqMock.body = { cpf: '1234567890', password: 'password' };
+    //   await userController.loginUser(reqMock, resMock);
+    //   expect(userServiceMock.getUserByCpfWithPassword).toHaveBeenCalledWith(
+    //     '1234567890',
+    //   );
+    //   expect(resMock.status).toHaveBeenCalledWith(401);
+    //   expect(resMock.json).toHaveBeenCalledWith({
+    //     message: 'Usuário não aceito',
+    //   });
+    // });
+    // it('should return 401 if password is incorrect', async () => {
+    //   const user = { cpf: '1234567890', password: 'password', accepted: true };
+    //   userServiceMock.getUserByCpfWithPassword = jest
+    //     .fn()
+    //     .mockResolvedValue(user);
+    //   reqMock.body = { cpf: '1234567890', password: 'wrong_password' };
+    //   await userController.loginUser(reqMock, resMock);
+    //   expect(userServiceMock.getUserByCpfWithPassword).toHaveBeenCalledWith(
+    //     '1234567890',
+    //   );
+    //   expect(resMock.status).toHaveBeenCalledWith(401);
+    //   expect(resMock.json).toHaveBeenCalledWith({
+      //     error: 'Impossível autenticar',
+      //     message: 'Senha ou usuário incorretos',
+      //   });
+      // });
+      // it('should return 500 if an error occurs', async () => {
+      //   const errorMessage = 'Internal server error';
+      //   userServiceMock.getUserByCpfWithPassword = jest
+      //     .fn()
+      //     .mockRejectedValue(new Error(errorMessage));
+      //   await userController.loginUser(reqMock, resMock);
+      //   expect(resMock.status).toHaveBeenCalledWith(500);
+      //   expect(resMock.json).toHaveBeenCalledWith({
+      //     error: expect.any(Error),
+      //     message: 'erro inesperado',
+      //   });
+      // });
+    });
+    
+    describe('store', () => {
+      // it('should create a new user', async () => {
+      //   const newUser = {
+      //     fullName: 'John Doe',
+      //     cpf: '1234567890',
+      //     email: 'john@example.com',
+      //     password: 'password',
+      //     idUnit: 1,
+      //     idRole: 2,
+      //   };
+      //   const createdUser = {
+      //     id: 1,
+      //     fullName: 'John Doe',
+      //     cpf: '1234567890',
+      //     email: 'john@example.com',
+      //     accepted: false,
+      //     idUnit: 1,
+      //     idRole: 2,
+      //   };
+      //   const createUserSpy = jest
+      //     .spyOn(UserService.prototype, 'createUser')
+      //     .mockReturnValue(createdUser);
+      //   reqMock.body = newUser;
+      //   await userController.store(reqMock, resMock);
+      //   expect(createUserSpy).toHaveBeenCalled();
+      //   expect(resMock.json).toHaveBeenCalledWith({
+      //     user: createdUser,
+      //     message: 'Usuario cadastrado com sucesso',
+      //   });
+      // });
+      // it('should return 500 if an error occurs', async () => {
+      //   const errorMessage = 'Internal server error';
+      //   userServiceMock.createUser = jest
+      //     .fn()
+      //     .mockRejectedValue(new Error(errorMessage));
+      //   await userController.store(reqMock, resMock);
+      //   expect(resMock.status).toHaveBeenCalledWith(500);
+      //   expect(resMock.json).toHaveBeenCalledWith({
+      //     error: expect.any(Error),
+      //     message: 'Erro ao criar usuário',
+      //   });
+      // });
+    });
+
+  describe('updateUserPassword', () => {
+    it('should return 500 if an error occurs', async () => {
+      const errorMessage = 'Internal server error';
+      userServiceMock.updateUserPassword = jest
+          .fn()
+          .mockRejectedValue(new Error(errorMessage));
+      reqMock = { params: {cpf: "12345678901"}, body: {oldPassword: "old", newPassword: "new"}};
+
+      await userController.updateUserPassword(reqMock, resMock);
+
+      expect(userServiceMock.updateUserPassword).toHaveBeenCalledWith('12345678901', 'old', 'new');
+        expect(resMock.status).toHaveBeenCalledWith(500);
+        expect(resMock.json).toHaveBeenCalledWith({
+          error: expect.any(Error),
+          message: 'Erro ao atualizar senha',
+        });
+    });
   });
 
   describe('getUserByCpf', () => {
-    it('should return user if it exists', async () => {
-      expect(1);
-    });
+    // it('should return user if it exists', async () => {
+    //   expect(1);
+    // });
 
-    //   it('should return 404 if user does not exist', async () => {
-    //     userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(null);
-    //     reqMock.params.cpf = '1234567890';
+      // it('should return 404 if user does not exist', async () => {
+      //   userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(null);
+      //   reqMock.params.cpf = '1234567890';
 
-    //     await userController.showUserByCpf(reqMock, resMock);
+      //   await userController.showUserByCpf(reqMock, resMock);
 
-    //     expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
-    //     expect(resMock.status).toHaveBeenCalledWith(404);
-    //     expect(resMock.json).toHaveBeenCalledWith({
-    //       error: 'Usuário não existe',
-    //     });
-    //   });
+      //   expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
+      //   expect(resMock.status).toHaveBeenCalledWith(404);
+      //   expect(resMock.json).toHaveBeenCalledWith({
+      //     error: 'Usuário não existe',
+      //   });
+      // });
 
-    //   it('should return 500 if an error occurs', async () => {
-    //     const errorMessage = 'Internal server error';
-    //     userServiceMock.getUserByCpf = jest
-    //       .fn()
-    //       .mockRejectedValue(new Error(errorMessage));
-    //     reqMock.params.cpf = '1234567890';
+      it('should return 500 if an error occurs', async () => {
+        const errorMessage = 'Internal server error';
+        userServiceMock.getUserByCpf = jest
+          .fn()
+          .mockRejectedValue(new Error(errorMessage));
+        reqMock.params.cpf = '1234567890';
 
-    //     await userController.showUserByCpf(reqMock, resMock);
+        await userController.showUserByCpf(reqMock, resMock);
 
-    //     expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
-    //     expect(resMock.status).toHaveBeenCalledWith(500);
-    //     expect(resMock.json).toHaveBeenCalledWith({
-    //       message: 'Erro ao buscar usuário',
-    //     });
-    //   });
+        expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
+        expect(resMock.status).toHaveBeenCalledWith(500);
+        expect(resMock.json).toHaveBeenCalledWith({
+          message: 'Erro ao buscar usuário',
+        });
+      });
   });
 
   describe('getAllUsers', () => {
@@ -166,148 +314,21 @@ describe('UserController', () => {
     //     message: "O parâmetro accepted deve ser 'true' ou 'false'",
     //   });
     // });
-    // it('should return 500 if an error occurs', async () => {
-    //   const errorMessage = 'Internal server error';
-    //   userServiceMock.getAllUsers = jest
-    //     .fn()
-    //     .mockRejectedValue(new Error(errorMessage));
-    //   await userController.index(reqMock, resMock);
-    //   expect(resMock.status).toHaveBeenCalledWith(500);
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     error: expect.any(Error),
-    //     message: 'Erro ao listar usuários aceitos ou não',
-    //   });
-    // });
+    it('should return 500 if an error occurs', async () => {
+      const errorMessage = 'Internal server error';
+      userServiceMock.getAllUsers = jest
+        .fn()
+        .mockRejectedValue(new Error(errorMessage));
+      await userController.index(reqMock, resMock);
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        message: 'Erro ao listar usuários aceitos ou não',
+      });
+    });
   });
 
-  describe('loginUser', () => {
-    // it('should authenticate user with valid credentials', async () => {
-    //   const user = { cpf: '1234567890', password: 'password', accepted: true };
-    //   const token = 'jwt_token';
-    //   userServiceMock.getUserByCpfWithPassword = jest
-    //     .fn()
-    //     .mockResolvedValue(user);
-    //   jwtUtils.generateToken = jest.fn().mockReturnValue(token);
-    //   reqMock.body = user;
-    //   await userController.loginUser(reqMock, resMock);
-    //   expect(userServiceMock.getUserByCpfWithPassword).toHaveBeenCalledWith(
-    //     '1234567890',
-    //   );
-    //   expect(jwtUtils.generateToken).toHaveBeenCalledWith('1234567890');
-    //   expect(resMock.status).toHaveBeenCalledWith(200);
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     cpf: '1234567890',
-    //     fullName: user.fullName,
-    //     email: user.email,
-    //     idUnit: user.idUnit,
-    //     token,
-    //     idRole: user.idRole,
-    //     expiresIn: expect.any(Date),
-    //   });
-    // });
-    // it('should return 401 if user does not exist', async () => {
-    //   userServiceMock.getUserByCpfWithPassword = jest
-    //     .fn()
-    //     .mockResolvedValue(null);
-    //   reqMock.body = { cpf: '1234567890', password: 'password' };
-    //   await userController.loginUser(reqMock, resMock);
-    //   expect(userServiceMock.getUserByCpfWithPassword).toHaveBeenCalledWith(
-    //     '1234567890',
-    //   );
-    //   expect(resMock.status).toHaveBeenCalledWith(401);
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     error: 'Usuário inexistente',
-    //     message: 'Usuário inexistente',
-    //   });
-    // });
-    // it('should return 401 if user is not accepted', async () => {
-    //   const user = { cpf: '1234567890', password: 'password', accepted: false };
-    //   userServiceMock.getUserByCpfWithPassword = jest
-    //     .fn()
-    //     .mockResolvedValue(user);
-    //   reqMock.body = { cpf: '1234567890', password: 'password' };
-    //   await userController.loginUser(reqMock, resMock);
-    //   expect(userServiceMock.getUserByCpfWithPassword).toHaveBeenCalledWith(
-    //     '1234567890',
-    //   );
-    //   expect(resMock.status).toHaveBeenCalledWith(401);
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     message: 'Usuário não aceito',
-    //   });
-    // });
-    // it('should return 401 if password is incorrect', async () => {
-    //   const user = { cpf: '1234567890', password: 'password', accepted: true };
-    //   userServiceMock.getUserByCpfWithPassword = jest
-    //     .fn()
-    //     .mockResolvedValue(user);
-    //   reqMock.body = { cpf: '1234567890', password: 'wrong_password' };
-    //   await userController.loginUser(reqMock, resMock);
-    //   expect(userServiceMock.getUserByCpfWithPassword).toHaveBeenCalledWith(
-    //     '1234567890',
-    //   );
-    //   expect(resMock.status).toHaveBeenCalledWith(401);
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     error: 'Impossível autenticar',
-    //     message: 'Senha ou usuário incorretos',
-    //   });
-    // });
-    //   it('should return 500 if an error occurs', async () => {
-    //     const errorMessage = 'Internal server error';
-    //     userServiceMock.getUserByCpfWithPassword = jest
-    //       .fn()
-    //       .mockRejectedValue(new Error(errorMessage));
-    //     await userController.loginUser(reqMock, resMock);
-    //     expect(resMock.status).toHaveBeenCalledWith(500);
-    //     expect(resMock.json).toHaveBeenCalledWith({
-    //       error: expect.any(Error),
-    //       message: 'erro inesperado',
-    //     });
-    //   });
-  });
 
-  describe('store', () => {
-    // it('should create a new user', async () => {
-    //   const newUser = {
-    //     fullName: 'John Doe',
-    //     cpf: '1234567890',
-    //     email: 'john@example.com',
-    //     password: 'password',
-    //     idUnit: 1,
-    //     idRole: 2,
-    //   };
-    //   const createdUser = {
-    //     id: 1,
-    //     fullName: 'John Doe',
-    //     cpf: '1234567890',
-    //     email: 'john@example.com',
-    //     accepted: false,
-    //     idUnit: 1,
-    //     idRole: 2,
-    //   };
-    //   const createUserSpy = jest
-    //     .spyOn(UserService.prototype, 'createUser')
-    //     .mockReturnValue(createdUser);
-    //   reqMock.body = newUser;
-    //   await userController.store(reqMock, resMock);
-    //   expect(createUserSpy).toHaveBeenCalled();
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     user: createdUser,
-    //     message: 'Usuario cadastrado com sucesso',
-    //   });
-    // });
-    // it('should return 500 if an error occurs', async () => {
-    //   const errorMessage = 'Internal server error';
-    //   userServiceMock.createUser = jest
-    //     .fn()
-    //     .mockRejectedValue(new Error(errorMessage));
-    //   await userController.store(reqMock, resMock);
-    //   expect(resMock.status).toHaveBeenCalledWith(500);
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     error: expect.any(Error),
-    //     message: 'Erro ao criar usuário',
-    //   });
-    // });
-  });
 
   describe('deleteByCpf', () => {
     // it('should delete an existing user by CPF', async () => {
@@ -336,21 +357,21 @@ describe('UserController', () => {
     //     error: 'Usuário não existe!',
     //   });
     // });
-    // it('should return 500 if an error occurs', async () => {
-    //   const errorMessage = 'Internal server error';
-    //   userServiceMock.getAcceptedUserByCpf = jest
-    //     .fn()
-    //     .mockRejectedValue(new Error(errorMessage));
-    //   reqMock.params.cpf = '1234567890';
-    //   await userController.deleteByCpf(reqMock, resMock);
-    //   expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith(
-    //     '1234567890',
-    //   );
-    //   expect(resMock.status).toHaveBeenCalledWith(500);
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     error: expect.any(Error),
-    //     message: 'Erro ao apagar usuário',
-    //   });
-    // });
+    it('should return 500 if an error occurs', async () => {
+      const errorMessage = 'Internal server error';
+      userServiceMock.getAcceptedUserByCpf = jest
+        .fn()
+        .mockRejectedValue(new Error(errorMessage));
+      reqMock.params.cpf = '1234567890';
+      await userController.deleteByCpf(reqMock, resMock);
+      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith(
+        '1234567890',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        message: 'Erro ao apagar usuário',
+      });
+    });
   });
 });
