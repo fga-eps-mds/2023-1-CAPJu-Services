@@ -28,8 +28,68 @@ describe('authMiddleware test', () => {
   });
 
   describe('authenticate', () => {
-    // it('should return 401 if user is not found', async () => {
-    // });
+    it('should return authenticated', async () => {
+      const mockNext = jest.fn();
+
+      const req = {
+        params: { cpf: '12345678901' },
+        headers: {
+          authorization: 'Bearer aossodaijsioja',
+        },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      jest
+        .spyOn(jwt, 'verify')
+        .mockImplementation(() => ({ id: 'fakeUserId' }));
+
+      jest.spyOn(sequelizeConfig, 'query').mockResolvedValue([
+        {
+          fullName: 'John Doe',
+          idRole: 1,
+          accepted: true,
+          cpf: '10987654321',
+          email: 'john@email.com',
+          idUnit: 1,
+          password: 'senha',
+        },
+      ]);
+
+      await authenticate(req, res, mockNext);
+
+      expect(mockNext).toHaveBeenCalled();
+      expect(res.status).not.toHaveBeenCalled();
+      expect(res.json).not.toHaveBeenCalled();
+    });
+
+    it('should return 401 if user is not found', async () => {
+      const req = {
+        params: { cpf: '12345678901' },
+        headers: {
+          authorization: 'Bearer aossodaijsioja',
+        },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      jest
+        .spyOn(jwt, 'verify')
+        .mockImplementation(() => ({ id: 'fakeUserId' }));
+
+      jest.spyOn(sequelizeConfig, 'query').mockResolvedValue(null);
+
+      await authenticate(req, res, jest.fn());
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({ message: 'User not found' });
+    });
 
     it('should return 401 if no token is provided', async () => {
       const req = {
@@ -47,7 +107,68 @@ describe('authMiddleware test', () => {
       expect(res.json).toHaveBeenCalledWith({ message: 'No token provided' });
     });
 
+    it('should return 401 for 1° authentication failure', async () => {
+      const req = {
+        params: { cpf: '12345678901' },
+        headers: {
+          authorization: 'Bearer aossodaijsioja',
+        },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      jest
+        .spyOn(jwt, 'verify')
+        .mockImplementation(() => ({ id: 'fakeUserId' }));
+
+      jest.spyOn(sequelizeConfig, 'query').mockResolvedValue([
+        {
+          fullName: 'John Doe',
+          idRole: 1,
+          accepted: false,
+          cpf: '10987654321',
+          email: 'john@email.com',
+          idUnit: 1,
+          password: 'senha',
+        },
+      ]);
+
+      await authenticate(req, res, jest.fn());
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Authentication failed',
+      });
+    });
+
     // it('should return 401 for token expiration', async () => {
+    //   const req = {
+    //     params: {cpf: '12345678901'},
+    //     headers: {
+    //       authorization: 'Bearer aossodaijsioja',
+    //     },
+    //   };
+
+    //   const res = {
+    //     status: jest.fn().mockReturnThis(),
+    //     json: jest.fn(),
+    //   };
+
+    //   jest
+    //     .spyOn(jwt, 'verify')
+    //     .mockRejectedValue(new Error(errorMessage));
+
+    //   jest.spyOn(sequelizeConfig, 'query').mockResolvedValue(() => {
+    //     throw new jwt.TokenExpiredError('Token has expired', new Date());
+    //   });
+
+    //   await authenticate(req, res, jest.fn());
+
+    //   expect(res.status).toHaveBeenCalledWith(401);
+    //   expect(res.json).toHaveBeenCalledWith({ message: 'Token has expired' });
     // });
 
     it('should return 401 for 2° authentication failure', async () => {
