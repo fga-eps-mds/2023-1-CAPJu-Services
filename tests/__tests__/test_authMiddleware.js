@@ -93,7 +93,7 @@ describe('authMiddleware test', () => {
 
       const result = await tokenToUser(req, resMock);
       expect(result).toEqual({ accepted: true });
-    }); 
+    });
   });
 
   describe('test jwtToken', () => {
