@@ -604,6 +604,67 @@ describe('UserController', () => {
     });
   });
 
+  describe('acceptRequest', () => {
+    it('Should return accepted message for a valid cpf (status 200)', async () => {
+      const User = {
+        fullName: 'John Doe',
+        idRole: 1,
+        accepted: false,
+        cpf: '12345678901',
+        email: 'john@email.com',
+        idUnit: 1,
+        set: jest.fn(),
+        save: jest.fn(),
+      };
+
+      userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(User);
+
+      reqMock.params.cpf = '12345678901';
+
+      await userController.acceptRequest(reqMock, resMock);
+
+      expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('12345678901');
+      expect(User.set).toHaveBeenCalledWith({ accepted: true });
+      expect(User.save).toHaveBeenCalled();
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Usuário aceito com sucesso',
+      });
+    });
+
+    it('should return 404 if user does not exist', async () => {
+      userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(null);
+
+      reqMock.params.cpf = '12345678901';
+
+      await userController.acceptRequest(reqMock, resMock);
+
+      expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('12345678901');
+      expect(resMock.status).toHaveBeenCalledWith(404);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: 'Usuário não existe',
+      });
+    });
+
+    it('should return 500 if an error occurs', async () => {
+      const errorMessage = 'Internal server error';
+      userServiceMock.getUserByCpf = jest
+        .fn()
+        .mockRejectedValue(new Error(errorMessage));
+
+      reqMock.params.cpf = '12345678901';
+
+      await userController.acceptRequest(reqMock, resMock);
+
+      expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('12345678901');
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        message: 'Falha ao aceitar usuário',
+      });
+    });
+  });
+
   describe('deleteByCpf', () => {
     // it('should delete an existing user by CPF', async () => {
     //   const user = { cpf: '1234567890', destroy: jest.fn() };
@@ -631,6 +692,7 @@ describe('UserController', () => {
         error: 'Usuário não existe!',
       });
     });
+
     it('should return 500 if an error occurs', async () => {
       const errorMessage = 'Internal server error';
       userServiceMock.getAcceptedUserByCpf = jest
