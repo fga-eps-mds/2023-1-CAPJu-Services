@@ -144,32 +144,28 @@ describe('authMiddleware test', () => {
       });
     });
 
-    // it('should return 401 for token expiration', async () => {
-    //   const req = {
-    //     params: {cpf: '12345678901'},
-    //     headers: {
-    //       authorization: 'Bearer aossodaijsioja',
-    //     },
-    //   };
+    it('should return 401 for token expiration', async () => {
+      const req = {
+        params: { cpf: '12345678901' },
+        headers: {
+          authorization: 'Bearer aossodaijsioja',
+        },
+      };
 
-    //   const res = {
-    //     status: jest.fn().mockReturnThis(),
-    //     json: jest.fn(),
-    //   };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
 
-    //   jest
-    //     .spyOn(jwt, 'verify')
-    //     .mockRejectedValue(new Error(errorMessage));
+      jest.spyOn(jwt, 'verify').mockImplementation(() => {
+        throw new jwt.TokenExpiredError('Token has expired', new Date());
+      });
 
-    //   jest.spyOn(sequelizeConfig, 'query').mockResolvedValue(() => {
-    //     throw new jwt.TokenExpiredError('Token has expired', new Date());
-    //   });
+      await authenticate(req, res, jest.fn());
 
-    //   await authenticate(req, res, jest.fn());
-
-    //   expect(res.status).toHaveBeenCalledWith(401);
-    //   expect(res.json).toHaveBeenCalledWith({ message: 'Token has expired' });
-    // });
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Token has expired' });
+    });
 
     it('should return 401 for 2° authentication failure', async () => {
       const req = {
@@ -315,6 +311,34 @@ describe('authMiddleware test', () => {
       const { jwtToken: modifiedJwtToken } = require('../../src/utils/jwt.js');
 
       expect(modifiedJwtToken).toBe('ABC');
+    });
+
+    process.env = env;
+  });
+
+  describe('test argon', () => {
+    const env = process.env;
+
+    it('should use process.env.ARGON2_SECRET if available', () => {
+      jest.resetModules();
+      process.env = { ARGON2_SECRET: 'mocketSecret' };
+
+      const {
+        argon: modifiedArgon,
+      } = require('../../src/middleware/authMiddleware.js');
+
+      expect(modifiedArgon).toBe('mocketSecret');
+    });
+
+    it('should use process.env.ARGON2_SECRET if available', () => {
+      jest.resetModules();
+      process.env = { ARGON2_SECRET: undefined };
+
+      const {
+        argon: modifiedArgon,
+      } = require('../../src/middleware/authMiddleware.js');
+
+      expect(modifiedArgon).toBe('capju_argon2_secret');
     });
 
     process.env = env;

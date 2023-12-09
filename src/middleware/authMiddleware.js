@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { QueryTypes } from 'sequelize';
 import sequelizeConfig from '../config/sequelize.js';
 
-const argon = process.env.ARGON2_SECRET || 'capju_argon2_secret';
+export const argon = process.env.ARGON2_SECRET || 'capju_argon2_secret';
 
 async function authenticate(req, res, next) {
   if (
@@ -36,7 +36,7 @@ async function authenticate(req, res, next) {
 
     next();
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
+    if (error instanceof jwt.TokenExpiredError) {
       return res.status(401).json({ message: 'Token has expired' });
     }
     return res.status(401).json({ message: 'Authentication failed' });
