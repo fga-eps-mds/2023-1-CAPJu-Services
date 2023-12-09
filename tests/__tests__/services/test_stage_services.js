@@ -119,4 +119,15 @@ describe('StageService', () => {
       });
     });
   });
+
+  describe('updateStage', () => {
+    it('should return true when a stage is successfully updated', async () => {
+      const idStage = 1;
+      const stage = { id: idStage, name: 'Stage 1' };
+      stageModelMock.findOne.mockResolvedValue(stage);
+
+      const result = await stageService.updateStage(idStage, "Stage 2", 6);
+      expect(result).toBe(true)
+    });
+  });
 });
