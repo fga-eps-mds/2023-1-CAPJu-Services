@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import axios from 'axios';
 import { FlowController } from '../../src/controllers/flow.js';
+import * as utils from '../../middleware/authMiddleware.js';
 
 //jest.mock('../services/_index.js');
 jest.mock('axios');
@@ -22,19 +23,73 @@ describe('FlowController', () => {
     jest.clearAllMocks();
   });
 
-  test('showByProcessRecord - flows found (200)', async () => {
-    const mockFlowProcesses = [{ id: 1, name: 'Flow 1' }];
+  test('index - flows found (200)', async () => {
+    const mockFlowProcesses = [{ id: 1, idFlow: 1, name: 'Flow 1' }];
 
-    flowController.processService.getProcessByRecord = jest
+    const stages = [
+      {
+        idFlow: 1,
+        idStageA: 1,
+        idStageB: 2,
+        commentary: 'commentary',
+      },
+    ];
+
+    const sequences = {
+      stages: [1, 2],
+      sequences: [1, 2],
+    };
+
+    const MockResponse = {
+      flows: [
+        {
+          idFlow: 1,
+          idUnit: undefined,
+          name: 'Flow 1',
+          sequences: [1, 2],
+          stages: [1, 2],
+        },
+      ],
+      totalPages: 1,
+    };
+
+    flowController.flowService.findAll = jest
       .fn()
       .mockResolvedValue(mockFlowProcesses);
 
-    reqMock.params = { record: '123' };
+    flowController.flowService.countRows = jest.fn().mockResolvedValue(1);
 
-    await flowController.showByProcessRecord(reqMock, resMock);
+    flowController.flowStageService.findAllByIdFlow = jest
+      .fn()
+      .mockResolvedValue(stages);
 
-    expect(resMock.json).toHaveBeenCalledWith(mockFlowProcesses);
+    flowController.flowService.stagesSequencesFromFlowStages = jest
+      .fn()
+      .mockResolvedValue(sequences);
+
+    jest.spyOn(utils, 'getUserRoleAndUnitFilterFromReq');
+    utils.getUserRoleAndUnitFilterFromReq.mockImplementation(() => {
+      return { idUnit: 1, idRole: 1 };
+    });
+
+    reqMock.query = { limit: 10, offset: 10 };
+    await flowController.index(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith(MockResponse);
     expect(resMock.status).toHaveBeenCalledWith(200);
+  });
+
+  test('index - flows not found (500)', async () => {
+    const mockFlowProcesses = [{ id: 1, idFlow: 1, name: 'Flow 1' }];
+    const error = new Error('Internal Server Error');
+
+    flowController.flowService.findAll = jest.fn().mockRejectedValue(error);
+
+    reqMock.query = { limit: 10, offset: 10 };
+    await flowController.index(reqMock, resMock);
+
+    expect(resMock.json).toHaveBeenCalledWith(error);
+    expect(resMock.status).toHaveBeenCalledWith(500);
   });
 
   test('showByProcessRecord - no flows found (200)', async () => {

@@ -55,6 +55,23 @@ describe('FlowStageService', () => {
     });
   });
 
+  describe('findAllByIdFlow', () => {
+    it(' Retornar uma lista de estágios do fluxo com o ID de fluxo especificado', async () => {
+      const idFlow = 1;
+      FlowStageModel.findAllByIdFlow.mockResolvedValue([
+        { idFlow, idStageA: 1, idStageB: 2 },
+        { idFlow, idStageA: 2, idStageB: 3 },
+      ]);
+
+      const result = await flowStageService.findAllByIdFlow(idFlow, 5);
+
+      expect(result).toEqual([
+        { idFlow, idStageA: 1, idStageB: 2 },
+        { idFlow, idStageA: 2, idStageB: 3 },
+      ]);
+    });
+  });
+
   describe('createFlowStage', () => {
     it(' criar um novo estágio do fluxo com os parâmetros fornecidos', async () => {
       const payload = { idFlow: 1, idStageA: 1, idStageB: 2 };
