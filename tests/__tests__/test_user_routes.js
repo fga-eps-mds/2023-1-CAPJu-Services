@@ -156,6 +156,51 @@ describe('UserController', () => {
   });
 
   describe('updateUserPassword', () => {
+    it('Should successfully update password (status 200)', async () => {
+      userServiceMock.updateUserPassword = jest.fn().mockResolvedValue(true);
+
+      reqMock = {
+        params: { cpf: '12345678901' },
+        body: { oldPassword: 'old', newPassword: 'new' },
+      };
+
+      resMock = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await userController.updateUserPassword(reqMock, resMock);
+      expect(userServiceMock.updateUserPassword).toHaveBeenCalledWith(
+        '12345678901',
+        'old',
+        'new',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Senha atualizada com sucesso',
+      });
+    });
+
+    it('should return 400 if the password is do not changed', async () => {
+      userServiceMock.updateUserPassword = jest.fn().mockResolvedValue(null);
+      reqMock = {
+        params: { cpf: '12345678901' },
+        body: { oldPassword: 'old', newPassword: 'new' },
+      };
+
+      await userController.updateUserPassword(reqMock, resMock);
+
+      expect(userServiceMock.updateUserPassword).toHaveBeenCalledWith(
+        '12345678901',
+        'old',
+        'new',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(400);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Senha não atualizada!',
+      });
+    });
+
     it('should return 500 if an error occurs', async () => {
       const errorMessage = 'Internal server error';
       userServiceMock.updateUserPassword = jest
@@ -350,18 +395,18 @@ describe('UserController', () => {
     //     message: 'Usuário apagado com sucesso',
     //   });
     // });
-    // it('should return 404 if user does not exist', async () => {
-    //   userServiceMock.getAcceptedUserByCpf = jest.fn().mockResolvedValue(null);
-    //   reqMock.params.cpf = '1234567890';
-    //   await userController.deleteByCpf(reqMock, resMock);
-    //   expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith(
-    //     '1234567890',
-    //   );
-    //   expect(resMock.status).toHaveBeenCalledWith(404);
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     error: 'Usuário não existe!',
-    //   });
-    // });
+    it('should return 404 if user does not exist', async () => {
+      userServiceMock.getAcceptedUserByCpf = jest.fn().mockResolvedValue(null);
+      reqMock.params.cpf = '1234567890';
+      await userController.deleteByCpf(reqMock, resMock);
+      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith(
+        '1234567890',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(404);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: 'Usuário não existe!',
+      });
+    });
     it('should return 500 if an error occurs', async () => {
       const errorMessage = 'Internal server error';
       userServiceMock.getAcceptedUserByCpf = jest
