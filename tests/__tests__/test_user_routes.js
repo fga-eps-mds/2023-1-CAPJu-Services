@@ -837,4 +837,58 @@ describe('UserController', () => {
       });
     });
   });
+
+  describe('deleteRequest', () => {
+    it('Should return accepted message deleted user (status 200)', async () => {
+      const user = { cpf: '12345678901', destroy: jest.fn() };
+
+      userServiceMock.getNoAcceptedUserByCpf = jest
+        .fn()
+        .mockResolvedValue(user);
+      reqMock.params.cpf = '12345678901';
+
+      await userController.deleteRequest(reqMock, resMock);
+
+      expect(userServiceMock.getNoAcceptedUserByCpf).toHaveBeenCalledWith(
+        '12345678901',
+      );
+      expect(user.destroy).toHaveBeenCalled();
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Usuário não aceito foi excluído',
+      });
+    });
+
+    it('should return 404 if user does not exist', async () => {
+      userServiceMock.getNoAcceptedUserByCpf = jest
+        .fn()
+        .mockResolvedValue(null);
+      reqMock.params.cpf = '1234567890';
+      await userController.deleteRequest(reqMock, resMock);
+      expect(userServiceMock.getNoAcceptedUserByCpf).toHaveBeenCalledWith(
+        '1234567890',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(404);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: 'Usuário não existe',
+      });
+    });
+
+    it('should return 500 if an error occurs', async () => {
+      const errorMessage = 'Internal server error';
+      userServiceMock.getNoAcceptedUserByCpf = jest
+        .fn()
+        .mockRejectedValue(new Error(errorMessage));
+      reqMock.params.cpf = '1234567890';
+      await userController.deleteRequest(reqMock, resMock);
+      expect(userServiceMock.getNoAcceptedUserByCpf).toHaveBeenCalledWith(
+        '1234567890',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        message: 'Erro ao negar pedido do usuário',
+      });
+    });
+  });
 });
