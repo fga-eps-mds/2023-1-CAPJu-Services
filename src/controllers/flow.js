@@ -131,7 +131,6 @@ export class FlowController {
           let timeFirst;
           let timeLast;
           Object.values(grupos).forEach(trem => {
-            console.log(trem);
             if (trem[begin]) {
               timeFirst = trem[begin].first;
             }
@@ -150,13 +149,6 @@ export class FlowController {
             tempoTotal[at] += tempoEtapa;
             qtdEtapas[at]++;
 
-            console.log(
-              '----------------> AT =',
-              at + 1,
-              stages.length,
-              trem.finalised,
-              '\n',
-            );
             if (at + 1 == stages.length && trem.finalised) {
               const dateC = new Date(trem.finalised);
               const deltaDateEnd = dateC - dateB;

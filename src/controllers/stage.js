@@ -21,12 +21,13 @@ export class StageController {
       const data = { where, offset: req.query.offset, limit: req.query.limit };
       const stages = await this.stageService.findByUnit(data);
       const totalCount = await this.stageService.countStage({ where });
+
       const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
 
       if (!stages || stages.length === 0) {
-        return res.status(204).json([]);
+        return res.status(204).json({ stages: [], totalPages });
       } else {
-        return res.status(200).json({ stages: stages || [], totalPages });
+        return res.status(200).json({ stages: stages, totalPages });
       }
     } catch (error) {
       console.log(error);
@@ -60,7 +61,7 @@ export class StageController {
       const stage = await this.stageService.createStage(data);
       return res.status(200).json(stage);
     } catch (error) {
-      return res.status(error).json(error);
+      return res.status(500).json(error);
     }
   };
 
