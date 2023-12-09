@@ -665,6 +665,72 @@ describe('UserController', () => {
     });
   });
 
+  describe('acceptRequest', () => {
+    it('Should return accepted message email changed for a valid cpf and email (status 200)', async () => {
+      reqMock = {
+        params: { cpf: '12345678901' },
+        body: { email: 'example@email.com' },
+      };
+
+      userServiceMock.updateUserEmail = jest.fn().mockResolvedValue(true);
+
+      await userController.updateUserEmail(reqMock, resMock);
+
+      expect(userServiceMock.updateUserEmail).toHaveBeenCalledWith(
+        '12345678901',
+        'example@email.com',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Email atualizado com sucesso',
+      });
+    });
+
+    it('should return 400 if email is dont changed', async () => {
+      userServiceMock.updateUserEmail = jest.fn().mockResolvedValue(null);
+
+      reqMock = {
+        params: { cpf: '12345678901' },
+        body: { email: 'example@email.com' },
+      };
+
+      await userController.updateUserEmail(reqMock, resMock);
+
+      expect(userServiceMock.updateUserEmail).toHaveBeenCalledWith(
+        '12345678901',
+        'example@email.com',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(400);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Email não atualizado',
+      });
+    });
+
+    it('should return 500 if an error occurs', async () => {
+      const errorMessage = 'Internal server error';
+      userServiceMock.updateUserEmail = jest
+        .fn()
+        .mockRejectedValue(new Error(errorMessage));
+
+      reqMock = {
+        params: { cpf: '12345678901' },
+        body: { email: 'example@email.com' },
+      };
+
+      await userController.updateUserEmail(reqMock, resMock);
+
+      expect(userServiceMock.updateUserEmail).toHaveBeenCalledWith(
+        '12345678901',
+        'example@email.com',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        message: 'Erro ao atualizar email',
+      });
+    });
+  });
+
   describe('deleteByCpf', () => {
     // it('should delete an existing user by CPF', async () => {
     //   const user = { cpf: '1234567890', destroy: jest.fn() };
