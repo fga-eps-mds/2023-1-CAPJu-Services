@@ -226,14 +226,97 @@ describe('UserController', () => {
     });
   });
 
-  describe('getUserByCpf', () => {
-    it('Should return user data for a valid CPF (status 200)', async () => {
-      const User = {
-        name: 'fulano',
-        cpf: '12345678901',
+  describe('indexUsersAdminByUnitId', () => {
+    it('Should return user data for a valid idUnit (status 200)', async () => {
+      const Users = [
+        {
+          fullName: 'John Doe',
+          idRole: 1,
+          accepted: false,
+          cpf: '12345678901',
+          email: 'john@email.com',
+          idUnit: 1,
+        },
+        {
+          fullName: 'Jane Smith',
+          idRole: 2,
+          accepted: false,
+          cpf: '212222222222',
+          email: 'j@test.com',
+          idUnit: 2,
+        },
+      ];
+
+      userServiceMock.getUsersAdminByIdUnit = jest
+        .fn()
+        .mockResolvedValue(Users[0]);
+
+      reqMock.params.idUnit = 1;
+
+      resMock = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
       };
 
-      userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(User);
+      await userController.indexUsersAdminByUnitId(reqMock, resMock);
+
+      expect(userServiceMock.getUsersAdminByIdUnit).toHaveBeenCalledWith(1);
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith(Users[0]);
+    });
+
+    it('should return 404 if user does not exist', async () => {
+      userServiceMock.getUsersAdminByIdUnit = jest.fn().mockResolvedValue(null);
+      reqMock.params.idUnit = 1;
+
+      await userController.indexUsersAdminByUnitId(reqMock, resMock);
+
+      expect(userServiceMock.getUsersAdminByIdUnit).toHaveBeenCalledWith(1);
+      expect(resMock.status).toHaveBeenCalledWith(404);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: 'Usuários não existem',
+      });
+    });
+
+    it('should return 500 if an error occurs', async () => {
+      const errorMessage = 'Internal server error';
+      userServiceMock.getUsersAdminByIdUnit = jest
+        .fn()
+        .mockRejectedValue(new Error(errorMessage));
+      reqMock.params.idUnit = 1;
+
+      await userController.indexUsersAdminByUnitId(reqMock, resMock);
+
+      expect(userServiceMock.getUsersAdminByIdUnit).toHaveBeenCalledWith(1);
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Erro ao buscar usuários',
+      });
+    });
+  });
+
+  describe('getUserByCpf', () => {
+    it('Should return user data for a valid CPF (status 200)', async () => {
+      const Users = [
+        {
+          fullName: 'John Doe',
+          idRole: 1,
+          accepted: false,
+          cpf: '12345678901',
+          email: 'john@email.com',
+          idUnit: 1,
+        },
+        {
+          fullName: 'Jane Smith',
+          idRole: 2,
+          accepted: false,
+          cpf: '212222222222',
+          email: 'j@test.com',
+          idUnit: 2,
+        },
+      ];
+
+      userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(Users[0]);
 
       reqMock.params.cpf = '12345678901';
 
@@ -246,7 +329,7 @@ describe('UserController', () => {
 
       expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('12345678901');
       expect(resMock.status).toHaveBeenCalledWith(200);
-      expect(resMock.json).toHaveBeenCalledWith(User);
+      expect(resMock.json).toHaveBeenCalledWith(Users[0]);
     });
 
     it('should return 404 if user does not exist', async () => {
