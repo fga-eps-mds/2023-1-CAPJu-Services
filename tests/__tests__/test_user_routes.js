@@ -227,22 +227,40 @@ describe('UserController', () => {
   });
 
   describe('getUserByCpf', () => {
-    // it('should return user if it exists', async () => {
-    //   expect(1);
-    // });
+    it('Should return user data for a valid CPF (status 200)', async () => {
+      const User = {
+        name: 'fulano',
+        cpf: '12345678901',
+      };
 
-    // it('should return 404 if user does not exist', async () => {
-    //   userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(null);
-    //   reqMock.params.cpf = '1234567890';
+      userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(User);
 
-    //   await userController.showUserByCpf(reqMock, resMock);
+      reqMock.params.cpf = '12345678901';
 
-    //   expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
-    //   expect(resMock.status).toHaveBeenCalledWith(404);
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     error: 'Usuário não existe',
-    //   });
-    // });
+      resMock = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await userController.showUserByCpf(reqMock, resMock);
+
+      expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('12345678901');
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith(User);
+    });
+
+    it('should return 404 if user does not exist', async () => {
+      userServiceMock.getUserByCpf = jest.fn().mockResolvedValue(null);
+      reqMock.params.cpf = '1234567890';
+
+      await userController.showUserByCpf(reqMock, resMock);
+
+      expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
+      expect(resMock.status).toHaveBeenCalledWith(404);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: 'Usuário não existe',
+      });
+    });
 
     it('should return 500 if an error occurs', async () => {
       const errorMessage = 'Internal server error';
