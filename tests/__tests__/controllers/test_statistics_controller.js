@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import axios from 'axios';
-import { StatisticsController } from '../../src/controllers/statistics.js';
-import ProcessService from '../../src/services/process.js';
-import StageService from '../../src/services/stage.js';
+import { StatisticsController } from '../../../src/controllers/statistics.js';
+import ProcessService from '../../../src/services/process.js';
+import StageService from '../../../src/services/stage.js';
 
 //jest.mock('../services/_index.js');
 jest.mock('axios');

@@ -1,10 +1,10 @@
-import controllers from '../../src/controllers/_index.js';
-import services from '../../src/services/_index.js';
-import models from '../../src/models/_index.js';
-import { FlowController } from '../../src/controllers/flow.js';
-import FlowService from '../../src/services/flow.js';
-import FlowStageService from '../../src/services/flowStage.js';
-import * as middleware from '../../middleware/authMiddleware.js';
+import controllers from '../../../src/controllers/_index.js';
+import services from '../../../src/services/_index.js';
+import models from '../../../src/models/_index.js';
+import { FlowController } from '../../../src/controllers/flow.js';
+import FlowService from '../../../src/services/flow.js';
+import FlowStageService from '../../../src/services/flowStage.js';
+import * as middleware from '../../../middleware/authMiddleware.js';
 
 jest.mock('axios');
 

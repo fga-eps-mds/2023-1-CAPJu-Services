@@ -16,7 +16,7 @@ describe("StatisticsService", () => {
     jest.clearAllMocks();
   })
 
-  it("return process searchDueDate ", async () => {
+  it("return processes searchDueDate", async () => {
     const minDate = new Date().toString();
     const maxDate  = new Date().toString();
     const offSet = 0;
@@ -27,7 +27,7 @@ describe("StatisticsService", () => {
     expect(result).toEqual([{ idProcess: 1, nickname: "processo 1", record: '1234567890', priority: 1, idFlow: 1 }])
   })
 
-  it("countRowsDueDate", async () => {
+  it("return processes countRowsDueDate", async () => {
     const minDate = new Date().toString();
     const maxDate  = new Date().toString();
     const offSet = 0;
@@ -36,9 +36,5 @@ describe("StatisticsService", () => {
     const result = await statisticsService.countRowsDueDate(minDate, maxDate, offSet, limit);
 
     expect(result).toEqual(1)
-  })
-
-  it("", () => {
-    
   })
 })
