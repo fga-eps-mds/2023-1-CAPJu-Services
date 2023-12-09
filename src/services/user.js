@@ -21,9 +21,11 @@ class UserService {
     });
   }
 
-  async getAcceptedUsers() {
+  async getAcceptedUsers(data) {
     return this.user.findAll({
-      where: { accepted: true },
+      where: { ...data.where, accepted: true },
+      offset: data.offset,
+      limit: data.limit,
       attributes: {
         exclude: ['password'],
       },
@@ -57,9 +59,11 @@ class UserService {
     });
   }
 
-  async getNoAcceptedUsers() {
+  async getNoAcceptedUsers(data) {
     return this.user.findAll({
-      where: { accepted: false },
+      where: { ...data.where, accepted: false },
+      offset: data.offset,
+      limit: data.limit,
       attributes: {
         exclude: ['password'],
       },
