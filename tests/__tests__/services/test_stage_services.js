@@ -16,6 +16,7 @@ describe('StageService', () => {
       findOne: jest.fn(),
       create: jest.fn(),
       destroy: jest.fn(),
+      update: jest.fn(),
     };
 
     stageService = new StageService(stageModelMock);
@@ -122,11 +123,11 @@ describe('StageService', () => {
 
   describe('updateStage', () => {
     it('should return true when a stage is successfully updated', async () => {
-      const idStage = 1;
-      const stage = { id: idStage, name: 'Stage 1' };
+      const stage = { id: 1, name: 'Stage 1', duration: 3};
       stageModelMock.findOne.mockResolvedValue(stage);
+      stageModelMock.update.mockResolvedValue([1]); 
 
-      const result = await stageService.updateStage(idStage, "Stage 2", 6);
+      const result = await stageService.updateStage(1, "Stage 2", 6);
       expect(result).toBe(true)
     });
   });
