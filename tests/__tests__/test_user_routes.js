@@ -789,20 +789,24 @@ describe('UserController', () => {
   });
 
   describe('deleteByCpf', () => {
-    // it('should delete an existing user by CPF', async () => {
-    //   const user = { cpf: '1234567890', destroy: jest.fn() };
-    //   userServiceMock.getAcceptedUserByCpf = jest.fn().mockResolvedValue(user);
-    //   reqMock.params.cpf = '1234567890';
-    //   await userController.deleteByCpf(reqMock, resMock);
-    //   expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith(
-    //     '1234567890',
-    //   );
-    //   expect(user.destroy).toHaveBeenCalled();
-    //   expect(resMock.status).toHaveBeenCalledWith(200);
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     message: 'Usuário apagado com sucesso',
-    //   });
-    // });
+    it('should delete an existing user by CPF', async () => {
+      const user = { cpf: '12345678901', destroy: jest.fn() };
+
+      userServiceMock.getAcceptedUserByCpf = jest.fn().mockResolvedValue(user);
+      reqMock.params.cpf = '12345678901';
+
+      await userController.deleteByCpf(reqMock, resMock);
+
+      expect(userServiceMock.getAcceptedUserByCpf).toHaveBeenCalledWith(
+        '12345678901',
+      );
+      expect(user.destroy).toHaveBeenCalled();
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Usuário apagado com sucesso',
+      });
+    });
+
     it('should return 404 if user does not exist', async () => {
       userServiceMock.getAcceptedUserByCpf = jest.fn().mockResolvedValue(null);
       reqMock.params.cpf = '1234567890';
