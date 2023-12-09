@@ -227,11 +227,11 @@ describe('UserController', () => {
   });
 
   describe('indexUsersAdminByUnitId', () => {
-    it('Should return user data for a valid idUnit (status 200)', async () => {
+    it('Should return admin user data for a valid idUnit (status 200)', async () => {
       const Users = [
         {
           fullName: 'John Doe',
-          idRole: 1,
+          idRole: 5,
           accepted: false,
           cpf: '12345678901',
           email: 'john@email.com',
@@ -355,6 +355,66 @@ describe('UserController', () => {
       await userController.showUserByCpf(reqMock, resMock);
 
       expect(userServiceMock.getUserByCpf).toHaveBeenCalledWith('1234567890');
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Erro ao buscar usuário',
+      });
+    });
+  });
+
+  describe('showUserByUnit', () => {
+    it('Should return user data for a valid idUnit (status 200)', async () => {
+      const Users = [
+        {
+          fullName: 'John Doe',
+          idRole: 1,
+          accepted: false,
+          cpf: '12345678901',
+          email: 'john@email.com',
+          idUnit: 1,
+        },
+        {
+          fullName: 'Jane Smith',
+          idRole: 2,
+          accepted: false,
+          cpf: '212222222222',
+          email: 'j@test.com',
+          idUnit: 2,
+        },
+      ];
+
+      reqMock.params = { cpf: '12345678901', idUnit: 1 };
+
+      userServiceMock.getUserByUnit = jest.fn().mockResolvedValue(Users[0]);
+
+      resMock = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await userController.showUserByUnit(reqMock, resMock);
+
+      expect(userServiceMock.getUserByUnit).toHaveBeenCalledWith(
+        '12345678901',
+        1,
+      );
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith(Users[0]);
+    });
+
+    it('should return 500 if an error occurs', async () => {
+      const errorMessage = 'Internal server error';
+      userServiceMock.getUserByUnit = jest
+        .fn()
+        .mockRejectedValue(new Error(errorMessage));
+      reqMock.params = { cpf: '12345678901', idUnit: 1 };
+
+      await userController.showUserByUnit(reqMock, resMock);
+
+      expect(userServiceMock.getUserByUnit).toHaveBeenCalledWith(
+        '12345678901',
+        1,
+      );
       expect(resMock.status).toHaveBeenCalledWith(500);
       expect(resMock.json).toHaveBeenCalledWith({
         message: 'Erro ao buscar usuário',
