@@ -180,35 +180,41 @@ describe('UserController', () => {
   });
 
   describe('store', () => {
-    // it('should create a new user', async () => {
-    //   const newUser = {
-    //     fullName: 'John Doe',
-    //     cpf: '1234567890',
-    //     email: 'john@example.com',
-    //     password: 'password',
-    //     idUnit: 1,
-    //     idRole: 2,
-    //   };
-    //   const createdUser = {
-    //     id: 1,
-    //     fullName: 'John Doe',
-    //     cpf: '1234567890',
-    //     email: 'john@example.com',
-    //     accepted: false,
-    //     idUnit: 1,
-    //     idRole: 2,
-    //   };
-    //   const createUserSpy = jest
-    //     .spyOn(UserService.prototype, 'createUser')
-    //     .mockReturnValue(createdUser);
-    //   reqMock.body = newUser;
-    //   await userController.store(reqMock, resMock);
-    //   expect(createUserSpy).toHaveBeenCalled();
-    //   expect(resMock.json).toHaveBeenCalledWith({
-    //     user: createdUser,
-    //     message: 'Usuario cadastrado com sucesso',
-    //   });
-    // });
+    it('should create a new user', async () => {
+      const newUser = {
+        fullName: 'John Doe',
+        cpf: '1234567890',
+        email: 'john@example.com',
+        password: 'password',
+        idUnit: 1,
+        idRole: 2,
+      };
+
+      const createdUser = {
+        id: 1,
+        fullName: 'John Doe',
+        cpf: '1234567890',
+        email: 'john@example.com',
+        accepted: false,
+        idUnit: 1,
+        idRole: 2,
+      };
+
+      const createUserSpy = jest
+        .spyOn(UserService.prototype, 'createUser')
+        .mockReturnValue(createdUser);
+
+      reqMock.body = newUser;
+
+      await userController.store(reqMock, resMock);
+
+      expect(createUserSpy).toHaveBeenCalled();
+      expect(resMock.json).toHaveBeenCalledWith({
+        user: createdUser,
+        message: 'Usuario cadastrado com sucesso',
+      });
+    });
+
     it('should return 500 if an error occurs', async () => {
       const errorMessage = 'Internal server error';
       userServiceMock.hash = jest
@@ -302,112 +308,69 @@ describe('UserController', () => {
 
   describe('getAllUsers', () => {
     // it('should return all users', async () => {
-    //   jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
-    //     idUnit: 1,
-    //     idRole: 1,
-    //   });
-    //   const users = [
-    //     {
-    //       fullName: 'John Doe',
-    //       idRole: 1,
-    //       accepted: false,
-    //       cpf: '1019283727222',
-    //       email: 'john@email.com',
-    //       idUnit: 1,
-    //     },
-    //     {
-    //       fullName: 'Jane Smith',
-    //       idRole: 2,
-    //       accepted: false,
-    //       cpf: '212222222222',
-    //       email: 'j@test.com',
-    //       idUnit: 2,
-    //     },
-    //   ];
-    //   userServiceMock.getAllUsers = jest.fn().mockResolvedValue(users);
-    //   await userController.index(reqMock, resMock);
-    //   // expect(userServiceMock.getAllUsers).toHaveBeenCalled();
-    //   expect(resMock.status).toHaveBeenCalledWith(200);
-    //   expect(resMock.json).toHaveBeenCalledWith({ users: users });
-    // });
-    // it('should return accepted users if "accepted" query parameter is true', async () => {
-    //   jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
-    //     idUnit: 1,
-    //     idRole: 1,
-    //   });
-    //   const users = [
-    //     {
-    //       fullName: 'John Doe',
-    //       idRole: 1,
-    //       accepted: false,
-    //       cpf: '1019283727222',
-    //       email: 'john@email.com',
-    //       idUnit: 1,
-    //     },
-    //     {
-    //       fullName: 'Jane Smith',
-    //       idRole: 2,
-    //       accepted: false,
-    //       cpf: '212222222222',
-    //       email: 'j@test.com',
-    //       idUnit: 2,
-    //     },
-    //   ];
-    //   const getAcceptedUsersSpy = jest
-    //     .spyOn(UserService.prototype, 'getAcceptedUsers')
-    //     .mockReturnValue(users);
-    //   reqMock.query.accepted = 'true';
-    //   await userController.index(reqMock, resMock);
-    //   expect(getAcceptedUsersSpy).toHaveBeenCalled();
-    //   expect(resMock.status).toHaveBeenCalledWith(500);
-    // });
-    // it('should return non-accepted users if "accepted" query parameter is false', async () => {
-    //   jest.spyOn(middleware, 'tokenToUser').mockReturnValue({
-    //     idUnit: 1,
-    //     idRole: 1,
-    //   });
-    //   const users = [
-    //     {
-    //       fullName: 'John Doe',
-    //       idRole: 1,
-    //       accepted: false,
-    //       cpf: '1019283727222',
-    //       email: 'john@email.com',
-    //       idUnit: 1,
-    //     },
-    //     {
-    //       fullName: 'Jane Smith',
-    //       idRole: 2,
-    //       accepted: false,
-    //       cpf: '212222222222',
-    //       email: 'j@test.com',
-    //       idUnit: 2,
-    //     },
-    //   ];
-    //   const getNoAcceptedUsersSpy = jest
-    //     .spyOn(UserService.prototype, 'getNoAcceptedUsers')
-    //     .mockReturnValue(users);
-    //   reqMock.query.accepted = 'false';
-    //   reqMock.query.limit = 1;
-    //   await userController.index(reqMock, resMock);
-    //   expect(getNoAcceptedUsersSpy).toHaveBeenCalled();
-    //   expect(resMock.status).toHaveBeenCalledWith(500);
-    // });
+    //   const { Op } = require('sequelize');
 
-    // it('should return 400 if "accepted" query parameter is neither true nor false', async () => {
     //   userServiceMock.userFromReq = jest
-    //   .fn()
-    //   .mockResolvedValue({ unit: { idUnit: 1 }, role: { idRole: 1 } });
+    //     .fn()
+    //     .mockResolvedValue({ unit: { idUnit: 1 }, role: { idRole: 1 } });
 
-    //   reqMock.query.accepted = 'inválido';
+    //   userServiceMock.filterByFullName = jest.fn().mockReturnValue({});
+
+    //   const acceptedUsers = [
+    //     { cpf: '123', fullName: 'User1', accepted: true, idUnit: 1, idRole: 2 },
+    //     { cpf: '456', fullName: 'User2', accepted: true, idUnit: 1, idRole: 3 },
+    //   ];
+
+    //   userServiceMock.getAcceptedUsers = jest
+    //     .fn()
+    //     .mockResolvedValue(acceptedUsers);
+
+    //   reqMock = {
+    //     query: {
+    //       accepted: 'true',
+    //       offset: 0,
+    //       limit: 10,
+    //     },
+    //   };
 
     //   await userController.index(reqMock, resMock);
 
-    //   expect(resMock.status).toHaveBeenCalledWith(400);
+    //   expect(userServiceMock.getAcceptedUsers).toHaveBeenCalledWith({
+    //     where: { accepted: true, idRole: { [Op.ne]: 5 } },
+    //     offset: reqMock.query.offset,
+    //     limit: reqMock.query.limit,
+    //   });
+    //   expect(resMock.status).toHaveBeenCalledWith(200);
     //   expect(resMock.json).toHaveBeenCalledWith({
-    //     message: "O parâmetro accepted deve ser 'true' ou 'false'",
+    //     users: [
+    //       {
+    //         cpf: '123',
+    //         fullName: 'User1',
+    //         accepted: true,
+    //         idUnit: 1,
+    //         idRole: 2,
+    //       },
+    //       {
+    //         cpf: '456',
+    //         fullName: 'User2',
+    //         accepted: true,
+    //         idUnit: 1,
+    //         idRole: 3,
+    //       },
+    //     ],
+    //     totalPages: 1,
     //   });
     // });
+
+    // it('should return accepted users if "accepted" query parameter is true', async () => {
+
+    // });
+
+    // it('should return non-accepted users if "accepted" query parameter is false', async () => {
+
+    // });
+
+    it('should return 400 if "accepted" query parameter is neither true nor false', async () => {});
 
     it('should return 500 if an error occurs', async () => {
       const errorMessage = 'Internal server error';

@@ -4,7 +4,13 @@ import UserService from '../../src/services/user.js';
 import models from '../../src/models/_index.js';
 import jwt from 'jsonwebtoken';
 import sequelizeConfig from '../../src/config/sequelize';
+import {
+  authenticate,
+  userFromReq,
+} from '../../src/middleware/authMiddleware.js';
 //import "dotenv/config.js"
+
+jest.mock('jsonwebtoken');
 
 describe('authMiddleware test', () => {
   beforeEach(() => {
@@ -18,6 +24,28 @@ describe('authMiddleware test', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
+  });
+
+  describe('userFromReq', () => {
+    it('should return user ID from token', async () => {
+      const req = {
+        headers: {
+          authorization: 'Bearer sdawdsawd',
+        },
+      };
+
+      const decodeSpy = jest
+        .spyOn(jwt, 'decode')
+        .mockReturnValue({ id: 'user_id' });
+
+      const teste = await userFromReq(req);
+
+      expect(decodeSpy).toHaveBeenCalledWith('sdawdsawd');
+
+      expect(teste).toEqual('user_id');
+
+      decodeSpy.mockRestore();
+    });
   });
 
   describe('test of tokenToUser', () => {
