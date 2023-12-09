@@ -46,6 +46,7 @@ export class UserController {
             offset: req.query.offset,
             limit: req.query.limit,
           });
+          console.log('----->', users);
           totalCount = await this.userService.countRows({
             // fazer o count
             where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },

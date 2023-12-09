@@ -73,6 +73,12 @@ describe('UserServices', () => {
 
   describe('getAcceptedUsers', () => {
     it('deve retornar todos usuários aceitados', async () => {
+      const dataMock = {
+        where: { accepted: true },
+        offset: 0,
+        limit: 5,
+      };
+
       const users = [
         {
           fullName: 'John Doe',
@@ -104,10 +110,17 @@ describe('UserServices', () => {
 
       userModelMock.findAll.mockResolvedValue([newUsers[0]]);
 
-      const result = await userService.getAcceptedUsers();
+      const result = await userService.getAcceptedUsers(dataMock);
 
       expect(result).toEqual([newUsers[0]]);
-      expect(userModelMock.findAll).toHaveBeenCalled();
+      expect(userModelMock.findAll).toHaveBeenCalledWith({
+        where: { ...dataMock.where, accepted: true },
+        offset: dataMock.offset,
+        limit: dataMock.limit,
+        attributes: {
+          exclude: ['password'],
+        },
+      });
     });
   });
 
@@ -221,6 +234,12 @@ describe('UserServices', () => {
 
   describe('getNoAcceptedUsers', () => {
     it('deve retornar todos usuários não aceitos', async () => {
+      const dataMock = {
+        where: { accepted: false },
+        offset: 0,
+        limit: 5,
+      };
+
       const users = [
         {
           fullName: 'John Doe',
@@ -252,10 +271,17 @@ describe('UserServices', () => {
 
       userModelMock.findAll.mockResolvedValue([newUsers[0]]);
 
-      const result = await userService.getNoAcceptedUsers();
+      const result = await userService.getNoAcceptedUsers(dataMock);
 
       expect(result).toEqual([newUsers[0]]);
-      expect(userModelMock.findAll).toHaveBeenCalled();
+      expect(userModelMock.findAll).toHaveBeenCalledWith({
+        where: { ...dataMock.where, accepted: false },
+        offset: dataMock.offset,
+        limit: dataMock.limit,
+        attributes: {
+          exclude: ['password'],
+        },
+      });
     });
   });
 
