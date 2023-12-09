@@ -63,6 +63,8 @@ class ProcessService {
           : {};
     }
 
+    console.log('jkdkjsd', flowStages);
+
     if (!flowStages.length) {
       return res.status(404).json({ error: 'Não há etapas neste fluxo' });
     }

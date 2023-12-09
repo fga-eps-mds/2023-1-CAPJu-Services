@@ -77,6 +77,7 @@ describe('ProcessService', () => {
         idFlow: 1,
         status: 'notStarted',
       };
+
       const updatedProcess = { ...params, status: 'updated' };
 
       reqMock.body = body;
@@ -136,6 +137,31 @@ describe('ProcessService', () => {
       expect(result).toEqual({ error: 'Falha ao buscar processo.' });
       expect(processService.getProcessById).toHaveBeenCalled();
     });
+
+    it('Caso flowStages não tiver valores', async () => {
+      const params = {
+        idProcess: 1,
+        idFLow: 1,
+        limit: 1,
+      };
+
+      reqMock.params = params;
+
+      resMock.json = jest
+        .fn()
+        .mockResolvedValue({ error: 'Não há etapas neste fluxo' });
+      resMock.status = jest.fn(() => resMock);
+
+      processService.flowStageService.findAllByIdFlow = jest
+        .fn()
+        .mockResolvedValue([]);
+
+      processService.getProcessById = jest.fn().mockResolvedValue(reqMock);
+
+      const result = await processService.updateProcess(reqMock, resMock);
+
+      expect(result).toEqual({ error: 'Não há etapas neste fluxo' });
+    });
   });
 
   describe('finalizeProcess', () => {
@@ -176,6 +202,90 @@ describe('ProcessService', () => {
 
       expect(result).toEqual(archiveProcess);
     });
+  });
+
+  describe('updateProcessStage', () => {
+    it('Atualizar a etapa de um processo com identificadores invalidos', async () => {
+      const params = { idProcess: 1 };
+      const body = {
+        idProcess: 1,
+        from: 1,
+        to: 2,
+        idFlow: '1',
+      };
+      const originalProcessStage = {
+        idProcess: 1,
+        from: 1,
+        to: 2,
+        idFlow: '1',
+      };
+
+      reqMock.body = body;
+      reqMock.params = params;
+
+      resMock.json = jest
+        .fn()
+        .mockResolvedValue({ error: 'Identificadores inválidos' });
+      resMock.status = jest.fn(() => resMock);
+
+      const result = await processService.updateProcessStage(reqMock, resMock);
+
+      expect(result).toEqual(resMock);
+    });
+
+    it('Atualizar etapa de um processo', async () => {
+      const params = { idProcess: 1 };
+      const body = {
+        idProcess: 1,
+        from: 1,
+        to: 2,
+        idFlow: '1',
+      };
+      const originalProcessStage = {
+        idProcess: 1,
+        from: 1,
+        to: 2,
+        idFlow: '1',
+      };
+
+      reqMock.body = body;
+      reqMock.params = params;
+
+      resMock.json = jest
+        .fn()
+        .mockResolvedValue({ error: 'Identificadores inválidos' });
+      resMock.status = jest.fn(() => resMock);
+
+      const result = await processService.updateProcessStage(reqMock, resMock);
+
+      expect(result).toEqual(resMock);
+
+    });
+
+    // it('Caso flowStages não tiver valores', async () => {
+    //   const params = {
+    //     idProcess: 1,
+    //     idFLow: 1,
+    //     limit: 1,
+    //   };
+
+    //   reqMock.params = params;
+
+    //   resMock.json = jest
+    //     .fn()
+    //     .mockResolvedValue({ error: 'Não há etapas neste fluxo' });
+    //   resMock.status = jest.fn(() => resMock);
+
+    //   processService.flowStageService.findAllByIdFlow = jest
+    //     .fn()
+    //     .mockResolvedValue([]);
+
+    //   processService.getProcessById = jest.fn().mockResolvedValue(reqMock);
+
+    //   const result = await processService.updateProcess(reqMock, resMock);
+
+    //   expect(result).toEqual({ error: 'Não há etapas neste fluxo' });
+    // });
   });
 
   // it('Retornar o processo atualizado se o processo foi atualizado com sucesso', async () => {
@@ -374,14 +484,14 @@ describe('ProcessService', () => {
 
   describe('getProcessByIdFlow', () => {
     it('Buscar processo a partir do seu registro', async () => {
-      const originalProcess = { record: '48390332920234024580' };
-      const searchedProcess = { record: '48390332920234024580' };
+      const originalProcess = { idFlow: 1 };
+      const searchedProcess = { idFlow: 1 };
 
-      processService.process.findOne = jest
+      processService.process.findAll = jest
         .fn()
         .mockResolvedValue(originalProcess);
 
-      const result = await processService.getProcessByRecord(originalProcess);
+      const result = await processService.getProcessByIdFlow(originalProcess);
 
       expect(result).toEqual(searchedProcess);
     });
