@@ -1,9 +1,9 @@
-import StageService from '../../src/services/stage';
-import controllers from '../../src/controllers/_index.js';
-import services from '../../src/services/_index.js';
-import models from '../../src/models/_index.js';
-import * as middleware from '../../middleware/authMiddleware.js';
-import { StageController } from '../../src/controllers/stage';
+import StageService from '../../../src/services/stage';
+import controllers from '../../../src/controllers/_index.js';
+import services from '../../../src/services/_index.js';
+import models from '../../../src/models/_index.js';
+import * as middleware from '../../../middleware/authMiddleware.js';
+import { StageController } from '../../../src/controllers/stage';
 
 describe('StageService', () => {
   let stageService;

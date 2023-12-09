@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import axios from 'axios';
-import { FlowController } from '../../src/controllers/flow.js';
+import { FlowController } from '../../../src/controllers/flow.js';
 
 //jest.mock('../services/_index.js');
 jest.mock('axios');

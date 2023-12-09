@@ -1,6 +1,6 @@
 import { QueryTypes } from 'sequelize';
-import sequelizeConfig from '../../src/config/sequelize.js';
-import FlowUserService from '../../src/services/flowUser.js';
+import sequelizeConfig from '../../../src/config/sequelize.js';
+import FlowUserService from '../../../src/services/flowUser.js';
 
 const FlowUserModel = {
   findAll: jest.fn(),
@@ -8,7 +8,7 @@ const FlowUserModel = {
   destroy: jest.fn(),
 };
 
-jest.mock('../../src/config/sequelize.js', () => ({
+jest.mock('../../../src/config/sequelize.js', () => ({
   query: jest.fn(),
 }));
 

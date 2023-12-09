@@ -1,4 +1,4 @@
-import PriorityService from '../../src/services/priority';
+import PriorityService from '../../../src/services/priority';
 
 const PriorityModel = {
   findAll: jest.fn(),

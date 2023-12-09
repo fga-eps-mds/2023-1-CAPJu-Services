@@ -1,8 +1,8 @@
 import 'dotenv/config';
-import { StageController } from '../../src/controllers/stage.js';
+import { StageController } from '../../../src/controllers/stage.js';
 import axios from 'axios';
 
-import * as utils from '../../middleware/authMiddleware.js';
+import * as utils from '../../../middleware/authMiddleware.js';
 
 jest.mock('axios');
 
