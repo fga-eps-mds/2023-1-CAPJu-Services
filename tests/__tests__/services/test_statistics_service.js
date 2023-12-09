@@ -2,17 +2,15 @@ import sequelizeConfig from '../../../src/config/sequelize';
 import StatisticsService from '../../../src/services/statistics';
 
 jest.mock('../../../src/config/sequelize.js', () => ({
-  query: jest
-    .fn()
-    .mockResolvedValue([
-      {
-        idProcess: 1,
-        nickname: 'processo 1',
-        record: '1234567890',
-        priority: 1,
-        idFlow: 1,
-      },
-    ]),
+  query: jest.fn().mockResolvedValue([
+    {
+      idProcess: 1,
+      nickname: 'processo 1',
+      record: '1234567890',
+      priority: 1,
+      idFlow: 1,
+    },
+  ]),
 }));
 
 describe('StatisticsService', () => {

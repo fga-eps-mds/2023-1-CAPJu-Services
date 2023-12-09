@@ -253,7 +253,7 @@ export class ProcessesFileService {
         const prioritesIndex = header.findIndex(h =>
           validPrioritiesHeaders.includes(h),
         );
-        
+
         if (prioritesIndex !== -1) {
           headerIndexes.prioritiesHeaderIndex = prioritesIndex;
         }
@@ -273,7 +273,7 @@ export class ProcessesFileService {
 
           const numberOfRows = sheetDataMap.get(
             headerIndexes.processHeaderIndex,
-          ).length
+          ).length;
           let processesFileItems = [];
 
           let rowIndex = 0;
@@ -446,7 +446,7 @@ export class ProcessesFileService {
             const maxContentLengths = this.findMaxContentLengthPerColumn(
               sheet.data,
             );
-            
+
             ws['!cols'] = maxContentLengths.map(maxLength => ({
               wch: maxLength,
             }));
