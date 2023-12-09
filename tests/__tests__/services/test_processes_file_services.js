@@ -1,4 +1,40 @@
 import { ProcessesFileService } from "../../../src/services/processesFile";
+import xlsx from 'node-xlsx';
+import XLSX from 'xlsx-js-style';
+
+jest.mock("../../../src/config/sequelize", () => ({
+  transaction: jest.fn().mockImplementation((transactionCallback) => {
+    transactionCallback();
+  })
+}))
+
+jest.mock("../../../src/models/_index", () => ({
+  ProcessAud: {
+    bulkCreate: jest.fn().mockResolvedValue([])
+  },
+  Process: { 
+    bulkCreate: jest.fn().mockResolvedValue([])
+  }
+}))
+
+jest.mock('node-xlsx', () => ({
+  parse: jest.fn().mockResolvedValue([{
+    name: 'mySheetName',
+    data: [
+      ['Processos', 'Apelido', 'Fluxo', 'Prioridade'],
+      ["41520545620233004644", "teste1", "Fluxo 1", 1],
+    ]}
+  ])
+}))
+
+jest.mock('xlsx-js-style', () => ({
+  utils: { 
+    book_new: jest.fn().mockResolvedValue({}),
+    aoa_to_sheet: jest.fn().mockResolvedValue({ '!cols': [] }),
+    book_append_sheet: jest.fn(),
+  },
+  write: jest.fn().mockResolvedValue([0x62, 0x75, 0x66, 0x66, 0x65, 0x72])
+}))
 
 const ProcessFileModel = {
   findAll: jest.fn(),
@@ -89,8 +125,10 @@ describe('ProcessFileService', () => {
       createdAt: "08/12/2023",
     }
 
-    processFile.processesFileItemRepository.findAll = jest.fn().mockResolvedValue([ process ])
-    processFile.processesFileItemRepository.count = jest.fn().mockResolvedValue(20)
+    processFile.processesFileItemRepository = { 
+      findAll: jest.fn().mockResolvedValue([ process ]),
+      count: jest.fn().mockResolvedValue(20)
+    }
 
     const expected = {
       data: [ process ], 
@@ -105,5 +143,23 @@ describe('ProcessFileService', () => {
     const result = await processFile.findAllItemsPaged(reqMock)
 
     expect(result).toEqual(expected);
-  }) 
+  })
+
+  it("run executeJob correctly", async () => {
+    const files = [{ idProcessesFile: 1, fileName: "test1", dataOriginalFile: "./myFile.xlsx" }]
+
+    processFile.processesFileRepository.findAll = jest.fn().mockResolvedValue(files)
+    processFile.processesFileRepository.update = jest.fn()
+    processFile.flowService.findAllRawWithAttributes = jest.fn().mockResolvedValue([{ idFlow: 1, idUnit: 1, name: "Fluxo 1" }])
+    processFile.validateRecord = jest.fn().mockResolvedValue({ filteredRecord: "41520545620233004644", valid: true })
+    processFile.getPriorityIdByDescriptionOrAbbreviation = jest.fn().mockResolvedValue(1)
+
+    processFile.processesFileItemRepository = {
+      bulkCreate: jest.fn()
+    }
+
+    processFile.executeJob()
+
+    expect(processFile.processesFileRepository.findAll).toHaveBeenCalled()
+  })
 })
