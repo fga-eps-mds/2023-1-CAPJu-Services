@@ -35,8 +35,12 @@ UserRoutes.post(
   '/acceptRequest/:cpf',
   controllers.userController.acceptRequest,
 );
-UserRoutes.put('/updateUser/:cpf', controllers.userController.updateUserEmail);
+UserRoutes.put(
+  '/updateUserFullName/:cpf',
+  controllers.userController.updateUserFullName,
+);
 UserRoutes.put('/updateUserRole', controllers.userController.updateUserRole);
+UserRoutes.put('/updateUser/:cpf', controllers.userController.updateUserEmail);
 UserRoutes.delete('/deleteUser/:cpf', controllers.userController.deleteByCpf);
 UserRoutes.delete(
   '/deleteRequest/:cpf',

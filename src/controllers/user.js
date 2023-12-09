@@ -49,7 +49,6 @@ export class UserController {
             offset: req.query.offset,
             limit: req.query.limit,
           });
-          console.log(users);
           totalCount = await this.userService.countRows({
             where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
           });
@@ -412,6 +411,27 @@ export class UserController {
       return res
         .status(500)
         .json({ error, message: 'Erro ao atualizar senha' });
+    }
+  };
+
+  updateUserFullName = async (req, res) => {
+    try {
+      const { cpf } = req.params;
+      const { fullName } = req.body;
+      const updated = await this.userService.updateUserFullName(cpf, fullName);
+      if (updated) {
+        return res.status(200).json({
+          message: 'Nome completo atualizado',
+        });
+      } else {
+        return res.status(400).json({
+          message: 'Nome completo não atualizado',
+        });
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao atualizar o nome' });
     }
   };
 
