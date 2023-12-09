@@ -30,7 +30,7 @@ describe('ProcessService', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
-  })
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -53,37 +53,76 @@ describe('ProcessService', () => {
   describe('updateProcess', () => {
     it('Atualizar um processo com os parâmetros e registro fornecidos', async () => {
       const params = { idProcess: 1 };
-      const body = { idProcess: 1, nickname: "processo 1", record: '1234567890', priority: 1, idFlow: 1, status: 'inProgress' };
+      const body = {
+        idProcess: 1,
+        nickname: 'processo 1',
+        record: '1234567890',
+        priority: 1,
+        idFlow: 1,
+        status: 'inProgress',
+      };
 
-      const originalProcess = { idProcess: 1, nickname: "processo 1", record: '1234567890', priority: 1, idFlow: 1, status: 'notStarted' };
+      const originalProcess = {
+        idProcess: 1,
+        nickname: 'processo 1',
+        record: '1234567890',
+        priority: 1,
+        idFlow: 1,
+        status: 'notStarted',
+      };
       const updatedProcess = { ...params, status: 'updated' };
 
-      reqMock.body = body
-      reqMock.params = params
+      reqMock.body = body;
+      reqMock.params = params;
 
-      processService.getProcessById = jest.fn().mockResolvedValue(originalProcess);
-      processService.flowStageService.findAllByIdFlow = jest.fn().mockResolvedValue([ updatedProcess ]);
-      processService.executeUpdateQuery = jest.fn().mockResolvedValue(updatedProcess);
+      processService.getProcessById = jest
+        .fn()
+        .mockResolvedValue(originalProcess);
+      processService.flowStageService.findAllByIdFlow = jest
+        .fn()
+        .mockResolvedValue([updatedProcess]);
+      processService.executeUpdateQuery = jest
+        .fn()
+        .mockResolvedValue(updatedProcess);
 
       const result = await processService.updateProcess(reqMock, resMock);
 
       expect(result).toEqual(updatedProcess);
       expect(processService.getProcessById).toHaveBeenCalled();
-      expect(processService.flowStageService.findAllByIdFlow).toHaveBeenCalled();
+      expect(
+        processService.flowStageService.findAllByIdFlow,
+      ).toHaveBeenCalled();
       expect(processService.executeUpdateQuery).toHaveBeenCalled();
     });
 
     it('Atualizar um processo inexistente', async () => {
-      const params = { idProcess: 1, nickname: "processo 1", record: '1234567890', priority: 1, idFlow: 1 };
-      const body = { idProcess: 1, nickname: "processo 1", record: '1234567890', priority: 1, idFlow: 1, status: 'inProgress' };
+      const params = {
+        idProcess: 1,
+        nickname: 'processo 1',
+        record: '1234567890',
+        priority: 1,
+        idFlow: 1,
+      };
+      const body = {
+        idProcess: 1,
+        nickname: 'processo 1',
+        record: '1234567890',
+        priority: 1,
+        idFlow: 1,
+        status: 'inProgress',
+      };
 
-      reqMock.body = body
-      reqMock.params = params
+      reqMock.body = body;
+      reqMock.params = params;
 
-      resMock.json = jest.fn().mockResolvedValue({ error: 'Falha ao buscar processo.' });
+      resMock.json = jest
+        .fn()
+        .mockResolvedValue({ error: 'Falha ao buscar processo.' });
       resMock.status = jest.fn(() => resMock);
 
-      processService.getProcessById = jest.fn().mockRejectedValue({ error: 'Falha ao buscar processo.' });
+      processService.getProcessById = jest
+        .fn()
+        .mockRejectedValue({ error: 'Falha ao buscar processo.' });
 
       const result = await processService.updateProcess(reqMock, resMock);
 
@@ -108,53 +147,89 @@ describe('ProcessService', () => {
   describe('executeUpdateQuery', () => {
     it('with update count returning bigger than 0', async () => {
       const updateCount = 1;
-      const updatedEntities = [{ idProcess: 1, nickname: "processo 1", record: '1234567890', priority: 1, idFlow: 1 }]
-      const expected = { idProcess: 1, nickname: "processo 1", record: '1234567890', priority: 1, idFlow: 1 }
+      const updatedEntities = [
+        {
+          idProcess: 1,
+          nickname: 'processo 1',
+          record: '1234567890',
+          priority: 1,
+          idFlow: 1,
+        },
+      ];
+      const expected = {
+        idProcess: 1,
+        nickname: 'processo 1',
+        record: '1234567890',
+        priority: 1,
+        idFlow: 1,
+      };
 
-      const process = { idProcess: 1, nickname: "processo x", record: '1234567890', priority: 1, idFlow: 1 }
+      const process = {
+        idProcess: 1,
+        nickname: 'processo x',
+        record: '1234567890',
+        priority: 1,
+        idFlow: 1,
+      };
 
-      processService.process.update = jest.fn().mockResolvedValue([updateCount, updatedEntities]);
+      processService.process.update = jest
+        .fn()
+        .mockResolvedValue([updateCount, updatedEntities]);
       processService.processAud.create = jest.fn().mockResolvedValue();
 
-      const result = await processService.executeUpdateQuery(1, process, reqMock);
+      const result = await processService.executeUpdateQuery(
+        1,
+        process,
+        reqMock,
+      );
 
       expect(result).toEqual(expected);
       expect(processService.process.update).toHaveBeenCalled();
       expect(processService.processAud.create).toHaveBeenCalled();
-    })
+    });
 
     it('with update count returning equals than 0', async () => {
       const updateCount = 0;
-      const updatedEntities = []
+      const updatedEntities = [];
 
-      const process = { idProcess: 1, nickname: "processo x", record: '1234567890', priority: 1, idFlow: 1 }
+      const process = {
+        idProcess: 1,
+        nickname: 'processo x',
+        record: '1234567890',
+        priority: 1,
+        idFlow: 1,
+      };
 
-      services.processService.process.update = jest.fn().mockResolvedValue([updateCount, updatedEntities]);
+      services.processService.process.update = jest
+        .fn()
+        .mockResolvedValue([updateCount, updatedEntities]);
       services.processService.processAud.create = jest.fn().mockResolvedValue();
 
-      const result = await services.processService.executeUpdateQuery(1, process, reqMock);
+      const result = await services.processService.executeUpdateQuery(
+        1,
+        process,
+        reqMock,
+      );
 
       expect(result).toBeFalsy();
       expect(services.processService.process.update).toHaveBeenCalled();
       expect(services.processService.processAud.create).toHaveBeenCalled();
-    })
-  })
+    });
+  });
 
   describe('updateProcessStage', () => {
-    it('happy flow', () => {
-
-    })
-  })
+    it('happy flow', () => {});
+  });
 
   describe('deleteProcessByRecord', () => {
     it('Excluir um processo com o registro fornecido', async () => {
       const record = '1234567890';
-      
+
       ProcessModel.destroy.mockResolvedValue(1);
       processService.processAud.create = jest
         .fn()
         .mockResolvedValue({ processAud: null }); // This can be useful in future
-      
+
       const result = await processService.deleteProcessByRecord(
         record,
         reqMock,
