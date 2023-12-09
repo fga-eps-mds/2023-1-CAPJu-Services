@@ -19,11 +19,62 @@ describe('authMiddleware test', () => {
       params: {},
       query: {},
       body: {},
+      headers: {},
     };
     let resMock = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     };
+  });
+
+  describe('authenticate', () => {
+    // it('should return 401 if user is not found', async () => {
+    // });
+
+    it('should return 401 if no token is provided', async () => {
+      const req = {
+        headers: {},
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await authenticate(req, res, jest.fn());
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({ message: 'No token provided' });
+    });
+
+    // it('should return 401 for token expiration', async () => {
+    // });
+
+    it('should return 401 for 2° authentication failure', async () => {
+      const req = {
+        headers: {
+          authorization: 'Bearer aossodaijsioja',
+        },
+      };
+
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      jest.spyOn(jwt, 'verify').mockImplementation(() => {
+        throw new Error('Authentication failed');
+      });
+
+      await authenticate(req, res, jest.fn());
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Authentication failed',
+      });
+
+      jest.spyOn(jwt, 'verify').mockRestore();
+    });
   });
 
   describe('userFromReq', () => {

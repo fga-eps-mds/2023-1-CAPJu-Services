@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import { QueryTypes } from 'sequelize';
 import sequelizeConfig from '../config/sequelize.js';
 
+const argon = process.env.ARGON2_SECRET || 'capju_argon2_secret';
+
 async function authenticate(req, res, next) {
   if (
     !req.headers.authorization ||
@@ -14,7 +16,7 @@ async function authenticate(req, res, next) {
   try {
     const token = req.headers.authorization.split(' ')[1];
 
-    const decodedUser = jwt.verify(token, process.env.JWT_SECRET).id;
+    const decodedUser = jwt.verify(token, argon).id;
 
     const userData = await sequelizeConfig.query(
       `select * from users u where cpf = :cpf limit 1`,
