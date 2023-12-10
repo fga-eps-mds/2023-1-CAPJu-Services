@@ -422,4 +422,62 @@ describe('FlowController', () => {
       });
     })
   });
+
+  describe('store', () => {
+    it('', async () => {
+      reqMock.body = {
+        idUnit: 1,
+        idUsersToNotify: ["12345678901"],
+        name: "1",
+        sequences: [
+            {
+                commentary: "",
+                from: 15,
+                to: 17
+            }
+        ]
+    }
+    const usersMock = { data: [{cpf: 12345678901, fullName: "Fulano da Silva"}],}
+    axios.get.mockResolvedValue(usersMock);
+
+    const flowMock = {idFlow: 1, name: "Fluxo 1"}
+    const mock1 = { dataValues: {idStage: 1, name: "Etapa 1", duration: 1}}
+    const mock2 = { dataValues: {idStage: 2, name: "Etapa 2", duration: 2}}
+
+    const flowStageMock = { idFlow: 1, idStageA: 1, idStageB: 2, commentary: "" }
+    const flowUserMock = { idFlow: 1, cpf: 12345678901 }
+
+    flowController.stageService.findOneByStageId = jest
+      .fn()
+      .mockReturnValueOnce(mock1).mockReturnValueOnce(mock2)
+
+    flowController.flowService.createFlow = jest
+      .fn()
+      .mockResolvedValue(flowMock)
+
+    flowController.flowStageService.createFlowStage = jest
+      .fn()
+      .mockResolvedValue(flowStageMock)
+
+    flowController.flowUserService.createFlowUser = jest
+      .fn()
+      .mockResolvedValue(flowUserMock)
+
+    await flowController.store (reqMock, resMock)
+    expect(resMock.status).toHaveBeenCalledWith(200);
+    expect(resMock.json).toHaveBeenCalledWith({
+      idFlow: 1,
+      name: "Fluxo 1",
+      idUnit: 1,
+      sequences: [
+        {
+            commentary: "",
+            from: 15,
+            to: 17
+        }
+      ],
+      usersToNotify: ['12345678901'],
+    });
+    })
+  });
 });
