@@ -516,7 +516,7 @@ describe('FlowController', () => {
       await flowController.store(reqMock, resMock)
       expect(resMock.status).toHaveBeenCalledWith(404);
       expect(resMock.json).toHaveBeenCalledWith({
-        message: `Necessário pelo menos duas etapas!'`,
+        message: `Necessário pelo menos duas etapas!`,
       });
     })
 
@@ -539,5 +539,54 @@ describe('FlowController', () => {
       });
     })
 
+    it('Testanto se a 1° etapa existe', async () => {
+      reqMock.body = {
+        idUnit: 1,
+        idUsersToNotify: [],
+        name: "1",
+        sequences: [{
+          commentary: "",
+          from: 15,
+          to: 17
+        }]
+      }
+
+      flowController.stageService.findOneByStageId = jest
+      .fn()
+      .mockReturnValueOnce({})
+
+
+      await flowController.store(reqMock, resMock)
+      expect(resMock.status).toHaveBeenCalledWith(400);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: `Não existe a etapa com identificador '15'`,
+      });
+    })
+
+    it('Testanto se a 2° etapa existe', async () => {
+      reqMock.body = {
+        idUnit: 1,
+        idUsersToNotify: [],
+        name: "1",
+        sequences: [{
+          commentary: "",
+          from: 15,
+          to: 17
+        }]
+      }
+
+      const mock1 = { dataValues: {idStage: 1, name: "Etapa 1", duration: 1}}
+
+      flowController.stageService.findOneByStageId = jest
+      .fn()
+      .mockReturnValueOnce(mock1).mockReturnValueOnce({})
+
+
+      await flowController.store(reqMock, resMock)
+      expect(resMock.status).toHaveBeenCalledWith(400);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: `Não existe a etapa com identificador '15'`,
+      });
+    })
   });
 });
