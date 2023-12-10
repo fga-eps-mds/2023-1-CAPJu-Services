@@ -665,11 +665,191 @@ describe('FlowController', () => {
         await flowController.update(reqMock, resMock)
         expect(resMock.status).toHaveBeenCalledWith(200);
         expect(resMock.json).toHaveBeenCalledWith({
-          idFlow: updatedFlow.idFlow,
-          name: updatedFlow.name,
-          idUnit: idUnit,
-          sequences,
-          usersToNotify: idUsersToNotify,
+          name: "Fluxo A",
+          idFlow: "1",
+          idUnit: 1,
+          sequences: [
+              {
+                  commentary: "",
+                  from: 15,
+                  to: 17
+              }
+          ],
+          usersToNotify: ["12345678901"],
+        });
+    })
+
+    it('', async () => {
+      reqMock.body = {
+        name: "Fluxo 1",
+        idFlow: 1,
+        idUnit: 1,
+        sequences: [
+            {
+                commentary: "",
+                from: 15,
+                to: 17
+            }
+        ],
+        idUsersToNotify: ["12345678901"]
+      }
+
+      flowController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue({idflow: 1, idUnit: 1, name: "Fluxo 1"})
+
+      flowController.flowService.updateFlow = jest
+        .fn()
+        .mockResolvedValue({name: "Fluxo A",idFlow: "1"})
+        
+        const usersMock = {}
+        axios.get.mockResolvedValue(usersMock);
+        
+        await flowController.update(reqMock, resMock)
+
+
+        expect(resMock.status).toHaveBeenCalledWith(404);
+        expect(resMock.json).toHaveBeenCalledWith({
+          message: `Usuário '12345678901' não existe na unidade '1'`,
+        });
+    })
+
+    it('', async () => {
+      reqMock.body = {
+        name: "Fluxo 1",
+        idFlow: 1,
+        idUnit: 1,
+        sequences: [],
+        idUsersToNotify: ["12345678901"],
+      }
+
+      flowController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue({idflow: 1, idUnit: 1, name: "Fluxo 1"})
+
+      flowController.flowService.updateFlow = jest
+        .fn()
+        .mockResolvedValue({name: "Fluxo A",idFlow: "1"})
+        
+        const usersMock = { data: [{cpf: 12345678901, fullName: "Fulano da Silva"}],}
+        axios.get.mockResolvedValue(usersMock);
+
+        await flowController.update(reqMock, resMock)
+        expect(resMock.status).toHaveBeenCalledWith(404);
+        expect(resMock.json).toHaveBeenCalledWith({
+          message: `Necessário pelo menos duas etapas!`,
+        });
+    })
+
+    it('', async () => {
+      reqMock.body = {
+        name: "Fluxo 1",
+        idFlow: 1,
+        idUnit: 1,
+        sequences: [],
+        idUsersToNotify: ["12345678901"],
+        sequences: [
+          {
+              commentary: "",
+              from: 15,
+              to: 15
+          }
+      ],
+      }
+
+      flowController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue({idflow: 1, idUnit: 1, name: "Fluxo 1"})
+
+      flowController.flowService.updateFlow = jest
+        .fn()
+        .mockResolvedValue({name: "Fluxo A",idFlow: "1"})
+        
+        const usersMock = { data: [{cpf: 12345678901, fullName: "Fulano da Silva"}],}
+        axios.get.mockResolvedValue(usersMock);
+
+        await flowController.update(reqMock, resMock)
+        expect(resMock.status).toHaveBeenCalledWith(400);
+        expect(resMock.json).toHaveBeenCalledWith({
+          message: `Sequências devem ter início e fim diferentes`,
+        });
+    })
+
+    it('', async () => {
+      reqMock.body = {
+        name: "Fluxo 1",
+        idFlow: 1,
+        idUnit: 1,
+        sequences: [],
+        idUsersToNotify: ["12345678901"],
+        sequences: [
+          {
+              commentary: "",
+              from: 15,
+              to: 17
+          }
+      ],
+      }
+
+      flowController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue({idflow: 1, idUnit: 1, name: "Fluxo 1"})
+
+      flowController.flowService.updateFlow = jest
+        .fn()
+        .mockResolvedValue({name: "Fluxo A",idFlow: "1"})
+        
+        const usersMock = { data: [{cpf: 12345678901, fullName: "Fulano da Silva"}],}
+        axios.get.mockResolvedValue(usersMock);
+
+        flowController.stageService.findOneByStageId = jest
+        .fn()
+        .mockReturnValueOnce({})
+
+        await flowController.update(reqMock, resMock)
+        expect(resMock.status).toHaveBeenCalledWith(400);
+        expect(resMock.json).toHaveBeenCalledWith({
+          message: `Não existe a etapa com identificador '15'`,
+        });
+    })
+
+    it('', async () => {
+      reqMock.body = {
+        name: "Fluxo 1",
+        idFlow: 1,
+        idUnit: 1,
+        sequences: [],
+        idUsersToNotify: ["12345678901"],
+        sequences: [
+          {
+              commentary: "",
+              from: 15,
+              to: 17
+          }
+      ],
+      }
+
+      flowController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue({idflow: 1, idUnit: 1, name: "Fluxo 1"})
+
+      flowController.flowService.updateFlow = jest
+        .fn()
+        .mockResolvedValue({name: "Fluxo A",idFlow: "1"})
+        
+        const usersMock = { data: [{cpf: 12345678901, fullName: "Fulano da Silva"}],}
+        axios.get.mockResolvedValue(usersMock);
+
+        const mock1 = { dataValues: {idStage: 1, name: "Etapa 1", duration: 1}}
+
+        flowController.stageService.findOneByStageId = jest
+        .fn()
+        .mockReturnValueOnce(mock1).mockReturnValueOnce({})
+
+        await flowController.update(reqMock, resMock)
+        expect(resMock.status).toHaveBeenCalledWith(400);
+        expect(resMock.json).toHaveBeenCalledWith({
+          message: `Não existe a etapa com identificador '17'`,
         });
     })
   })

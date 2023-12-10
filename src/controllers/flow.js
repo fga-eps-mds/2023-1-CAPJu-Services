@@ -375,7 +375,7 @@ export class FlowController {
             });
           if (!(await this.stageService.findOneByStageId(idStageB)).dataValues)
             return res.status(400).json({
-              message: `Não existe a etapa com identificador '${idStageA}'`,
+              message: `Não existe a etapa com identificador '${idStageB}'`,
             });
         }
 
@@ -404,7 +404,6 @@ export class FlowController {
         });
       }
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: 'Impossível editar fluxo' });
