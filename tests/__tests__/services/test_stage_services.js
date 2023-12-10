@@ -108,6 +108,20 @@ describe('StageService', () => {
     });
   });
 
+  describe('findByUnit', () => {
+    it('Deve encontrar etapas por unidade', async () => {
+      const data = { name: 'Stage 1', idUnit: 1, duration: 10 };
+      const createdStage = { id: 1, ...data };
+      stageModelMock.findAll.mockResolvedValue(createdStage);
+
+      const result = await stageService.findByUnit(data);
+
+      expect(result).toEqual(createdStage);
+      expect(stageModelMock.findAll).toHaveBeenCalledWith(data);
+    });
+  });
+  
+
   describe('deleteStage', () => {
     it('Deve deletar uma etapa com base no ID da etapa', async () => {
       const idStage = 1;
