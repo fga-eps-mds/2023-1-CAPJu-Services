@@ -7,7 +7,7 @@ const resMock = {
   json: jest.fn(),
 };
 
-describe('DocumentAudController', () => {
+describe('ProcessAudController', () => {
   let processAudController;
 
   beforeEach(() => {
