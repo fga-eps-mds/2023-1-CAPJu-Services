@@ -53,4 +53,40 @@ describe('findAllPaged', () => {
       expect(resMock.status).toHaveBeenCalledWith(500);
     });
 })
+
+describe('findAllItemsPaged', () => {  
+    test('Status - 200', async () => {
+        const mockProcessFile = [{
+          idProcessFile: 1,
+          name: "teste",
+          status: "failed",
+          importedBy: 12345678901,
+          createdAt: "12/12/2022",
+          importedAt: "12/12/2022",
+          fileName: "filename.csv",
+        }]
+
+        processesFileController.processesFileService.findAllItemsPaged = jest
+        .fn()
+        .mockResolvedValue(mockProcessFile);
+        
+        await processesFileController.findAllItemsPaged(reqMock, resMock);
+        
+        expect(resMock.json).toHaveBeenCalledWith(mockProcessFile);
+        expect(resMock.status).toHaveBeenCalledWith(200);
+    });
+
+    test('Status - 500', async () => {
+      const mockProcessFile = new Error('Internal Server Error')
+
+      processesFileController.processesFileService.findAllItemsPaged = jest
+      .fn()
+      .mockRejectedValue(mockProcessFile);
+      
+      await processesFileController.findAllItemsPaged(reqMock, resMock);
+      
+      expect(resMock.json).toHaveBeenCalledWith({ error: `${mockProcessFile}`, message: `Erro ao buscar items` });
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+})
 });
