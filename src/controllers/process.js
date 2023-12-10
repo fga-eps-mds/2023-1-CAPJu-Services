@@ -11,7 +11,7 @@ import {
   filterByStageName,
   filterByName,
 } from '../utils/filters.js';
-import { getUserRoleAndUnitFilterFromReq } from '../../middleware/authMiddleware.js';
+import { userFromReq } from '../../middleware/authMiddleware.js';
 
 export class ProcessController {
   constructor() {
@@ -53,7 +53,7 @@ export class ProcessController {
           }
         });
       }
-
+      const user = await userFromReq(req);
       where = {
         ...filterByStatus(req),
         ...filterByLegalPriority(req),
@@ -63,7 +63,7 @@ export class ProcessController {
         ...filterByDateRange(req),
         ...filterByNicknameOrRecord(req),
         ...filterByNicknameAndRecord(req),
-        ...(await getUserRoleAndUnitFilterFromReq(req)),
+        idUnit: user.unit.idUnit,
       };
 
       const offset = parseInt(req.query.offset) || 0;
