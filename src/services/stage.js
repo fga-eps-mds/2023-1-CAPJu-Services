@@ -30,19 +30,22 @@ class StageService {
   }
 
   async deleteStage(idStage) {
+    console.log(idStage);
     return this.stage.destroy({ where: { idStage } });
   }
 
   async updateStage(idStage, name, duration) {
     let stage = await this.findOneByStageId(idStage);
-    console.log(stage.idStage);
+
     if (stage) {
       const [updatedRows] = await this.stage.update(
         { name: name, duration: duration },
         { where: { idStage: idStage } },
       );
+
       if (updatedRows) return true;
     }
+
     return false;
   }
 }
