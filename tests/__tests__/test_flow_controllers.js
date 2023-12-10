@@ -53,6 +53,10 @@ describe('FlowController', () => {
       totalPages: 1,
     };
 
+    jest
+      .spyOn(utils, 'userFromReq')
+      .mockResolvedValue({ unit: { idUnit: undefined } });
+
     flowController.flowService.findAll = jest
       .fn()
       .mockResolvedValue(mockFlowProcesses);
@@ -66,11 +70,6 @@ describe('FlowController', () => {
     flowController.flowService.stagesSequencesFromFlowStages = jest
       .fn()
       .mockResolvedValue(sequences);
-
-    jest.spyOn(utils, 'getUserRoleAndUnitFilterFromReq');
-    utils.getUserRoleAndUnitFilterFromReq.mockImplementation(() => {
-      return { idUnit: 1, idRole: 1 };
-    });
 
     reqMock.query = { limit: 10, offset: 10 };
     await flowController.index(reqMock, resMock);
