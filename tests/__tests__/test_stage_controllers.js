@@ -54,13 +54,7 @@ describe('StageController', () => {
       limit: 5,
     };
 
-    jest.spyOn(utils, 'getUserRoleAndUnitFilterFromReq');
-    utils.getUserRoleAndUnitFilterFromReq.mockImplementation(() => {
-      return {
-        idUnit: 1,
-        idRole: 1,
-      };
-    });
+    jest.spyOn(utils, 'userFromReq').mockResolvedValue({ unit: { idUnit: 1 } });
 
     stageController.stageService.findByUnit = jest
       .fn()
