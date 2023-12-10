@@ -294,6 +294,23 @@ describe('flow endpoints', () => {
       expect(resMock.status).toHaveBeenCalledWith(200);
     });
 
+    test('showByFlowIdWithSequence - show flow by flow id with sequence (404)', async () => {
+      reqMock.params = { idFlow: 1 };
+
+      const mockFlow = { idFlow: 1, name: 'flow x', idUnit: 1 };
+      const mockStages = [];
+
+      flowServiceMock.findOneByFlowId = jest.fn().mockResolvedValue(mockFlow);
+      services.flowStageService.findAllByIdFlow = jest
+        .fn()
+        .mockResolvedValue(mockStages);
+
+      await flowController.showByFlowIdWithSequence(reqMock, resMock);
+
+      expect(resMock.json).toHaveBeenCalledWith({ message: `Fluxo 1 não tem sequências` });
+      expect(resMock.status).toHaveBeenCalledWith(404);
+    });
+
     test('showByFlowIdWithSequence - show flow by flow id with sequence (500)', async () => {
       const error = new Error('Internal Server Error');
       resMock.params = { idFlow: 1 };
@@ -316,4 +333,5 @@ describe('flow endpoints', () => {
       expect(resMock.status).toHaveBeenCalledWith(404);
     });
   });
+  
 });

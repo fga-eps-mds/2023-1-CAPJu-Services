@@ -12,6 +12,63 @@ const resMock = {
   json: jest.fn(),
 };
 
+const mockQueryResults = [
+  {
+    IdFlow: 1,
+    idProcess: 2,
+    processRecord: '54466326220239210526',
+    operation: 'UPDATE',
+    changedAt: '2023-10-21 15:47:03.515+00',
+    newValues:
+      '{"status":"inProgress","idStage":1,"effectiveDate":"2023-10-21T15:47:03.438Z"}',
+  },
+  {
+    IdFlow: 1,
+    idProcess: 3,
+    processRecord: '54466326220239210526',
+    operation: 'UPDATE',
+    changedAt: '2023-10-21 15:47:03.515+00',
+    newValues:
+      '{"status":"inProgress","idStage":1,"effectiveDate":"2023-10-21T15:47:03.438Z"}',
+  },
+  {
+    IdFlow: 1,
+    idProcess: 3,
+    processRecord: '54466326220239210526',
+    operation: 'UPDATE',
+    changedAt: '2023-10-24 15:47:04.515+00',
+    newValues:
+      '{"status":"inProgress","idStage":2,"effectiveDate":"2023-10-24T15:47:03.438Z"}',
+  },
+  {
+    IdFlow: 1,
+    idProcess: 3,
+    processRecord: '54466326220239210526',
+    operation: 'UPDATE',
+    changedAt: '2023-10-25 15:47:05.515+00',
+    newValues:
+      '{"status":"inProgress","idStage":1,"effectiveDate":"2023-10-24T15:47:03.438Z"}',
+  },
+  {
+    IdFlow: 1,
+    idProcess: 3,
+    processRecord: '54466326220239210526',
+    operation: 'UPDATE',
+    changedAt: '2023-10-26 15:47:06.515+00',
+    newValues:
+      '{"status":"inProgress","idStage":2,"effectiveDate":"2023-10-24T15:47:03.438Z"}',
+  },
+  {
+    IdFlow: 1,
+    idProcess: 3,
+    processRecord: '54466326220239210526',
+    operation: 'UPDATE',
+    changedAt: '2023-10-27 15:47:07.515+00',
+    newValues:
+      '{"finalised":"true","status":"inProgress","idStage":3,"effectiveDate":"2023-10-25T15:47:03.438Z"}',
+  },
+];
+
 describe('FlowController', () => {
   let flowController;
 
@@ -182,62 +239,7 @@ describe('FlowController', () => {
 
     it('retornar o tempo medio de um fluxo', async () => {
       const flowId = 1;
-      const query_results = [
-        {
-          IdFlow: 1,
-          idProcess: 2,
-          processRecord: '54466326220239210526',
-          operation: 'UPDATE',
-          changedAt: '2023-10-21 15:47:03.515+00',
-          newValues:
-            '{"status":"inProgress","idStage":1,"effectiveDate":"2023-10-21T15:47:03.438Z"}',
-        },
-        {
-          IdFlow: 1,
-          idProcess: 3,
-          processRecord: '54466326220239210526',
-          operation: 'UPDATE',
-          changedAt: '2023-10-21 15:47:03.515+00',
-          newValues:
-            '{"status":"inProgress","idStage":1,"effectiveDate":"2023-10-21T15:47:03.438Z"}',
-        },
-        {
-          IdFlow: 1,
-          idProcess: 3,
-          processRecord: '54466326220239210526',
-          operation: 'UPDATE',
-          changedAt: '2023-10-24 15:47:04.515+00',
-          newValues:
-            '{"status":"inProgress","idStage":2,"effectiveDate":"2023-10-24T15:47:03.438Z"}',
-        },
-        {
-          IdFlow: 1,
-          idProcess: 3,
-          processRecord: '54466326220239210526',
-          operation: 'UPDATE',
-          changedAt: '2023-10-25 15:47:05.515+00',
-          newValues:
-            '{"status":"inProgress","idStage":1,"effectiveDate":"2023-10-24T15:47:03.438Z"}',
-        },
-        {
-          IdFlow: 1,
-          idProcess: 3,
-          processRecord: '54466326220239210526',
-          operation: 'UPDATE',
-          changedAt: '2023-10-26 15:47:06.515+00',
-          newValues:
-            '{"status":"inProgress","idStage":2,"effectiveDate":"2023-10-24T15:47:03.438Z"}',
-        },
-        {
-          IdFlow: 1,
-          idProcess: 3,
-          processRecord: '54466326220239210526',
-          operation: 'UPDATE',
-          changedAt: '2023-10-27 15:47:07.515+00',
-          newValues:
-            '{"finalised":"true","status":"inProgress","idStage":3,"effectiveDate":"2023-10-25T15:47:03.438Z"}',
-        },
-      ];
+      const query_results = mockQueryResults;
 
       const findAll_results = [
         {
@@ -380,5 +382,44 @@ describe('FlowController', () => {
 
       expect(resMock.status).toHaveBeenCalledWith(200);
     });
+  });
+
+  describe('showUserToNotify', () => {
+    it('Encontrar usuários para notificá-los', async () => {
+      reqMock.params = {idFlow: 1}
+
+      const mockUsers = [{
+        idFlow: 1,
+        cpf: "03265224171",
+        fullName: 'Leandro Almeida',
+        email: 'leozin@email.com',
+        idUnit: 1
+      }]
+
+      flowController.flowUserService.findUsersToNotify = jest
+        .fn()
+        .mockResolvedValue(mockUsers)
+
+      await flowController.showUsersToNotify(reqMock, resMock);
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith({usersToNotify: mockUsers});
+    })
+
+    it('Erro 500', async () => {
+      reqMock.params = {idFlow: 1}
+
+      const erro = new Error("internal server error");
+
+      flowController.flowUserService.findUsersToNotify = jest
+        .fn()
+        .mockRejectedValue(erro)
+
+      await flowController.showUsersToNotify(reqMock, resMock);
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: erro,
+        message: 'Impossível obter usuários que devem ser notificados no fluxo',
+      });
+    })
   });
 });
