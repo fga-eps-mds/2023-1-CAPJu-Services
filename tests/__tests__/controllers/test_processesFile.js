@@ -89,4 +89,38 @@ describe('findAllItemsPaged', () => {
       expect(resMock.status).toHaveBeenCalledWith(500);
     });
 })
+
+describe('create', () => {
+    test('Status - 200', async () => {
+      const mockProcessFile = {
+        error: "TypeError: Cannot read properties of undefined (reading 'authorization')",
+        message: "Erro ao salvar remessa de processos",
+      };
+  
+      processesFileController.processesFileService.create = jest
+        .fn()
+        .mockResolvedValue(mockProcessFile);
+  
+      await processesFileController.create(reqMock, resMock);
+  
+      expect(resMock.json).toHaveBeenCalledWith(mockProcessFile);
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+  
+    test('Status - 500', async () => {
+      const mockProcessFileError = {
+        error: "TypeError: Cannot read properties of undefined (reading 'authorization')",
+        message: "Erro ao salvar remessa de processos",
+      };
+  
+      processesFileController.processesFileService.create = jest
+        .fn()
+        .mockRejectedValue(mockProcessFileError);
+  
+      await processesFileController.create(reqMock, resMock);
+  
+      expect(resMock.json).toHaveBeenCalledWith(mockProcessFileError);
+      expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+});  
 });
