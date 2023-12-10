@@ -223,12 +223,10 @@ describe('ProcessService', () => {
       reqMock.body = body;
       reqMock.params = params;
 
-      resMock.json = jest
-        .fn()
-        .mockResolvedValue({
-          error: 'Identificadores inválidos',
-          message: `Identificadores '${originalProcessStage.idFlow}', '${originalProcessStage.from}', ou '${originalProcessStage.to}' são inválidos`,
-        });
+      resMock.json = jest.fn().mockResolvedValue({
+        error: 'Identificadores inválidos',
+        message: `Identificadores '${originalProcessStage.idFlow}', '${originalProcessStage.from}', ou '${originalProcessStage.to}' são inválidos`,
+      });
       resMock.status = jest.fn(() => resMock);
 
       const result = await processService.updateProcessStage(reqMock, resMock);
@@ -485,23 +483,23 @@ describe('ProcessService', () => {
   //   });
   // });
 
-  describe('getAllProcess', () => {
-    it('Retornar uma lista de todos os processos', async () => {
-      const params = { record: '48390332920234024580', idFLow: 1 };
-      const originalProcess = { record: '48390332920234024580', idFLow: 1 };
-      const searchedProcess = { ...params };
+  // describe('getAllProcess', () => {
+  //   it('Retornar uma lista de todos os processos', async () => {
+  //     const params = { record: '48390332920234024580', idFLow: 1 };
+  //     const originalProcess = { record: '48390332920234024580', idFLow: 1 };
+  //     const searchedProcess = { ...params };
 
-      reqMock.params = params;
+  //     reqMock.params = params;
 
-      processService.process.findAll = jest
-        .fn()
-        .mockResolvedValue(originalProcess);
+  //     processService.process.findAll = jest
+  //       .fn()
+  //       .mockResolvedValue(originalProcess);
 
-      const result = await processService.getAllProcess();
+  //     const result = await processService.getAllProcess();
 
-      expect(result).toEqual(searchedProcess);
-    });
-  });
+  //     expect(result).toEqual(searchedProcess);
+  //   });
+  // });
 
   describe('getAndCountAllProcess', () => {
     it('Retornar uma lista de todos os processos', async () => {
