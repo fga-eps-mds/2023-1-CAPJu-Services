@@ -563,7 +563,7 @@ describe('FlowController', () => {
       });
     })
 
-    it('Testanto se a 2° etapa existe', async () => {
+    it('Testando se a 2° etapa existe', async () => {
       reqMock.body = {
         idUnit: 1,
         idUsersToNotify: [],
@@ -611,6 +611,66 @@ describe('FlowController', () => {
       expect(resMock.json).toHaveBeenCalledWith({
         message: `Erro ao criar fluxo`,
       });
-    })
+    }) 
   });
+
+  describe('update', () => {
+    it('Testando atualizacao de fluxo com sucesso', async () => {
+      reqMock.body = {
+        name: "Fluxo 1",
+        idFlow: 1,
+        idUnit: 1,
+        sequences: [
+            {
+                commentary: "",
+                from: 15,
+                to: 17
+            }
+        ],
+        idUsersToNotify: ["12345678901"],
+      }
+
+      flowController.flowService.findOneByFlowId = jest
+        .fn()
+        .mockResolvedValue({idflow: 1, idUnit: 1, name: "Fluxo 1"})
+
+      flowController.flowService.updateFlow = jest
+        .fn()
+        .mockResolvedValue({name: "Fluxo A",idFlow: "1"})
+        
+        const usersMock = { data: [{cpf: 12345678901, fullName: "Fulano da Silva"}],}
+        axios.get.mockResolvedValue(usersMock);
+
+        const mock1 = { dataValues: {idStage: 1, name: "Etapa 1", duration: 1}}
+        const mock2 = { dataValues: {idStage: 2, name: "Etapa 2", duration: 2}}
+    
+        flowController.stageService.findOneByStageId = jest
+          .fn()
+          .mockReturnValueOnce(mock1).mockReturnValueOnce(mock2)
+    
+        flowController.flowStageService.deleteFlowStageByIdFlow = jest
+          .fn()
+          .mockResolvedValue(1)
+
+        const flowStageMock = { idFlow: 1, idStageA: 1, idStageB: 2, commentary: "" }
+        flowController.flowStageService.createFlowStage = jest
+        .fn()
+        .mockResolvedValue(flowStageMock)
+        
+        const flowUserMock = { idFlow: 1, cpf: 12345678901 }
+        flowController.flowUserService.createFlowUser = jest
+          .fn()
+          .mockResolvedValue(flowUserMock)
+    
+        await flowController.update(reqMock, resMock)
+        expect(resMock.status).toHaveBeenCalledWith(200);
+        expect(resMock.json).toHaveBeenCalledWith({
+          idFlow: updatedFlow.idFlow,
+          name: updatedFlow.name,
+          idUnit: idUnit,
+          sequences,
+          usersToNotify: idUsersToNotify,
+        });
+    })
+  })
 });
