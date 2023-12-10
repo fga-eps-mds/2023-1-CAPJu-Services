@@ -120,7 +120,6 @@ class ProcessService {
         message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`,
       });
     }
-
     const flowStages = await this.flowStageService.findAllByIdFlow(idFlow);
 
     let canAdvance = false;
@@ -131,6 +130,7 @@ class ProcessService {
           (flowStage.idStageA === from && flowStage.idStageB === to) ||
           (flowStage.idStageB === from && flowStage.idStageA === to)
         ) {
+          console.log('to aqui hihi');
           canAdvance = true;
           break;
         }

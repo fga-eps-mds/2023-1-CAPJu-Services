@@ -230,7 +230,7 @@ describe('ProcessService', () => {
 
       const result = await processService.updateProcessStage(reqMock, resMock);
 
-      expect(result).toEqual(resMock);
+      expect(result).toEqual(originalProcessStage);
     });
 
     it('Atualizar etapa de um processo', async () => {
@@ -239,27 +239,36 @@ describe('ProcessService', () => {
         idProcess: 1,
         from: 1,
         to: 2,
-        idFlow: '1',
+        idFlow: 1,
       };
       const originalProcessStage = {
         idProcess: 1,
         from: 1,
         to: 2,
-        idFlow: '1',
+        idFlow: 1,
+      };
+      const updatedProcessStage = {
+        ...params,
+        idStage: originalProcessStage.to,
+        effectiveDate: new Date(),
       };
 
       reqMock.body = body;
       reqMock.params = params;
 
-      resMock.json = jest
-        .fn()
-        .mockResolvedValue({ error: 'Identificadores inválidos' });
+      resMock.json = jest.fn().mockResolvedValue();
       resMock.status = jest.fn(() => resMock);
 
+      processService.flowStageService.findAllByIdFlow = jest
+        .fn()
+        .mockResolvedValue([originalProcessStage.idFlow]);
+
+      processService.executeUpdateQuery = jest
+        .fn()
+        .mockResolvedValue(updatedProcessStage);
+
       const result = await processService.updateProcessStage(reqMock, resMock);
-
-      expect(result).toEqual(resMock);
-
+      expect(result).toEqual(updatedProcessStage);
     });
 
     // it('Caso flowStages não tiver valores', async () => {
@@ -392,62 +401,128 @@ describe('ProcessService', () => {
     });
   });
 
-  // describe('deleteProcessByRecord', () => {
-  //   it('Excluir um processo com o registro fornecido', async () => {
-  //     const record = '1234567890';
-  //     ProcessModel.destroy.mockResolvedValue(1);
-  //     console.log(ProcessModel.processAud);
-  //     processService.processAud.create = jest
-  //       .fn()
-  //       .mockResolvedValue({ processAud: null }); // This can be useful in future
-  //     const result = await processService.deleteProcessByRecord(
-  //       record,
-  //       reqMock,
-  //     );
+  describe('deleteProcessByRecord', () => {
+    it('Deletar um processo com o registro fornecido', async () => {
+      const params = { record: '1234567890', idFlow: 1 };
+      const deletedProcess = { record: '1234567890', idFlow: 1 };
 
-  //     expect(ProcessModel.destroy).toHaveBeenCalledWith({ where: { record } });
-  //   });
-  // });
+      reqMock.params = params;
 
-  // describe('getAllProcess', () => {
-  //   it('Retornar uma lista de todos os processos', async () => {
-  //     ProcessModel.findAll.mockResolvedValue([
-  //       { record: '1234567890', idFlow: 1 },
-  //       { record: '0987654321', idFlow: 2 },
-  //     ]);
+      resMock.json = jest.fn().mockResolvedValue();
+      resMock.status = jest.fn(() => resMock);
 
-  //     const result = await processService.getAllProcess();
+      processService.processAud.create = jest.fn().mockResolvedValue(params);
 
-  //     expect(result).toEqual([
-  //       { record: '1234567890', idFlow: 1 },
-  //       { record: '0987654321', idFlow: 2 },
-  //     ]);
-  //     expect(ProcessModel.findAll).toHaveBeenCalled();
-  //   });
-  // });
+      processService.process.destroy = jest.fn().mockResolvedValue(params);
 
-  // describe('getPriorityProcess', () => {
-  //   it('Retornar uma lista de processos com base nas prioridades fornecidas', async () => {
-  //     ProcessModel.findAll.mockResolvedValue([
-  //       { record: '1234567890', idFlow: 1, idPriority: 1 },
-  //       { record: '0987654321', idFlow: 2, idPriority: 2 },
-  //     ]);
+      const result = await processService.deleteProcessByRecord(
+        params.record,
+        params,
+      );
 
-  //     const result = await processService.getPriorityProcess();
+      expect(result).toEqual(deletedProcess);
+    });
+  });
 
-  //     expect(result).toEqual([
-  //       { record: '1234567890', idFlow: 1, idPriority: 1 },
-  //       { record: '0987654321', idFlow: 2, idPriority: 2 },
-  //     ]);
-  //     expect(ProcessModel.findAll).toHaveBeenCalledWith({
-  //       where: {
-  //         idPriority: {
-  //           [Op.ne]: null,
-  //         },
-  //       },
-  //     });
-  //   });
-  // });
+  describe('deleteByIdFlow', () => {
+    it('Deletar um processo a partir do idFlow', async () => {
+      const params = { idFlow: 1 };
+      const deletedProcess = { idFlow: 1 };
+
+      reqMock.params = params;
+
+      resMock.json = jest.fn().mockResolvedValue();
+      resMock.status = jest.fn(() => resMock);
+
+      processService.process.destroy = jest.fn().mockResolvedValue(params);
+
+      const result = await processService.deleteByIdFlow();
+
+      expect(result).toEqual(deletedProcess);
+    });
+  });
+
+  describe('deleteProcessById', () => {
+    it('Deletar um processo a partir do identificador', async () => {
+      const params = { idProcess: 1 };
+      const deletedProcess = { idProcess: 1 };
+
+      reqMock.params = params;
+
+      resMock.json = jest.fn().mockResolvedValue();
+      resMock.status = jest.fn(() => resMock);
+
+      processService.noteRepository.destroy = jest
+        .fn()
+        .mockResolvedValue(params);
+
+      processService.processesFileItemRepository = jest
+        .fn()
+        .mockResolvedValue(params);
+
+      processService.processAud.delete = jest.fn().mockResolvedValue(params);
+
+      processService.process.destroy = jest.fn().mockResolvedValue(params);
+
+      const result = await processService.deleteProcessById(params);
+
+      expect(result).toEqual(deletedProcess);
+    });
+  });
+
+  describe('getAllProcess', () => {
+    it('Retornar uma lista de todos os processos', async () => {
+      const params = { record: '48390332920234024580', idFLow: 1 };
+      const originalProcess = { record: '48390332920234024580', idFLow: 1 };
+      const searchedProcess = { ...params };
+
+      reqMock.params = params;
+
+      processService.process.findAll = jest
+        .fn()
+        .mockResolvedValue(originalProcess);
+
+      const result = await processService.getAllProcess();
+
+      expect(result).toEqual(searchedProcess);
+    });
+  });
+
+  describe('getAndCountAllProcess', () => {
+    it('Retornar uma lista de todos os processos', async () => {
+      const params = { record: '48390332920234024580', idFLow: 1 };
+      const originalProcess = { record: '48390332920234024580', idFLow: 1 };
+      const searchedProcess = { ...params };
+
+      reqMock.params = params;
+
+      processService.process.findAndCountAll = jest
+        .fn()
+        .mockResolvedValue(originalProcess);
+
+      const result = await processService.getAndCountAllProcess();
+
+      expect(result).toEqual(searchedProcess);
+    });
+  });
+
+  describe('getPriorityProcess', () => {
+    it('Retornar uma lista de processos com base nas prioridades fornecidas', async () => {
+      const params = { record: '48390332920234024580', idFLow: 1 };
+      const originalProcess = { record: '48390332920234024580', idFLow: 1 };
+      const searchedPriorityProcess = { ...params };
+
+      reqMock.params = params;
+
+      processService.process.findAll = jest
+        .fn()
+        .mockResolvedValue(originalProcess);
+
+      const result = await processService.getPriorityProcess();
+
+      expect(result).toEqual(searchedPriorityProcess);
+    });
+  });
 
   describe('getProcessByUniqueKeys', () => {
     it('Buscar processo a partir da sua chave única', async () => {
@@ -483,7 +558,7 @@ describe('ProcessService', () => {
   });
 
   describe('getProcessByIdFlow', () => {
-    it('Buscar processo a partir do seu registro', async () => {
+    it('Buscar processo a partir do seu idFlow', async () => {
       const originalProcess = { idFlow: 1 };
       const searchedProcess = { idFlow: 1 };
 
@@ -497,26 +572,63 @@ describe('ProcessService', () => {
     });
   });
 
-  // describe('validateRecord', () => {
-  //   it('Deve validar e filtrar um registro de processo', () => {
-  //     const validRecord = '12345678901234567890';
-  //     const invalidRecord = 'ABCD123456';
+  describe('getProcessById', () => {
+    it('Buscar processo a partir do seu registro', async () => {
+      const originalProcess = { idProcess: 1 };
+      const searchedProcess = { idProcess: 1 };
 
-  //     const result1 = processService.validateRecord(validRecord);
-  //     const result2 = processService.validateRecord(invalidRecord);
+      processService.process.findOne = jest
+        .fn()
+        .mockResolvedValue(originalProcess);
 
-  //     const validResult = {
-  //       filteredRecord: '12345678901234567890',
-  //       valid: true,
-  //     };
-  //     const invalidResult = {
-  //       filteredRecord: '',
-  //       valid: false,
-  //     };
+      const result = await processService.getProcessById(originalProcess);
 
-  //     expect(result1.valid).toEqual(true);
+      expect(result).toEqual(searchedProcess);
+    });
+  });
 
-  //     expect(result2.valid).toEqual(false);
+  describe('getProcessRecordById', () => {
+    it('Buscar o registro de um processo a partir do identificador', async () => {
+      const originalProcess = { idProcess: 1, record: ['12345678901'] };
+      const searchedProcess = { idProcess: 1, record: ['12345678901'] };
+
+      processService.getProcessById = jest
+        .fn()
+        .mockResolvedValue(originalProcess);
+
+      const result = await processService.getProcessRecordById(
+        originalProcess.idProcess,
+      );
+
+      expect(result).toEqual(searchedProcess.record);
+    });
+  });
+
+  describe('validateRecord', () => {
+    it('Deve validar e filtrar um registro de processo', () => {
+      const validRecord = '12345678901234567890';
+      const invalidRecord = 'ABCD123456';
+
+      const result1 = processService.validateRecord(validRecord);
+      const result2 = processService.validateRecord(invalidRecord);
+
+      expect(result1.valid).toEqual(true);
+
+      expect(result2.valid).toEqual(false);
+    });
+  });
+
+  // describe('countRows', () => {
+  //   it('Deve contar as linhas de uma tabela', () => {
+  //     const countedRow = { async_id_symbol: 6148, trigger_async_id_symbol: 6136,};
+
+  //     processService.process.count = jest
+  //       .fn()
+  //       .mockResolvedValue();
+
+  //     const result = processService.countRows();
+
+  //     expect(result).toEqual(countedRow);
   //   });
   // });
 });
