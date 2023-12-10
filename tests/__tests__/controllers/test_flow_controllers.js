@@ -436,7 +436,7 @@ describe('FlowController', () => {
                 to: 17
             }
         ]
-    }
+      }
     const usersMock = { data: [{cpf: 12345678901, fullName: "Fulano da Silva"}],}
     axios.get.mockResolvedValue(usersMock);
 
@@ -463,21 +463,44 @@ describe('FlowController', () => {
       .fn()
       .mockResolvedValue(flowUserMock)
 
-    await flowController.store (reqMock, resMock)
-    expect(resMock.status).toHaveBeenCalledWith(200);
-    expect(resMock.json).toHaveBeenCalledWith({
-      idFlow: 1,
-      name: "Fluxo 1",
-      idUnit: 1,
-      sequences: [
-        {
-            commentary: "",
-            from: 15,
-            to: 17
-        }
-      ],
-      usersToNotify: ['12345678901'],
-    });
+      await flowController.store (reqMock, resMock)
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith({
+        idFlow: 1,
+        name: "Fluxo 1",
+        idUnit: 1,
+        sequences: [
+          {
+              commentary: "",
+              from: 15,
+              to: 17
+          }
+        ],
+        usersToNotify: ['12345678901'],
+      });
+    })
+
+    it('', async () => {
+      reqMock.body = {
+        idUnit: 1,
+        idUsersToNotify: ["12345678901"],
+        name: "1",
+        sequences: [
+            {
+                commentary: "",
+                from: 15,
+                to: 17
+            }
+        ]
+      }
+      const usersMock = {}
+      axios.get.mockResolvedValue(usersMock);
+    
+      await flowController.store (reqMock, resMock)
+      expect(resMock.status).toHaveBeenCalledWith(404);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: `Usuário '12345678901' não existe na unidade '1'`,
+      });
     })
   });
 });
