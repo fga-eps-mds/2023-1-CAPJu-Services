@@ -581,11 +581,35 @@ describe('FlowController', () => {
       .fn()
       .mockReturnValueOnce(mock1).mockReturnValueOnce({})
 
-
       await flowController.store(reqMock, resMock)
       expect(resMock.status).toHaveBeenCalledWith(400);
       expect(resMock.json).toHaveBeenCalledWith({
-        message: `Não existe a etapa com identificador '15'`,
+        message: `Não existe a etapa com identificador '17'`,
+      });
+    })
+
+    it('', async () => {
+      reqMock.body = {
+        idUnit: 1,
+        idUsersToNotify: [],
+        name: "1",
+        sequences: [{
+          commentary: "",
+          from: 15,
+          to: 17
+        }]
+      }
+
+      const erro = new Error("internal server erro")
+
+      flowController.stageService.findOneByStageId = jest
+      .fn()
+      .mockRejectedValue(erro)
+
+      await flowController.store(reqMock, resMock)
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: `Erro ao criar fluxo`,
       });
     })
   });
