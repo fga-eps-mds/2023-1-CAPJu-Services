@@ -480,7 +480,7 @@ describe('FlowController', () => {
       });
     })
 
-    it('', async () => {
+    it('Testando quando o user é inexistente', async () => {
       reqMock.body = {
         idUnit: 1,
         idUsersToNotify: ["12345678901"],
@@ -502,5 +502,42 @@ describe('FlowController', () => {
         message: `Usuário '12345678901' não existe na unidade '1'`,
       });
     })
+
+    it('Testando se existe sequência no fluxo', async () => {
+      reqMock.body = {
+        idUnit: 1,
+        idUsersToNotify: ["12345678901"],
+        name: "1",
+        sequences: []
+      }
+      const usersMock = { data: [{cpf: 12345678901, fullName: "Fulano da Silva"}],}
+      axios.get.mockResolvedValue(usersMock);
+    
+      await flowController.store(reqMock, resMock)
+      expect(resMock.status).toHaveBeenCalledWith(404);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: `Necessário pelo menos duas etapas!'`,
+      });
+    })
+
+    it('Testando quando etapas são iguais', async () => {
+      reqMock.body = {
+        idUnit: 1,
+        idUsersToNotify: [],
+        name: "1",
+        sequences: [{
+          commentary: "",
+          from: 15,
+          to: 15
+        }]
+      }
+
+      await flowController.store(reqMock, resMock)
+      expect(resMock.status).toHaveBeenCalledWith(400);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: `Sequências devem ter início e fim diferentes`,
+      });
+    })
+
   });
 });
