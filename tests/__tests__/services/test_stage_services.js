@@ -17,6 +17,7 @@ describe('StageService', () => {
       create: jest.fn(),
       destroy: jest.fn(),
       update: jest.fn(),
+      count: jest.fn(),
     };
 
     stageService = new StageService(stageModelMock);
@@ -118,6 +119,17 @@ describe('StageService', () => {
 
       expect(result).toEqual(createdStage);
       expect(stageModelMock.findAll).toHaveBeenCalledWith(data);
+    });
+  });
+
+  describe('countStage', () => {
+    it('Deve contar etapas', async () => {
+      const criteria = { name: 'Stage 1', idUnit: 1, duration: 10 };
+      const expectedCount = 5;
+      stageModelMock.count.mockResolvedValue(expectedCount);
+      const result = await stageService.countStage({ where: criteria });
+      expect(result).toEqual(expectedCount);
+      expect(stageModelMock.count).toHaveBeenCalledWith({ where: criteria });
     });
   });
   
