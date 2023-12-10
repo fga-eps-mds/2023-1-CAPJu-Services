@@ -122,5 +122,57 @@ describe('create', () => {
       expect(resMock.json).toHaveBeenCalledWith(mockProcessFileError);
       expect(resMock.status).toHaveBeenCalledWith(500);
     });
-});  
+}); 
+
+describe('findById', () => {
+    test('Status - 200', async () => {
+        const mockProcessFile = {
+            idProcessFile: 1,
+            name: 'teste',
+            status: 'failed',
+            importedBy: 12345678901,
+            importedAt: '12/12/2022',
+            fileName: 'filename.csv',
+        };
+        const params = { idProcessFile: 1 };
+        const body = {
+          idProcessFile: 1,
+          name: 'teste',
+          status: 'failed',
+          importedBy: 12345678901,
+          importedAt: '12/12/2022',
+          fileName: 'filename.csv',
+        };
+
+        reqMock.body = body;
+        reqMock.params = params;
+        resMock.json = jest.fn().mockResolvedValue(mockProcessFile);
+        resMock.status = jest.fn(() => resMock);
+
+        processesFileController.processesFileService.findById = jest
+        .fn()
+        .mockResolvedValue([mockProcessFile.idProcessFile]);
+        
+        const result = await processesFileController.findById(reqMock, resMock);
+        
+        expect(result).toEqual(mockProcessFile)
+    });
+    
+
+    test('Status - 500', async () => {
+        const mockProcessFileError = new Error('Internal Server Error');
+    
+        processesFileController.processesFileService.findById = jest
+            .fn()
+            .mockRejectedValue(mockProcessFileError);
+    
+        await processesFileController.findById(reqMock, resMock);
+    
+        expect(resMock.json).toHaveBeenCalledWith({
+            error: 'Error: Internal Server Error',
+            message: 'Erro ao salvar remessa de processos',
+        });
+        expect(resMock.status).toHaveBeenCalledWith(500);
+    });
+});
 });
