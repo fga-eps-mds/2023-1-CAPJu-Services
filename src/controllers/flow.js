@@ -273,7 +273,7 @@ export class FlowController {
 
       for (const cpf of idUsersToNotify) {
         const user = await axios.get(
-          `http://localhost:8080/${cpf}/unit/${idUnit}`,
+          `${process.env.USER_URL_API}/${cpf}/unit/${idUnit}`,
         );
 
         if (!user.data) {
@@ -350,7 +350,7 @@ export class FlowController {
 
         for (const cpf of idUsersToNotify) {
           const user = await axios.get(
-            `${process.env.USER_URL_API}/user/${cpf}/unit/${idUnit}`,
+            `${process.env.USER_URL_API}/${cpf}/unit/${idUnit}`,
           );
 
           if (!user.data) {
