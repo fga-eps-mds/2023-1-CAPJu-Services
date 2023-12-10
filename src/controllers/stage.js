@@ -1,10 +1,7 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
 import { filterByName } from '../utils/filters.js';
-import {
-  getUserRoleAndUnitFilterFromReq,
-  userFromReq,
-} from '../../middleware/authMiddleware.js';
+import { userFromReq } from '../../middleware/authMiddleware.js';
 
 export class StageController {
   constructor() {
@@ -13,9 +10,11 @@ export class StageController {
 
   index = async (req, res) => {
     try {
+      const user = await userFromReq(req);
+
       let where = {
         ...filterByName(req),
-        ...(await getUserRoleAndUnitFilterFromReq(req)),
+        idUnit: user.unit.idUnit,
       };
 
       const data = { where, offset: req.query.offset, limit: req.query.limit };
