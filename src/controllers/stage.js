@@ -67,12 +67,19 @@ export class StageController {
   update = async (req, res) => {
     try {
       const { name, duration } = req.body;
-      const idUnit = (await userFromReq(req)).unit.idUnit;
+      const { idStage } = req.params;
+
+      if (name === undefined || duration === undefined)
+        return res
+          .status(400)
+          .json({ message: 'Forneça o nome e a duração da etapa' });
+
       const updated = await this.stageService.updateStage(
-        idUnit,
+        idStage,
         name,
         duration,
       );
+
       if (updated) {
         return res.status(200).json({
           message: 'Etapa atualizada com sucesso',
@@ -97,6 +104,25 @@ export class StageController {
       if (stage) return res.status(200).json(stage);
       else return res.status(401).json({ error: 'Etapa não encontrada' });
     } catch (error) {
+      const sequelizeConstraintStageErrors = [
+        'update or delete on table "stage" violates foreign key constraint "flowStage_idStageB_fkey" on table "flowStage"',
+        'update or delete on table "stage" violates foreign key constraint "flowStage_idStageA_fkey" on table "flowStage"',
+      ];
+
+      const sequelizeConstraintProcessErrors = [
+        'update or delete on table "stage" violates foreign key constraint "process_idStage_fkey" on table "process"',
+      ];
+
+      if (sequelizeConstraintStageErrors.includes(error.message))
+        return res.status(400).json({
+          message: 'Não é possível deletar uma etapa pertencente a um fluxo',
+        });
+      else if (sequelizeConstraintProcessErrors.includes(error.message))
+        return res.status(400).json({
+          message: 'Não é possível deletar uma etapa que possui processos',
+        });
+
+      console.error(error.message);
       return res.status(500).json({ message: 'Erro ao deletar etapa' });
     }
   };
