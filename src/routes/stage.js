@@ -17,7 +17,7 @@ StageRoutes.delete(
   controllers.stageController.delete,
 );
 StageRoutes.put(
-  '/updateStage',
+  '/updateStage/:idStage',
   authenticate,
   controllers.stageController.update,
 );

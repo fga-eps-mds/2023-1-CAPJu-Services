@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import axios from 'axios';
 import services from '../services/_index.js';
-import { getUserRoleAndUnitFilterFromReq } from '../../middleware/authMiddleware.js';
+import { userFromReq } from '../../middleware/authMiddleware.js';
 import { filterByName } from '../utils/filters.js';
 
 export class FlowController {
@@ -13,15 +13,16 @@ export class FlowController {
     this.processService = services.processService;
   }
 
-  index = async (_req, res) => {
+  index = async (req, res) => {
     try {
       let where;
+      const user = await userFromReq(req);
       where = {
-        ...filterByName(_req),
-        ...(await getUserRoleAndUnitFilterFromReq(_req)),
+        ...filterByName(req),
+        idUnit: user.unit.idUnit,
       };
 
-      const { limit, offset } = _req.query;
+      const { limit, offset } = req.query;
 
       const flows = await this.flowService.findAll({
         where,
@@ -31,7 +32,7 @@ export class FlowController {
       });
 
       const totalCount = await this.flowService.countRows({ where });
-      const totalPages = Math.ceil(totalCount / parseInt(_req.query.limit, 10));
+      const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
 
       let flowsWithSequences = [];
       const idFlows = flows.map(f => f.idFlow);
@@ -272,7 +273,7 @@ export class FlowController {
 
       for (const cpf of idUsersToNotify) {
         const user = await axios.get(
-          `http://localhost:8080/${cpf}/unit/${idUnit}`,
+          `${process.env.USER_URL_API}/${cpf}/unit/${idUnit}`,
         );
 
         if (!user.data) {
@@ -348,7 +349,7 @@ export class FlowController {
 
         for (const cpf of idUsersToNotify) {
           const user = await axios.get(
-            `${process.env.USER_URL_API}/user/${cpf}/unit/${idUnit}`,
+            `${process.env.USER_URL_API}/${cpf}/unit/${idUnit}`,
           );
 
           if (!user.data) {

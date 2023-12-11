@@ -347,7 +347,7 @@ describe('statisticsController', () => {
         effectiveDate: '11/24/2023',
         nameStage: 'Etapa 1',
         nameFlow: 'Fluxo 1',
-        dueDate: '11/25/2023 02:34:08.878+00',
+        dueDate: '11/25/2023 11:34:08.878+00',
       },
     ];
 
@@ -397,7 +397,7 @@ describe('statisticsController', () => {
         effectiveDate: '11/24/2023',
         nameStage: 'Etapa 1',
         nameFlow: 'Fluxo 1',
-        dueDate: '11/25/2023 02:34:08.878+00',
+        dueDate: '11/25/2023 11:34:08.878+00',
       },
     ];
 
