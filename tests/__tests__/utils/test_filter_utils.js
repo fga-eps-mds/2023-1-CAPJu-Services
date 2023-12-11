@@ -9,7 +9,7 @@ import {
   filterByDateRange,
   filterByFlowName,
   filterByStageName,
-} from '../../src/utils/filters';
+} from '../../../src/utils/filters';
 import { Op } from 'sequelize';
 
 // filterByIdFlow,

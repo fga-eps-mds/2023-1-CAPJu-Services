@@ -1,9 +1,9 @@
-import StageService from '../../src/services/stage';
-import controllers from '../../src/controllers/_index.js';
-import services from '../../src/services/_index.js';
-import models from '../../src/models/_index.js';
-import * as middleware from '../../middleware/authMiddleware.js';
-import { StageController } from '../../src/controllers/stage';
+import StageService from '../../../src/services/stage';
+import controllers from '../../../src/controllers/_index.js';
+import services from '../../../src/services/_index.js';
+import models from '../../../src/models/_index.js';
+import * as middleware from '../../../middleware/authMiddleware.js';
+import { StageController } from '../../../src/controllers/stage';
 
 describe('StageService', () => {
   let stageService;
@@ -16,6 +16,8 @@ describe('StageService', () => {
       findOne: jest.fn(),
       create: jest.fn(),
       destroy: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
     };
 
     stageService = new StageService(stageModelMock);
@@ -107,6 +109,30 @@ describe('StageService', () => {
     });
   });
 
+  describe('findByUnit', () => {
+    it('Deve encontrar etapas por unidade', async () => {
+      const data = { name: 'Stage 1', idUnit: 1, duration: 10 };
+      const createdStage = { id: 1, ...data };
+      stageModelMock.findAll.mockResolvedValue(createdStage);
+
+      const result = await stageService.findByUnit(data);
+
+      expect(result).toEqual(createdStage);
+      expect(stageModelMock.findAll).toHaveBeenCalledWith(data);
+    });
+  });
+
+  describe('countStage', () => {
+    it('Deve contar etapas', async () => {
+      const criteria = { name: 'Stage 1', idUnit: 1, duration: 10 };
+      const expectedCount = 5;
+      stageModelMock.count.mockResolvedValue(expectedCount);
+      const result = await stageService.countStage({ where: criteria });
+      expect(result).toEqual(expectedCount);
+      expect(stageModelMock.count).toHaveBeenCalledWith({ where: criteria });
+    });
+  });
+
   describe('deleteStage', () => {
     it('Deve deletar uma etapa com base no ID da etapa', async () => {
       const idStage = 1;
@@ -117,6 +143,17 @@ describe('StageService', () => {
       expect(stageModelMock.destroy).toHaveBeenCalledWith({
         where: { idStage },
       });
+    });
+  });
+
+  describe('updateStage', () => {
+    it('should return true when a stage is successfully updated', async () => {
+      const stage = { id: 1, name: 'Stage 1', duration: 3 };
+      stageModelMock.findOne.mockResolvedValue(stage);
+      stageModelMock.update.mockResolvedValue([1]);
+
+      const result = await stageService.updateStage(1, 'Stage 2', 6);
+      expect(result).toBe(true);
     });
   });
 });

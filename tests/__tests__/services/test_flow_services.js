@@ -1,5 +1,5 @@
-import FlowService from '../../src/services/flow.js';
-import sequelizeConfig from '../../src/config/sequelize.js';
+import FlowService from '../../../src/services/flow.js';
+import sequelizeConfig from '../../../src/config/sequelize.js';
 import { QueryTypes } from 'sequelize';
 
 const FlowModelMock = {
@@ -11,7 +11,7 @@ const FlowModelMock = {
   count: jest.fn(),
 };
 
-jest.mock('../../src/config/sequelize.js', () => ({
+jest.mock('../../../src/config/sequelize.js', () => ({
   query: jest.fn(),
 }));
 

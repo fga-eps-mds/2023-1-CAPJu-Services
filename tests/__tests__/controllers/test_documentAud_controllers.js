@@ -1,5 +1,5 @@
-import { DocumentAudController } from '../../src/controllers/documentAud.js';
-import * as utils from '../../middleware/authMiddleware.js';
+import { DocumentAudController } from '../../../src/controllers/documentAud.js';
+import * as utils from '../../../middleware/authMiddleware.js';
 
 const reqMock = {};
 const resMock = {

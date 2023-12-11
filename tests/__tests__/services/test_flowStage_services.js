@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
-import FlowStageService from '../../src/services/flowStage';
-import sequelizeConfig from '../../src/config/sequelize.js';
+import FlowStageService from '../../../src/services/flowStage';
+import sequelizeConfig from '../../../src/config/sequelize.js';
 import { QueryTypes } from 'sequelize';
 
 const FlowStageModel = {
@@ -10,7 +10,7 @@ const FlowStageModel = {
   destroy: jest.fn(),
 };
 
-jest.mock('../../src/config/sequelize.js', () => ({
+jest.mock('../../../src/config/sequelize.js', () => ({
   query: jest.fn(),
 }));
 

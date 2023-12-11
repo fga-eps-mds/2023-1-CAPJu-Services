@@ -200,7 +200,7 @@ export class ProcessesFileService {
           `Iniciando parser arquivo [${file.idProcessesFile}-${file.fileName}]`,
         );
 
-        const workbook = xlsx.parse(file.dataOriginalFile);
+        const workbook = await xlsx.parse(file.dataOriginalFile);
 
         logger.info(
           `Parser arquivo [${file.idProcessesFile}-${file.fileName}] concluído`,
@@ -253,6 +253,7 @@ export class ProcessesFileService {
         const prioritesIndex = header.findIndex(h =>
           validPrioritiesHeaders.includes(h),
         );
+
         if (prioritesIndex !== -1) {
           headerIndexes.prioritiesHeaderIndex = prioritesIndex;
         }
@@ -412,6 +413,7 @@ export class ProcessesFileService {
             name: worksheet.name,
             data: resultingSheetData,
           });
+
           const initialIndex = headerIndex + 1;
           processesFileItems.forEach((processesFileItem, i) => {
             const currentRow = resultingSheetData[initialIndex + i];
@@ -483,17 +485,19 @@ export class ProcessesFileService {
               returning: false,
               logging: false,
             });
+
             await this.processesFileItemRepository.bulkCreate(
               processesFileItems,
               { transaction, returning: false, logging: false },
             );
+
             await this.processesFileRepository.update(
               { status: 'imported', message: null, importedAt: new Date() },
               { where: { idProcessesFile: file.idProcessesFile } },
               { transaction, returning: false, logging: false },
             );
 
-            const outputFile = XLSX.write(wb, {
+            const outputFile = await XLSX.write(wb, {
               type: 'buffer',
               bookType: 'xlsx',
             });
