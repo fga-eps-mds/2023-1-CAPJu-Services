@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import axios from 'axios';
 import services from '../services/_index.js';
-import { getUserRoleAndUnitFilterFromReq } from '../../middleware/authMiddleware.js';
+import { userFromReq } from '../../middleware/authMiddleware.js';
 import { filterByName } from '../utils/filters.js';
 
 export class FlowController {
@@ -13,25 +13,26 @@ export class FlowController {
     this.processService = services.processService;
   }
 
-  index = async (_req, res) => {
+  index = async (req, res) => {
     try {
       let where;
+      const user = await userFromReq(req);
       where = {
-        ...filterByName(_req),
-        ...(await getUserRoleAndUnitFilterFromReq(_req)),
+        ...filterByName(req),
+        idUnit: user.unit.idUnit,
       };
 
-      const { limit, offset } = _req.query;
+      const { limit, offset } = req.query;
 
-      const flows = await this.flowService.findAll(
+      const flows = await this.flowService.findAll({
         where,
         undefined,
         offset,
         limit,
-      );
+      });
 
       const totalCount = await this.flowService.countRows({ where });
-      const totalPages = Math.ceil(totalCount / parseInt(_req.query.limit, 10));
+      const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
 
       let flowsWithSequences = [];
       const idFlows = flows.map(f => f.idFlow);
@@ -131,7 +132,6 @@ export class FlowController {
           let timeFirst;
           let timeLast;
           Object.values(grupos).forEach(trem => {
-            console.log(trem);
             if (trem[begin]) {
               timeFirst = trem[begin].first;
             }
@@ -150,13 +150,6 @@ export class FlowController {
             tempoTotal[at] += tempoEtapa;
             qtdEtapas[at]++;
 
-            console.log(
-              '----------------> AT =',
-              at + 1,
-              stages.length,
-              trem.finalised,
-              '\n',
-            );
             if (at + 1 == stages.length && trem.finalised) {
               const dateC = new Date(trem.finalised);
               const deltaDateEnd = dateC - dateB;
@@ -280,7 +273,7 @@ export class FlowController {
 
       for (const cpf of idUsersToNotify) {
         const user = await axios.get(
-          `http://localhost:8080/${cpf}/unit/${idUnit}`,
+          `${process.env.USER_URL_API}/${cpf}/unit/${idUnit}`,
         );
 
         if (!user.data) {
@@ -307,7 +300,7 @@ export class FlowController {
           });
         if (!(await this.stageService.findOneByStageId(idStageB)).dataValues)
           return res.status(400).json({
-            message: `Não existe a etapa com identificador '${idStageA}'`,
+            message: `Não existe a etapa com identificador '${idStageB}'`,
           });
       }
 
@@ -335,7 +328,6 @@ export class FlowController {
         usersToNotify: idUsersToNotify,
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ message: 'Erro ao criar fluxo' });
     }
   };
@@ -357,7 +349,7 @@ export class FlowController {
 
         for (const cpf of idUsersToNotify) {
           const user = await axios.get(
-            `${process.env.USER_URL_API}/user/${cpf}/unit/${idUnit}`,
+            `${process.env.USER_URL_API}/${cpf}/unit/${idUnit}`,
           );
 
           if (!user.data) {
@@ -384,7 +376,7 @@ export class FlowController {
             });
           if (!(await this.stageService.findOneByStageId(idStageB)).dataValues)
             return res.status(400).json({
-              message: `Não existe a etapa com identificador '${idStageA}'`,
+              message: `Não existe a etapa com identificador '${idStageB}'`,
             });
         }
 
@@ -413,7 +405,6 @@ export class FlowController {
         });
       }
     } catch (error) {
-      console.log(error);
       return res
         .status(500)
         .json({ error, message: 'Impossível editar fluxo' });

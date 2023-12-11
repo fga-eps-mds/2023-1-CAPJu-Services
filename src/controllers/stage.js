@@ -1,10 +1,7 @@
 import 'dotenv/config';
 import services from '../services/_index.js';
 import { filterByName } from '../utils/filters.js';
-import {
-  getUserRoleAndUnitFilterFromReq,
-  userFromReq,
-} from '../../middleware/authMiddleware.js';
+import { userFromReq } from '../../middleware/authMiddleware.js';
 
 export class StageController {
   constructor() {
@@ -13,21 +10,23 @@ export class StageController {
 
   index = async (req, res) => {
     try {
-      let limit = req.query.limit;
+      const user = await userFromReq(req);
+
       let where = {
         ...filterByName(req),
-        ...(await getUserRoleAndUnitFilterFromReq(req)),
+        idUnit: user.unit.idUnit,
       };
 
       const data = { where, offset: req.query.offset, limit: req.query.limit };
       const stages = await this.stageService.findByUnit(data);
-      const totalCount = await this.stageService.countStage(where);
-      const totalPages = Math.ceil(totalCount / parseInt(limit, 10));
+      const totalCount = await this.stageService.countStage({ where });
+
+      const totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
 
       if (!stages || stages.length === 0) {
-        return res.status(204).json([]);
+        return res.status(204).json({ stages: [], totalPages });
       } else {
-        return res.status(200).json({ stages: stages || [], totalPages });
+        return res.status(200).json({ stages: stages, totalPages });
       }
     } catch (error) {
       console.log(error);
@@ -61,19 +60,26 @@ export class StageController {
       const stage = await this.stageService.createStage(data);
       return res.status(200).json(stage);
     } catch (error) {
-      return res.status(error).json(error);
+      return res.status(500).json(error);
     }
   };
 
   update = async (req, res) => {
     try {
       const { name, duration } = req.body;
-      const idUnit = (await userFromReq(req)).unit.idUnit;
+      const { idStage } = req.params;
+
+      if (name === undefined || duration === undefined)
+        return res
+          .status(400)
+          .json({ message: 'Forneça o nome e a duração da etapa' });
+
       const updated = await this.stageService.updateStage(
-        idUnit,
+        idStage,
         name,
         duration,
       );
+
       if (updated) {
         return res.status(200).json({
           message: 'Etapa atualizada com sucesso',
@@ -98,6 +104,25 @@ export class StageController {
       if (stage) return res.status(200).json(stage);
       else return res.status(401).json({ error: 'Etapa não encontrada' });
     } catch (error) {
+      const sequelizeConstraintStageErrors = [
+        'update or delete on table "stage" violates foreign key constraint "flowStage_idStageB_fkey" on table "flowStage"',
+        'update or delete on table "stage" violates foreign key constraint "flowStage_idStageA_fkey" on table "flowStage"',
+      ];
+
+      const sequelizeConstraintProcessErrors = [
+        'update or delete on table "stage" violates foreign key constraint "process_idStage_fkey" on table "process"',
+      ];
+
+      if (sequelizeConstraintStageErrors.includes(error.message))
+        return res.status(400).json({
+          message: 'Não é possível deletar uma etapa pertencente a um fluxo',
+        });
+      else if (sequelizeConstraintProcessErrors.includes(error.message))
+        return res.status(400).json({
+          message: 'Não é possível deletar uma etapa que possui processos',
+        });
+
+      console.error(error.message);
       return res.status(500).json({ message: 'Erro ao deletar etapa' });
     }
   };

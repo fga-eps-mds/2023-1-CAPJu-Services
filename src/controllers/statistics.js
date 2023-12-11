@@ -27,7 +27,7 @@ export class StatisticsController {
       const { count, rows } = await this.processService.getAndCountAllProcess({
         where: {
           idFlow,
-          idStage,
+          idStage: idStage === '-1' ? null : idStage,
         },
         limit,
         offset,
@@ -65,7 +65,7 @@ export class StatisticsController {
 
         stages[key] = {
           name: stage?.name ?? 'nao iniciado',
-          idStage: key ?? null,
+          idStage: key,
           countProcess: ++stages[key].countProcess,
         };
       }

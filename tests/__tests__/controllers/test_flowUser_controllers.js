@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { PriorityController } from '../../src/controllers/priority';
 import axios from 'axios';
+import { FlowUserController } from '../../../src/controllers/flowUser';
 
 jest.mock('axios');
 
@@ -10,51 +10,51 @@ const resMock = {
   json: jest.fn(),
 };
 
-describe('PriorityController', () => {
-  let priorityController;
+describe('FlowUserController', () => {
+  let flowUserController;
 
   beforeEach(() => {
-    priorityController = new PriorityController();
+    flowUserController = new FlowUserController();
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  test('index - list all priorities (200)', async () => {
-    priorityController.priorityService.findAll = jest
+  test('index - list all flow users (200)', async () => {
+    flowUserController.flowUserService.findAll = jest
       .fn()
       .mockResolvedValue([]);
 
-    await priorityController.index(reqMock, resMock);
+    await flowUserController.index(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith([]);
     expect(resMock.status).toHaveBeenCalledWith(200);
   });
 
-  test('index - no priorities found (401)', async () => {
-    priorityController.priorityService.findAll = jest
+  test('index - return message (404)', async () => {
+    flowUserController.flowUserService.findAll = jest
       .fn()
       .mockResolvedValue(false);
 
-    await priorityController.index(reqMock, resMock);
+    await flowUserController.index(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
-      message: 'Não existem prioridades cadastradas',
+      message: 'Não existem fluxos de usuários cadatradas',
     });
-    expect(resMock.status).toHaveBeenCalledWith(401);
+    expect(resMock.status).toHaveBeenCalledWith(404);
   });
 
   test('index - internal server error (500)', async () => {
     const error = new Error('Internal Server Error');
-    priorityController.priorityService.findAll = jest
+    flowUserController.flowUserService.findAll = jest
       .fn()
       .mockRejectedValue(error);
 
-    await priorityController.index(reqMock, resMock);
+    await flowUserController.index(reqMock, resMock);
 
     expect(resMock.json).toHaveBeenCalledWith({
-      message: 'Erro ao buscar prioridades',
+      message: 'Erro ao buscar fluxos de usuários',
     });
     expect(resMock.status).toHaveBeenCalledWith(500);
   });

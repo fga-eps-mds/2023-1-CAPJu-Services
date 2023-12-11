@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
-import FlowStageService from '../../src/services/flowStage';
-import sequelizeConfig from '../../src/config/sequelize.js';
+import FlowStageService from '../../../src/services/flowStage';
+import sequelizeConfig from '../../../src/config/sequelize.js';
 import { QueryTypes } from 'sequelize';
 
 const FlowStageModel = {
@@ -10,7 +10,7 @@ const FlowStageModel = {
   destroy: jest.fn(),
 };
 
-jest.mock('../../src/config/sequelize.js', () => ({
+jest.mock('../../../src/config/sequelize.js', () => ({
   query: jest.fn(),
 }));
 
@@ -47,6 +47,23 @@ describe('FlowStageService', () => {
       ]);
 
       const result = await flowStageService.findAllByIdFlow(idFlow);
+
+      expect(result).toEqual([
+        { idFlow, idStageA: 1, idStageB: 2 },
+        { idFlow, idStageA: 2, idStageB: 3 },
+      ]);
+    });
+  });
+
+  describe('findAllByIdFlow', () => {
+    it(' Retornar uma lista de estágios do fluxo com o ID de fluxo especificado', async () => {
+      const idFlow = 1;
+      FlowStageModel.findAllByIdFlow.mockResolvedValue([
+        { idFlow, idStageA: 1, idStageB: 2 },
+        { idFlow, idStageA: 2, idStageB: 3 },
+      ]);
+
+      const result = await flowStageService.findAllByIdFlow(idFlow, 5);
 
       expect(result).toEqual([
         { idFlow, idStageA: 1, idStageB: 2 },
