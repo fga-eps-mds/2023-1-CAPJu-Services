@@ -1,5 +1,6 @@
 import UserService from '../../src/services/user';
 import models from '../../src/models/_index';
+import argon2 from 'argon2';
 
 describe('UserServices', () => {
   let userService;
@@ -73,6 +74,12 @@ describe('UserServices', () => {
 
   describe('getAcceptedUsers', () => {
     it('deve retornar todos usuários aceitados', async () => {
+      const dataMock = {
+        where: { accepted: true },
+        offset: 0,
+        limit: 5,
+      };
+
       const users = [
         {
           fullName: 'John Doe',
@@ -104,10 +111,17 @@ describe('UserServices', () => {
 
       userModelMock.findAll.mockResolvedValue([newUsers[0]]);
 
-      const result = await userService.getAcceptedUsers();
+      const result = await userService.getAcceptedUsers(dataMock);
 
       expect(result).toEqual([newUsers[0]]);
-      expect(userModelMock.findAll).toHaveBeenCalled();
+      expect(userModelMock.findAll).toHaveBeenCalledWith({
+        where: { ...dataMock.where, accepted: true },
+        offset: dataMock.offset,
+        limit: dataMock.limit,
+        attributes: {
+          exclude: ['password'],
+        },
+      });
     });
   });
 
@@ -221,6 +235,12 @@ describe('UserServices', () => {
 
   describe('getNoAcceptedUsers', () => {
     it('deve retornar todos usuários não aceitos', async () => {
+      const dataMock = {
+        where: { accepted: false },
+        offset: 0,
+        limit: 5,
+      };
+
       const users = [
         {
           fullName: 'John Doe',
@@ -252,10 +272,17 @@ describe('UserServices', () => {
 
       userModelMock.findAll.mockResolvedValue([newUsers[0]]);
 
-      const result = await userService.getNoAcceptedUsers();
+      const result = await userService.getNoAcceptedUsers(dataMock);
 
       expect(result).toEqual([newUsers[0]]);
-      expect(userModelMock.findAll).toHaveBeenCalled();
+      expect(userModelMock.findAll).toHaveBeenCalledWith({
+        where: { ...dataMock.where, accepted: false },
+        offset: dataMock.offset,
+        limit: dataMock.limit,
+        attributes: {
+          exclude: ['password'],
+        },
+      });
     });
   });
 
@@ -526,6 +553,68 @@ describe('UserServices', () => {
     });
   });
 
+  describe('updateUserFullName', () => {
+    it('deve retornar verdadeiro por conseguir atualizar', async () => {
+      const user = {
+        fullName: 'John Doe',
+        idRole: 5,
+        accepted: true,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password:
+          '$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIqF9mCUO25SSwQ10HaYhINn8',
+      };
+
+      userService.getUserByCpf = jest.fn().mockResolvedValue(user);
+      userModelMock.update.mockResolvedValue([1]);
+
+      const result = await userService.updateUserFullName(user.cpf, 'John Han');
+
+      expect(result).toEqual(true);
+    });
+
+    it('deve retornar falso por não conseguir achar o usuário', async () => {
+      const user = {
+        fullName: 'John Doe',
+        idRole: 5,
+        accepted: true,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password:
+          '$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIqF9mCUO25SSwQ10HaYhINn8',
+      };
+      userService.getUserByCpf = jest.fn().mockResolvedValue(null);
+
+      const result = await userService.updateUserFullName(user.cpf, 'John Han');
+
+      expect(result).toEqual(false);
+      expect(userService.getUserByCpf).toHaveBeenCalledWith('10987654321');
+    });
+
+    it('deve retornar falso por não conseguir atualizar', async () => {
+      const user = {
+        fullName: 'John Doe',
+        idRole: 5,
+        accepted: true,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password:
+          '$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIqF9mCUO25SSwQ10HaYhINn8',
+      };
+
+      userService.getUserByCpf = jest.fn().mockResolvedValue(user);
+      userModelMock.update.mockResolvedValue([0]);
+
+      const result = await userService.updateUserFullName(user.cpf, 'Jonh Han');
+
+      expect(result).toEqual(false);
+      expect(userService.getUserByCpf).toHaveBeenCalledWith(user.cpf);
+    });
+  });
+
   describe('updateUserPassword', () => {
     it('deve retornar verdadeiro por conseguir atualizar', async () => {
       const user = {
@@ -540,6 +629,11 @@ describe('UserServices', () => {
       };
 
       userService.getUserByCpfWithPassword = jest.fn().mockResolvedValue(user);
+      jest
+        .spyOn(argon2, 'hash')
+        .mockResolvedValue(
+          '$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIwF9mCUO25SSwQ10HaYhINn8',
+        );
       userModelMock.update.mockResolvedValue([1]);
 
       const result = await userService.updateUserPassword(
@@ -549,6 +643,9 @@ describe('UserServices', () => {
       );
 
       expect(result).toEqual(true);
+      expect(userService.getUserByCpfWithPassword).toHaveBeenCalledWith(
+        user.cpf,
+      );
     });
 
     it('deve retornar falso por não conseguir achar o usuário', async () => {
@@ -582,8 +679,8 @@ describe('UserServices', () => {
 
       const result = await userService.updateUserPassword(
         user.cpf,
-        '123TestErrado',
-        'novaSenha',
+        'umaOutraQualquerParaDarErro',
+        'outraSenha',
       );
 
       expect(result).toEqual(false);
@@ -605,6 +702,11 @@ describe('UserServices', () => {
       };
 
       userService.getUserByCpfWithPassword = jest.fn().mockResolvedValue(user);
+      jest
+        .spyOn(argon2, 'hash')
+        .mockResolvedValue(
+          '$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIwF9mCUO25SSwQ10HaYhINn8',
+        );
       userModelMock.update.mockResolvedValue([0]);
 
       const result = await userService.updateUserPassword(
@@ -617,6 +719,27 @@ describe('UserServices', () => {
       expect(userService.getUserByCpfWithPassword).toHaveBeenCalledWith(
         user.cpf,
       );
+    });
+  });
+
+  describe('getUserByCpfWithPasswordRolesAndUnit', () => {
+    it('deve retornar usuario', async () => {
+      const user = {
+        fullName: 'John Doe',
+        idRole: 5,
+        accepted: true,
+        cpf: '10987654321',
+        email: 'john@email.com',
+        idUnit: 1,
+        password: 'asdvljhbjljabvsdkadfvj',
+      };
+
+      userModelMock.findOne.mockResolvedValue(user);
+      const result = await userService.getUserByCpfWithPasswordRolesAndUnit(
+        user.cpf,
+      );
+
+      expect(result).toBe(user);
     });
   });
 });
