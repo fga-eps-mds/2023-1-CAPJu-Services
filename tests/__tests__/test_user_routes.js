@@ -293,6 +293,69 @@ describe('UserController', () => {
     });
   });
 
+  describe('updateUserFullName', () => {
+    it('Should successfully update fullname (status 200)', async () => {
+      userServiceMock.updateUserFullName = jest.fn().mockResolvedValue(true);
+
+      reqMock = {
+        params: { cpf: '12345678901' },
+        body: { fullName: 'newName' },
+      };
+
+      await userController.updateUserFullName(reqMock, resMock);
+      expect(userServiceMock.updateUserFullName).toHaveBeenCalledWith(
+        '12345678901',
+        'newName',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(200);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Nome completo atualizado',
+      });
+    });
+
+    it('should return 400 if the fullname is do not changed', async () => {
+      userServiceMock.updateUserFullName = jest.fn().mockResolvedValue(null);
+      reqMock = {
+        params: { cpf: '12345678901' },
+        body: { fullName: 'newName' },
+      };
+
+      await userController.updateUserFullName(reqMock, resMock);
+
+      expect(userServiceMock.updateUserFullName).toHaveBeenCalledWith(
+        '12345678901',
+        'newName',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(400);
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: 'Nome completo não atualizado',
+      });
+    });
+
+    it('should return 500 if an error occurs', async () => {
+      const errorMessage = 'Internal server error';
+      userServiceMock.updateUserFullName = jest
+        .fn()
+        .mockRejectedValue(new Error(errorMessage));
+      reqMock = {
+        params: { cpf: '12345678901' },
+        body: { fullName: 'newName' },
+      };
+
+      await userController.updateUserFullName(reqMock, resMock);
+
+      expect(userServiceMock.updateUserFullName).toHaveBeenCalledWith(
+        '12345678901',
+        'newName',
+      );
+      expect(resMock.status).toHaveBeenCalledWith(500);
+      expect(resMock.json).toHaveBeenCalledWith({
+        error: expect.any(Error),
+        message: 'Erro ao atualizar o nome',
+      });
+    });
+  });
+
   describe('getAllUsers', () => {
     // it('should return all users', async () => {
     //   const { Op } = require('sequelize');
