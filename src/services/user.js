@@ -1,6 +1,8 @@
 import { cpfFilter } from '../utils/cpf.js';
 import Unit from '../models/unit.js';
 import Role from '../models/role.js';
+import passHashing from '../config/passHashing.js';
+import { hash, verify } from 'argon2';
 
 class UserService {
   constructor(UserModel) {
@@ -19,9 +21,11 @@ class UserService {
     });
   }
 
-  async getAcceptedUsers() {
+  async getAcceptedUsers(data) {
     return this.user.findAll({
-      where: { accepted: true },
+      where: { ...data.where, accepted: true },
+      offset: data.offset,
+      limit: data.limit,
       attributes: {
         exclude: ['password'],
       },
@@ -55,9 +59,11 @@ class UserService {
     });
   }
 
-  async getNoAcceptedUsers() {
+  async getNoAcceptedUsers(data) {
     return this.user.findAll({
-      where: { accepted: false },
+      where: { ...data.where, accepted: false },
+      offset: data.offset,
+      limit: data.limit,
       attributes: {
         exclude: ['password'],
       },
@@ -114,6 +120,18 @@ class UserService {
     return false;
   }
 
+  async updateUserFullName(cpf, fullName) {
+    const user = await this.getUserByCpf(cpf);
+    if (user) {
+      const [updatedRows] = await this.user.update(
+        { fullName: fullName },
+        { where: { cpf: cpfFilter(cpf) } },
+      );
+      if (updatedRows) return true;
+    }
+    return false;
+  }
+
   async updateUserRole(cpf, idRole) {
     const user = await this.getUserByCpf(cpf);
     if (user) {
@@ -128,9 +146,15 @@ class UserService {
   async updateUserPassword(cpf, oldPassword, newPassword) {
     const user = await this.getUserByCpfWithPassword(cpf);
     if (user) {
-      if (user.password === oldPassword) {
+      const isPasswordCorrect = await verify(
+        user.password,
+        oldPassword,
+        passHashing,
+      );
+      if (isPasswordCorrect) {
+        const hashedPassword = await hash(newPassword, passHashing);
         const [updatedRows] = await this.user.update(
-          { password: newPassword },
+          { password: hashedPassword },
           { where: { cpf: cpfFilter(cpf) } },
         );
         if (updatedRows) return true;
@@ -138,11 +162,17 @@ class UserService {
     }
     return false;
   }
-
   async getUserByCpfWithPasswordRolesAndUnit(cpf) {
     return this.user.findOne({
       where: { cpf: cpfFilter(cpf) },
-      attributes: ['cpf', 'fullName', 'password', 'accepted', 'idRole'],
+      attributes: [
+        'cpf',
+        'fullName',
+        'email',
+        'password',
+        'accepted',
+        'idRole',
+      ],
 
       include: [
         {

@@ -73,6 +73,12 @@ describe('UserServices', () => {
 
   describe('getAcceptedUsers', () => {
     it('deve retornar todos usuários aceitados', async () => {
+      const dataMock = {
+        where: { accepted: true },
+        offset: 0,
+        limit: 5,
+      };
+
       const users = [
         {
           fullName: 'John Doe',
@@ -104,10 +110,17 @@ describe('UserServices', () => {
 
       userModelMock.findAll.mockResolvedValue([newUsers[0]]);
 
-      const result = await userService.getAcceptedUsers();
+      const result = await userService.getAcceptedUsers(dataMock);
 
       expect(result).toEqual([newUsers[0]]);
-      expect(userModelMock.findAll).toHaveBeenCalled();
+      expect(userModelMock.findAll).toHaveBeenCalledWith({
+        where: { ...dataMock.where, accepted: true },
+        offset: dataMock.offset,
+        limit: dataMock.limit,
+        attributes: {
+          exclude: ['password'],
+        },
+      });
     });
   });
 
@@ -221,6 +234,12 @@ describe('UserServices', () => {
 
   describe('getNoAcceptedUsers', () => {
     it('deve retornar todos usuários não aceitos', async () => {
+      const dataMock = {
+        where: { accepted: false },
+        offset: 0,
+        limit: 5,
+      };
+
       const users = [
         {
           fullName: 'John Doe',
@@ -252,10 +271,17 @@ describe('UserServices', () => {
 
       userModelMock.findAll.mockResolvedValue([newUsers[0]]);
 
-      const result = await userService.getNoAcceptedUsers();
+      const result = await userService.getNoAcceptedUsers(dataMock);
 
       expect(result).toEqual([newUsers[0]]);
-      expect(userModelMock.findAll).toHaveBeenCalled();
+      expect(userModelMock.findAll).toHaveBeenCalledWith({
+        where: { ...dataMock.where, accepted: false },
+        offset: dataMock.offset,
+        limit: dataMock.limit,
+        attributes: {
+          exclude: ['password'],
+        },
+      });
     });
   });
 
@@ -535,30 +561,24 @@ describe('UserServices', () => {
         cpf: '10987654321',
         email: 'john@email.com',
         idUnit: 1,
-        password: 'senha',
+        password:
+          '$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIqF9mCUO25SSwQ10HaYhINn8',
       };
 
-      userModelMock.findOne.mockResolvedValue(user);
+      userService.getUserByCpfWithPassword = jest.fn().mockResolvedValue(user);
       userModelMock.update.mockResolvedValue([1]);
 
       const result = await userService.updateUserPassword(
         user.cpf,
-        user.password,
-        'outraSenha',
+        '123Teste',
+        '123Teste',
       );
 
       expect(result).toEqual(true);
-      expect(userModelMock.findOne).toHaveBeenCalledWith({
-        where: { cpf: user.cpf },
-      });
-      expect(userModelMock.update).toHaveBeenCalledWith(
-        { password: 'outraSenha' },
-        { where: { cpf: user.cpf } },
-      );
     });
 
     it('deve retornar falso por não conseguir achar o usuário', async () => {
-      userModelMock.findOne.mockResolvedValue();
+      userService.getUserByCpfWithPassword = jest.fn().mockResolvedValue(null);
 
       const result = await userService.updateUserPassword(
         '12345678901',
@@ -567,9 +587,9 @@ describe('UserServices', () => {
       );
 
       expect(result).toEqual(false);
-      expect(userModelMock.findOne).toHaveBeenCalledWith({
-        where: { cpf: '12345678901' },
-      });
+      expect(userService.getUserByCpfWithPassword).toHaveBeenCalledWith(
+        '12345678901',
+      );
     });
 
     it('deve retornar falso por não receber a senha antiga correta', async () => {
@@ -580,7 +600,8 @@ describe('UserServices', () => {
         cpf: '10987654321',
         email: 'john@email.com',
         idUnit: 1,
-        password: 'senha',
+        password:
+          '$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIqF9mCUO25SSwQ10HaYhINn8',
       };
 
       userModelMock.findOne.mockResolvedValue(user);
@@ -605,23 +626,23 @@ describe('UserServices', () => {
         cpf: '10987654321',
         email: 'john@email.com',
         idUnit: 1,
-        password: 'senha',
+        password:
+          '$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIqF9mCUO25SSwQ10HaYhINn8',
       };
 
-      userModelMock.findOne.mockResolvedValue(user);
-      userModelMock.update.mockResolvedValue([]);
+      userService.getUserByCpfWithPassword = jest.fn().mockResolvedValue(user);
+      userModelMock.update.mockResolvedValue([0]);
 
       const result = await userService.updateUserPassword(
         user.cpf,
-        user.password,
-        'OutraSenha',
+        '123TestErrado',
+        'novaSenha',
       );
 
       expect(result).toEqual(false);
-      expect(userModelMock.findOne).toHaveBeenCalledWith({
-        where: { cpf: user.cpf },
-      });
-      expect(userModelMock.update).toHaveBeenCalled();
+      expect(userService.getUserByCpfWithPassword).toHaveBeenCalledWith(
+        user.cpf,
+      );
     });
   });
 

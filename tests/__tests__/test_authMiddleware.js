@@ -310,7 +310,7 @@ describe('authMiddleware test', () => {
 
       const { jwtToken: modifiedJwtToken } = require('../../src/utils/jwt.js');
 
-      expect(modifiedJwtToken).toBe('ABC');
+      expect(modifiedJwtToken).toBe('capju_secret');
     });
 
     process.env = env;
