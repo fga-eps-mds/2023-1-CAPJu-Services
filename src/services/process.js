@@ -63,6 +63,8 @@ class ProcessService {
           : {};
     }
 
+    console.log('jkdkjsd', flowStages);
+
     if (!flowStages.length) {
       return res.status(404).json({ error: 'Não há etapas neste fluxo' });
     }
@@ -118,7 +120,6 @@ class ProcessService {
         message: `Identificadores '${idFlow}', '${from}', ou '${to}' são inválidos`,
       });
     }
-
     const flowStages = await this.flowStageService.findAllByIdFlow(idFlow);
 
     let canAdvance = false;
@@ -129,6 +130,7 @@ class ProcessService {
           (flowStage.idStageA === from && flowStage.idStageB === to) ||
           (flowStage.idStageB === from && flowStage.idStageA === to)
         ) {
+          console.log('to aqui hihi');
           canAdvance = true;
           break;
         }
