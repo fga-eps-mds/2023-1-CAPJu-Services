@@ -569,10 +569,7 @@ describe('UserServices', () => {
       userService.getUserByCpf = jest.fn().mockResolvedValue(user);
       userModelMock.update.mockResolvedValue([1]);
 
-      const result = await userService.updateUserFullName(
-        user.cpf,
-        'John Han',
-      );
+      const result = await userService.updateUserFullName(user.cpf, 'John Han');
 
       expect(result).toEqual(true);
     });
@@ -590,17 +587,12 @@ describe('UserServices', () => {
       };
       userService.getUserByCpf = jest.fn().mockResolvedValue(null);
 
-      const result = await userService.updateUserFullName(
-        user.cpf,
-        'John Han',
-      );
+      const result = await userService.updateUserFullName(user.cpf, 'John Han');
 
       expect(result).toEqual(false);
-      expect(userService.getUserByCpf).toHaveBeenCalledWith(
-        '10987654321',
-      );
+      expect(userService.getUserByCpf).toHaveBeenCalledWith('10987654321');
     });
-    
+
     it('deve retornar falso por não conseguir atualizar', async () => {
       const user = {
         fullName: 'John Doe',
@@ -616,17 +608,11 @@ describe('UserServices', () => {
       userService.getUserByCpf = jest.fn().mockResolvedValue(user);
       userModelMock.update.mockResolvedValue([0]);
 
-      const result = await userService.updateUserFullName(
-        user.cpf,
-        'Jonh Han',
-      );
+      const result = await userService.updateUserFullName(user.cpf, 'Jonh Han');
 
       expect(result).toEqual(false);
-      expect(userService.getUserByCpf).toHaveBeenCalledWith(
-        user.cpf,
-      );
+      expect(userService.getUserByCpf).toHaveBeenCalledWith(user.cpf);
     });
-
   });
 
   describe('updateUserPassword', () => {
@@ -643,7 +629,11 @@ describe('UserServices', () => {
       };
 
       userService.getUserByCpfWithPassword = jest.fn().mockResolvedValue(user);
-      jest.spyOn(argon2, 'hash').mockResolvedValue('$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIwF9mCUO25SSwQ10HaYhINn8');
+      jest
+        .spyOn(argon2, 'hash')
+        .mockResolvedValue(
+          '$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIwF9mCUO25SSwQ10HaYhINn8',
+        );
       userModelMock.update.mockResolvedValue([1]);
 
       const result = await userService.updateUserPassword(
@@ -712,7 +702,11 @@ describe('UserServices', () => {
       };
 
       userService.getUserByCpfWithPassword = jest.fn().mockResolvedValue(user);
-      jest.spyOn(argon2, 'hash').mockResolvedValue('$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIwF9mCUO25SSwQ10HaYhINn8');
+      jest
+        .spyOn(argon2, 'hash')
+        .mockResolvedValue(
+          '$argon2id$v=19$m=65536,t=3,p=4$ckziFVvRPlW3vMrcLoe69w$B2U+JH5gLgEEoI8s6ehKyxkW0OvtP4eSVWwx2Q3eOvgIwF9mCUO25SSwQ10HaYhINn8',
+        );
       userModelMock.update.mockResolvedValue([0]);
 
       const result = await userService.updateUserPassword(
