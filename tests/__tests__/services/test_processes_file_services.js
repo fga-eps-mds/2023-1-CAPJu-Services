@@ -167,12 +167,10 @@ describe('ProcessFileService', () => {
     processFile.flowService.findAllRawWithAttributes = jest
       .fn()
       .mockResolvedValue([{ idFlow: 1, idUnit: 1, name: 'Fluxo 1' }]);
-    processFile.validateRecord = jest
-      .fn()
-      .mockResolvedValue({
-        filteredRecord: '41520545620233004644',
-        valid: true,
-      });
+    processFile.validateRecord = jest.fn().mockResolvedValue({
+      filteredRecord: '41520545620233004644',
+      valid: true,
+    });
     processFile.getPriorityIdByDescriptionOrAbbreviation = jest
       .fn()
       .mockResolvedValue(1);

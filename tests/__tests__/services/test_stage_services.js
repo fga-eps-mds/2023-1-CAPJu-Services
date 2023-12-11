@@ -132,7 +132,6 @@ describe('StageService', () => {
       expect(stageModelMock.count).toHaveBeenCalledWith({ where: criteria });
     });
   });
-  
 
   describe('deleteStage', () => {
     it('Deve deletar uma etapa com base no ID da etapa', async () => {
@@ -149,12 +148,12 @@ describe('StageService', () => {
 
   describe('updateStage', () => {
     it('should return true when a stage is successfully updated', async () => {
-      const stage = { id: 1, name: 'Stage 1', duration: 3};
+      const stage = { id: 1, name: 'Stage 1', duration: 3 };
       stageModelMock.findOne.mockResolvedValue(stage);
-      stageModelMock.update.mockResolvedValue([1]); 
+      stageModelMock.update.mockResolvedValue([1]);
 
-      const result = await stageService.updateStage(1, "Stage 2", 6);
-      expect(result).toBe(true)
+      const result = await stageService.updateStage(1, 'Stage 2', 6);
+      expect(result).toBe(true);
     });
   });
 });

@@ -307,7 +307,9 @@ describe('flow endpoints', () => {
 
       await flowController.showByFlowIdWithSequence(reqMock, resMock);
 
-      expect(resMock.json).toHaveBeenCalledWith({ message: `Fluxo 1 não tem sequências` });
+      expect(resMock.json).toHaveBeenCalledWith({
+        message: `Fluxo 1 não tem sequências`,
+      });
       expect(resMock.status).toHaveBeenCalledWith(404);
     });
 
@@ -333,5 +335,4 @@ describe('flow endpoints', () => {
       expect(resMock.status).toHaveBeenCalledWith(404);
     });
   });
-  
 });

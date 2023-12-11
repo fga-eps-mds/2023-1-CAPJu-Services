@@ -282,7 +282,7 @@ export class FlowController {
           });
         }
       }
-    
+
       if (sequences.length < 1)
         return res
           .status(404)
