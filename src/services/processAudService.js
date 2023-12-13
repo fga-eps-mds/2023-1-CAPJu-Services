@@ -123,8 +123,6 @@ class ProcessAudService {
       models.Process,
     ).getProcessRecordById(idProcess);
 
-    const uuid = uuidv4();
-
     const currentDate = new Date();
 
     const currentDateFormatted = formatDateTimeToBrazilian(currentDate);
@@ -141,7 +139,7 @@ class ProcessAudService {
     const worksheetData = [
       [
         {
-          v: `HISTÓRICO DE EVENTOS\n\nProcesso: ${processRecord}\nData emissão: ${currentDateFormatted}\nEmissor: ${emitedBy}\nDocumento: ${uuid}`,
+          v: `HISTÓRICO DE EVENTOS\n\nProcesso: ${processRecord}\nData emissão: ${currentDateFormatted}\nEmissor: ${emitedBy}`,
           t: 's',
           s: { alignment: { wrapText: true, horizontal: 'center' } },
         },
@@ -187,19 +185,7 @@ class ProcessAudService {
 
     XLSX.utils.book_append_sheet(wb, ws, 'Página 1');
 
-    const xlsx = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-
-    await this.documentAudRepository.create(
-      {
-        emitedBy: user.cpf,
-        uuid,
-        type: 'PROCESS_EVENTS_XLSX',
-        emitedAt: currentDate,
-      },
-      { returning: false },
-    );
-
-    return xlsx;
+    return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
   }
 
   extractFiltersFromReq(req) {
