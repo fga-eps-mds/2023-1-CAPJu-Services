@@ -19,7 +19,7 @@ class ProcessAudService {
     this.documentAudRepository = models.DocumentAud;
   }
 
-  async create(idProcess, newValues, operation, req, transaction) {
+  async create(idProcess, newValues, operation, req, transaction = null) {
     // For memory and logic purposes, the "newValues" param should only receive the fields that changed.
 
     const processRecord = await new ProcessService(
