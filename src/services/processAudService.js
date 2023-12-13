@@ -6,7 +6,6 @@ import PriorityService from './priority.js';
 import StageService from './stage.js';
 import ProcessService from './process.js';
 import XLSX from 'xlsx-js-style';
-import { v4 as uuidv4 } from 'uuid';
 import { formatDateTimeToBrazilian } from '../utils/date.js';
 
 class ProcessAudService {
