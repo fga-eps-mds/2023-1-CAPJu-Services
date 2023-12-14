@@ -9,18 +9,22 @@ import StatisticsRoutes from './statistics.js';
 import ProcessAudRoutes from './processAud.js';
 import ProcessesFileRoutes from './processesFile.js';
 import DocumentAudRoutes from './documentAud.js';
+
 const applicationRoutes = express.Router();
 
-applicationRoutes.use('/priority', PriorityRoutes);
-applicationRoutes.use('/flow', FlowRoutes);
-applicationRoutes.use('/stage', StageRoutes);
-applicationRoutes.use('/flowStage', FlowStageRoutes);
-applicationRoutes.use('/process', ProcessRoutes);
-applicationRoutes.use('/processAud', ProcessAudRoutes);
-applicationRoutes.use('/documentAud', DocumentAudRoutes);
-applicationRoutes.use('/processesFile', ProcessesFileRoutes);
-applicationRoutes.use('/process', ProcessRoutes);
-applicationRoutes.use('/flowUser', FlowUserRoutes);
-applicationRoutes.use('/statistics', StatisticsRoutes);
+const routes = [
+  { path: '/priority', handler: PriorityRoutes },
+  { path: '/flow', handler: FlowRoutes },
+  { path: '/stage', handler: StageRoutes },
+  { path: '/flowStage', handler: FlowStageRoutes },
+  { path: '/process', handler: ProcessRoutes },
+  { path: '/processAud', handler: ProcessAudRoutes },
+  { path: '/documentAud', handler: DocumentAudRoutes },
+  { path: '/processesFile', handler: ProcessesFileRoutes },
+  { path: '/flowUser', handler: FlowUserRoutes },
+  { path: '/statistics', handler: StatisticsRoutes },
+];
+
+routes.forEach(route => applicationRoutes.use(route.path, route.handler));
 
 export default applicationRoutes;

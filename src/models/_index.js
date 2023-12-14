@@ -5,13 +5,14 @@ import FlowStageModel from './flowStage.js';
 import ProcessModel from './process.js';
 import FlowUserModel from './flowUser.js';
 import ProcessAudModel from './processAud.js';
-import UserModel from './User.js';
-import RoleModel from './Role.js';
+import UserModel from './user.js';
+import RoleModel from './role.js';
 import UnitModel from './unit.js';
 import NoteModel from './note.js';
 import ProcessesFileModel from './processesFile.js';
 import ProcessesFileItemModel from './processesFileItem.js';
 import DocumentAudModel from './documentAud.js';
+import UserAccessLogModel from './userAccesLog.js';
 
 const Priority = PriorityModel;
 const Flow = FlowModel;
@@ -27,6 +28,7 @@ const ProcessesFile = ProcessesFileModel;
 const ProcessesFileItem = ProcessesFileItemModel;
 const DocumentAud = DocumentAudModel;
 const Unit = UnitModel;
+const UserAccessLog = UserAccessLogModel;
 
 const models = {
   Priority,
@@ -43,6 +45,7 @@ const models = {
   ProcessesFile,
   ProcessesFileItem,
   DocumentAud,
+  UserAccessLog,
 };
 
 User.associate(models);

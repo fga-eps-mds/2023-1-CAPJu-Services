@@ -3,6 +3,9 @@ import axios from 'axios';
 import services from '../services/_index.js';
 import { userFromReq } from '../../middleware/authMiddleware.js';
 import { filterByName } from '../utils/filters.js';
+import models from '../models/_index.js';
+import sequelize from '../config/sequelize.js';
+import { QueryTypes } from 'sequelize';
 
 export class FlowController {
   constructor() {
@@ -11,6 +14,7 @@ export class FlowController {
     this.flowStageService = services.flowStageService;
     this.flowUserService = services.flowUserService;
     this.processService = services.processService;
+    this.processesFileItemRepository = models.ProcessesFileItem;
   }
 
   index = async (req, res) => {
@@ -414,14 +418,59 @@ export class FlowController {
   delete = async (req, res) => {
     try {
       const { idFlow } = req.params;
-      await this.flowStageService.deleteFlowStageByIdFlow(idFlow);
-      await this.flowUserService.deleteFlowUserById(idFlow);
-      await this.processService.deleteByIdFlow(idFlow);
-      const flow = await this.flowService.deleteFlowById(idFlow);
 
-      if (flow)
-        return res.status(200).json({ message: 'Fluxo apagado com sucesso' });
-      else return res.status(404).json({ message: 'Fluxo não encontrado' });
+      const flowExists = await sequelize.query(
+        `SELECT 1 FROM flow WHERE "idFlow" = :idFlow LIMIT 1`,
+        {
+          replacements: { idFlow },
+          type: QueryTypes.SELECT,
+        },
+      );
+
+      if (!flowExists.length) {
+        return res.status(404).json({ message: 'Fluxo não encontrado' });
+      }
+
+      const transaction = await sequelize.transaction();
+
+      await sequelize.query(`DELETE FROM "flowUser" WHERE "idFlow" = :idFlow`, {
+        replacements: { idFlow },
+        transaction,
+      });
+
+      await sequelize.query(
+        `DELETE FROM "flowStage" WHERE "idFlow" = :idFlow`,
+        {
+          replacements: { idFlow },
+          transaction,
+        },
+      );
+
+      await sequelize.query(
+        `
+      DELETE FROM "processesFileItem" 
+      WHERE "idProcess" IN (
+        SELECT "idProcess" FROM process WHERE "idFlow" = :idFlow
+      )`,
+        {
+          replacements: { idFlow },
+          transaction,
+        },
+      );
+
+      await sequelize.query(`DELETE FROM "process" WHERE "idFlow" = :idFlow`, {
+        replacements: { idFlow },
+        transaction,
+      });
+
+      await sequelize.query(`DELETE FROM flow WHERE "idFlow" = :idFlow`, {
+        replacements: { idFlow },
+        transaction,
+      });
+
+      await transaction.commit();
+
+      return res.status(200).json({ message: 'Fluxo apagado com sucesso' });
     } catch (error) {
       console.log(error);
       return res

@@ -155,7 +155,6 @@ class ProcessService {
     const idProcess = req.params.idProcess;
 
     const updatedFields = { finalised: true, status: 'finished' };
-
     return await this.executeUpdateQuery(idProcess, updatedFields, req);
   }
 

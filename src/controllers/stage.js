@@ -122,7 +122,6 @@ export class StageController {
           message: 'Não é possível deletar uma etapa que possui processos',
         });
 
-      console.error(error.message);
       return res.status(500).json({ message: 'Erro ao deletar etapa' });
     }
   };

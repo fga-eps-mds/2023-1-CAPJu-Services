@@ -17,7 +17,7 @@ class ProcessesFileModel extends Model {
         },
         status: {
           type: DataTypes.ENUM({
-            values: ['waiting', 'inProgress', 'error', 'canceled'],
+            values: ['waiting', 'inProgress', 'error', 'canceled', 'imported'],
           }),
           allowNull: false,
           defaultValue: 'waiting',

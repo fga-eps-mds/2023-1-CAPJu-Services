@@ -1,10 +1,13 @@
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 import xlsx from 'node-xlsx';
 import XLSX from 'xlsx-js-style';
 import models from '../models/_index.js';
 import ProcessService from './process.js';
 import FlowService from './flow.js';
 import PriorityService from './priority.js';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { convertCsvToXlsx } from '@aternus/csv-to-xlsx';
 import { logger } from '../utils/logger.js';
 import sequelizeConfig from '../config/sequelize.js';
 
@@ -19,7 +22,7 @@ const validPrioritiesHeaders = ['Prioridade', 'Prioridades', 'prioridades'];
 
 export class ProcessesFileService {
   constructor(ProcessesFileModel) {
-    this.processesFileRepository = ProcessesFileModel;
+    this.repository = ProcessesFileModel;
     this.processService = new ProcessService(models.Process);
     this.flowService = new FlowService(models.Flow);
     this.priorityService = new PriorityService(models.Priority);
@@ -29,7 +32,7 @@ export class ProcessesFileService {
   findAllPaged = async req => {
     const { offset = 0, limit = 10 } = req.query;
 
-    const where = await this.extractFiltersFromReq(req);
+    const where = this.buildFileFilters(req);
 
     let include;
 
@@ -40,7 +43,7 @@ export class ProcessesFileService {
           as: 'fileItems',
           attributes: [],
           where: {
-            record: { [Op.like]: `%${req.query.nameOrRecord}%` },
+            record: { [Op.iLike]: `%${req.query.nameOrRecord}%` },
           },
           required: false,
           duplicating: false,
@@ -48,7 +51,7 @@ export class ProcessesFileService {
       ];
     }
 
-    const data = await this.processesFileRepository.findAll({
+    const data = await this.repository.findAll({
       where,
       offset,
       limit,
@@ -61,10 +64,40 @@ export class ProcessesFileService {
         'status',
         'message',
         'createdAt',
+        [
+          literal(`(
+        SELECT COUNT(*)
+        FROM "processesFileItem"
+        WHERE
+          "processesFileItem"."idProcessesFile" = "ProcessesFileModel"."idProcessesFile"
+      )`),
+          'allItemsCount',
+        ],
+        [
+          literal(`(
+        SELECT COUNT(*)
+        FROM "processesFileItem"
+        WHERE
+          "processesFileItem"."idProcessesFile" = "ProcessesFileModel"."idProcessesFile" AND
+          "processesFileItem"."status" = 'error'
+      )`),
+          'errorItemCount',
+        ],
+        [
+          literal(`(
+        SELECT COUNT(*)
+        FROM "processesFileItem"
+        WHERE
+          "processesFileItem"."idProcessesFile" = "ProcessesFileModel"."idProcessesFile" AND
+          "processesFileItem"."status" IN ('imported', 'manuallyImported')
+      )`),
+          'importedItemsCount',
+        ],
       ],
+      logging: false,
     });
 
-    const totalCount = await this.processesFileRepository.count({
+    const totalCount = await this.repository.count({
       where,
       include,
     });
@@ -83,7 +116,7 @@ export class ProcessesFileService {
   };
 
   findById = async idProcessesFile => {
-    return await this.processesFileRepository.findOne({
+    return await this.repository.findOne({
       where: {
         idProcessesFile,
       },
@@ -93,15 +126,15 @@ export class ProcessesFileService {
   };
 
   findAllItemsPaged = async req => {
-    const { offset = 0, limit = 10, idProcessesFile } = req.query;
+    const { offset = 0, limit = 10 } = req.query;
 
-    const where = { idProcessesFile };
+    const where = this.buildFileItemsFilters(req);
 
     const data = await this.processesFileItemRepository.findAll({
       where,
       offset,
       limit,
-      order: [['status', 'ASC']],
+      order: [['status', 'DESC']],
       include: [
         {
           model: models.Process,
@@ -135,7 +168,7 @@ export class ProcessesFileService {
     return (({ idProcessesFile, status }) => ({
       idProcessesFile,
       status,
-    }))(await this.processesFileRepository.create(data));
+    }))(await this.repository.create(data));
   };
 
   updateFileItem = async (idProcessesFileItem, newData) => {
@@ -145,30 +178,37 @@ export class ProcessesFileService {
     });
   };
 
-  findFileById = async (idProcessesFile, dataFlag) => {
-    return await this.processesFileRepository.findOne({
+  findFileById = async (idProcessesFile, original, format) => {
+    const fileKey = original ? 'dataOriginalFile' : 'dataResultingFile';
+
+    const file = await this.repository.findOne({
       where: { idProcessesFile },
-      attributes: [
-        'idProcessesFile',
-        dataFlag === 'original' ? 'dataOriginalFile' : 'dataResultingFile',
-        'fileName',
-      ],
+      attributes: ['idProcessesFile', fileKey, 'fileName'],
       raw: true,
     });
+
+    // Assuming the original file will be stored in .xlsx
+    if (!original && format === 'csv') {
+      const buffer = file[fileKey];
+      file[fileKey]['data'] = await this.convertXlsxToCsv(buffer);
+      file[fileKey]['data'] = await this.convertXlsxToCsv(buffer);
+    }
+
+    return file;
   };
 
   deleteFileById = async idProcessesFile => {
     await this.processesFileItemRepository.destroy({
       where: { idProcessesFile },
     });
-    return await this.processesFileRepository.destroy({
+    return await this.repository.destroy({
       where: { idProcessesFile },
     });
   };
 
   executeJob = async () => {
     // logic based on the assumption that the files will be small.
-    const files = await this.processesFileRepository.findAll({
+    const files = await this.repository.findAll({
       where: { status: 'waiting' },
       raw: true,
       order: [['idProcessesFile', 'ASC']],
@@ -185,25 +225,34 @@ export class ProcessesFileService {
 
     const idProcessesFile = files.map(f => f.idProcessesFile);
 
-    await this.processesFileRepository.update(
+    await this.repository.update(
       { status: 'inProgress' },
       { where: { idProcessesFile }, returning: false },
     );
 
     for (const file of files) {
       try {
+        let { dataOriginalFile, fileName } = file;
+
+        if (this.isFileType(fileName, 'csv')) {
+          dataOriginalFile = await this.convertCsvBufferToXlsx(
+            dataOriginalFile,
+            fileName,
+          );
+        }
+
         logger.info(
-          `Iniciando processamento arquivo [${file.idProcessesFile}-${file.fileName}]`,
+          `Iniciando processamento arquivo [${file.idProcessesFile}-${fileName}]`,
         );
 
         logger.info(
-          `Iniciando parser arquivo [${file.idProcessesFile}-${file.fileName}]`,
+          `Iniciando parser arquivo [${file.idProcessesFile}-${fileName}]`,
         );
 
-        const workbook = await xlsx.parse(file.dataOriginalFile);
+        const workbook = xlsx.parse(dataOriginalFile);
 
         logger.info(
-          `Parser arquivo [${file.idProcessesFile}-${file.fileName}] concluído`,
+          `Parser arquivo [${file.idProcessesFile}-${fileName}] concluído`,
         );
 
         const headerIndex = workbook[0].data.findIndex(row => row.length);
@@ -253,7 +302,6 @@ export class ProcessesFileService {
         const prioritesIndex = header.findIndex(h =>
           validPrioritiesHeaders.includes(h),
         );
-
         if (prioritesIndex !== -1) {
           headerIndexes.prioritiesHeaderIndex = prioritesIndex;
         }
@@ -279,7 +327,7 @@ export class ProcessesFileService {
           let rowIndex = 0;
 
           logger.info(
-            `Populando mapa arquivo [${file.idProcessesFile}-${file.fileName}]`,
+            `Populando mapa arquivo [${file.idProcessesFile}-${fileName}]`,
           );
 
           while (rowIndex < numberOfRows) {
@@ -310,9 +358,7 @@ export class ProcessesFileService {
             rowIndex++;
           }
 
-          logger.info(
-            `Mapa populado [${file.idProcessesFile}-${file.fileName}]`,
-          );
+          logger.info(`Mapa populado [${file.idProcessesFile}-${fileName}]`);
 
           const processes = [];
 
@@ -379,6 +425,13 @@ export class ProcessesFileService {
               }
             }
 
+            if (fileItem.nickname && fileItem.nickname.length > 50) {
+              message = message.concat(
+                `Apelido não pode exceder os 50 caracteres \n`,
+              );
+              status = 'error';
+            }
+
             const idPriority = this.getPriorityIdByDescriptionOrAbbreviation(
               fileItem.priority,
             );
@@ -386,6 +439,7 @@ export class ProcessesFileService {
               message = message.concat(
                 `Prioridade ${fileItem.priority} não encontrada \n`,
               );
+              status = 'error';
             } else {
               Object.assign(process, { idPriority });
             }
@@ -413,7 +467,6 @@ export class ProcessesFileService {
             name: worksheet.name,
             data: resultingSheetData,
           });
-
           const initialIndex = headerIndex + 1;
           processesFileItems.forEach((processesFileItem, i) => {
             const currentRow = resultingSheetData[initialIndex + i];
@@ -485,24 +538,22 @@ export class ProcessesFileService {
               returning: false,
               logging: false,
             });
-
             await this.processesFileItemRepository.bulkCreate(
               processesFileItems,
               { transaction, returning: false, logging: false },
             );
-
-            await this.processesFileRepository.update(
+            await this.repository.update(
               { status: 'imported', message: null, importedAt: new Date() },
               { where: { idProcessesFile: file.idProcessesFile } },
               { transaction, returning: false, logging: false },
             );
 
-            const outputFile = await XLSX.write(wb, {
+            const outputFile = XLSX.write(wb, {
               type: 'buffer',
               bookType: 'xlsx',
             });
 
-            await this.processesFileRepository.update(
+            await this.repository.update(
               { dataResultingFile: Buffer.from(outputFile) },
               {
                 where: { idProcessesFile: file.idProcessesFile },
@@ -514,7 +565,7 @@ export class ProcessesFileService {
         }
       } catch (error) {
         logger.error(`Erro ao processar planilha: ${error}`);
-        await this.processesFileRepository.update(
+        await this.repository.update(
           {
             status: 'error',
             message: error.message,
@@ -598,17 +649,65 @@ export class ProcessesFileService {
     };
   };
 
-  async extractFiltersFromReq(req) {
+  buildFileFilters(req) {
     const filter = {};
     const { nameOrRecord } = req.query;
     if (nameOrRecord) {
       const filterValue = `%${nameOrRecord}%`;
       filter[Op.or] = [
-        { name: { [Op.like]: filterValue } },
-        { fileName: { [Op.like]: filterValue } },
-        { '$fileItems.record$': { [Op.like]: filterValue } },
+        { name: { [Op.iLike]: filterValue } },
+        { fileName: { [Op.iLike]: filterValue } },
+        { '$fileItems.record$': { [Op.iLike]: filterValue } },
       ];
     }
     return filter;
   }
+
+  buildFileItemsFilters(req) {
+    const filter = {};
+    const { idProcessesFile, filter: mainFieldsFilter } = req.query;
+    if (idProcessesFile) filter.idProcessesFile = idProcessesFile;
+    if (mainFieldsFilter) {
+      const filterValue = `%${mainFieldsFilter}%`;
+      filter[Op.or] = [
+        { record: { [Op.iLike]: filterValue } },
+        { nickname: { [Op.iLike]: filterValue } },
+        { priority: { [Op.iLike]: filterValue } },
+        { flow: { [Op.iLike]: filterValue } },
+      ];
+    }
+    return filter;
+  }
+
+  isFileType = (fileName, extension) =>
+    this.extractExtensionFromFileName(fileName) === extension;
+
+  extractExtensionFromFileName = fileName =>
+    fileName.split('.').pop().toLowerCase();
+
+  convertCsvBufferToXlsx = async (dataOriginalFile, originalFileName) => {
+    const relativePath = './data';
+
+    const tempCsvFilePath = path.join(relativePath, originalFileName);
+    const tempXlsxFilePath = tempCsvFilePath.replace('.csv', '.xlsx');
+
+    await fs.writeFile(tempCsvFilePath, dataOriginalFile);
+
+    convertCsvToXlsx(tempCsvFilePath, tempXlsxFilePath);
+
+    const xlsxBuffer = await fs.readFile(tempXlsxFilePath);
+
+    await fs.unlink(tempCsvFilePath);
+    await fs.unlink(tempXlsxFilePath);
+
+    return xlsxBuffer;
+  };
+
+  convertXlsxToCsv = buffer => {
+    const bufferData = Buffer.from(buffer);
+    const workbook = XLSX.read(bufferData, { type: 'buffer' });
+    const firstSheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheetName];
+    return Buffer.from(XLSX.utils.sheet_to_csv(worksheet));
+  };
 }
