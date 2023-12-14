@@ -227,6 +227,46 @@ export class UserController {
     }
   };
 
+  checkPasswordValidity = async (req, res) => {
+    try {
+      const { cpf: userCPF, password } = req.body;
+
+      const user = await this.userService.getUserByCpfWithPasswordRolesAndUnit(
+        userCPF,
+      );
+
+      if (!user) {
+        return res.status(401).json({
+          error: 'Usuário inexistente',
+          message: 'Usuário inexistente',
+        });
+      }
+
+      if (!user.accepted) {
+        return res.status(401).json({
+          message: 'Usuário não aceito',
+        });
+      }
+
+      const isPasswordCorrect = await verify(
+        user.password,
+        password,
+        passHashing,
+      );
+
+      if (isPasswordCorrect) {
+        return res.status(200).json({});
+      } else {
+        return res.status(401).json({
+          error: 'Impossível autenticar',
+          message: 'Credenciais inválidas',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({ error, message: 'Erro inesperado' });
+    }
+  };
+
   logoutExpiredSession = async (req, res) => {
     try {
       const tokenResult = await this.verifyToken(req);

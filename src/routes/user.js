@@ -8,6 +8,10 @@ UserRoutes.post(
   controllers.userController.logoutUser,
 );
 UserRoutes.post(
+  '/checkPasswordValidity',
+  controllers.userController.checkPasswordValidity,
+);
+UserRoutes.post(
   '/logoutExpiredSession',
   controllers.userController.logoutExpiredSession,
 );
