@@ -5,11 +5,15 @@ import { Op } from 'sequelize';
 import { hash, verify } from 'argon2';
 import passHashing from '../config/passHashing.js';
 import { cpfFilter } from '../utils/cpf.js';
-import { userFromReq } from '../middleware/authMiddleware.js';
+import { userFromReq } from '../../middleware/authMiddleware.js';
+import requestIp from 'request-ip';
+import { v4 as uuidv4 } from 'uuid';
+import jwt from 'jsonwebtoken';
 
 export class UserController {
   constructor() {
     this.userService = services.userService;
+    this.userAccessLogService = services.userAccessLogService;
   }
 
   index = async (req, res) => {
@@ -36,7 +40,6 @@ export class UserController {
             limit: req.query.limit,
           });
           totalCount = await this.userService.countRows({
-            // fazer o count
             where: { accepted: true, idRole: { [Op.ne]: 5 }, ...where },
           });
           totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
@@ -46,9 +49,7 @@ export class UserController {
             offset: req.query.offset,
             limit: req.query.limit,
           });
-          console.log('----->', users);
           totalCount = await this.userService.countRows({
-            // fazer o count
             where: { accepted: false, idRole: { [Op.ne]: 5 }, ...where },
           });
           totalPages = Math.ceil(totalCount / parseInt(req.query.limit, 10));
@@ -137,10 +138,10 @@ export class UserController {
 
   loginUser = async (req, res) => {
     try {
-      const { cpf, password } = req.body;
+      const { cpf: userCPF, password } = req.body;
 
       const user = await this.userService.getUserByCpfWithPasswordRolesAndUnit(
-        cpf,
+        userCPF,
       );
 
       if (!user) {
@@ -149,6 +150,7 @@ export class UserController {
           message: 'Usuário inexistente',
         });
       }
+
       if (!user.accepted) {
         return res.status(401).json({
           message: 'Usuário não aceito',
@@ -162,23 +164,183 @@ export class UserController {
       );
 
       if (isPasswordCorrect) {
-        const tokenPayload = { ...user.toJSON() };
+        let sessionId;
+
+        do {
+          sessionId = uuidv4();
+        } while (await this.userAccessLogService.isSessionIdPresent(sessionId));
+
+        const tokenPayload = { ...user.toJSON(), sessionId };
         delete tokenPayload.password;
 
         const jwtToken = generateToken(tokenPayload);
 
-        let expiresIn = new Date();
-        expiresIn.setDate(expiresIn.getDate() + 3);
+        await this.userAccessLogService.renewAndCreateSession({
+          stationIp: requestIp.getClientIp(req),
+          jwtToken,
+          sessionId,
+          userCPF: user.cpf,
+        });
 
         return res.status(200).json(jwtToken);
       } else {
         return res.status(401).json({
           error: 'Impossível autenticar',
-          message: 'Senha ou usuário incorretos',
+          message: 'Credenciais inválidas',
         });
       }
     } catch (error) {
-      return res.status(500).json({ error, message: 'erro inesperado' });
+      return res.status(500).json({ error, message: 'Erro inesperado' });
+    }
+  };
+
+  logoutUser = async (req, res) => {
+    try {
+      const tokenResult = await this.verifyToken(req);
+      if (tokenResult.error) {
+        return res.status(401).json({ message: tokenResult.message });
+      }
+
+      const { cpf: userCPF } = await userFromReq(req);
+
+      const { logoutInitiator } = req.params;
+
+      await this.userAccessLogService.update(
+        {
+          logoutTimestamp: new Date(),
+          logoutInitiator,
+        },
+        {
+          where: {
+            userCPF,
+            logoutTimestamp: null,
+          },
+        },
+      );
+
+      return res.json({ message: 'Logout realizado com sucesso' }).status(200);
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao realizar logout' });
+    }
+  };
+
+  checkPasswordValidity = async (req, res) => {
+    try {
+      const { cpf: userCPF, password } = req.body;
+
+      const user = await this.userService.getUserByCpfWithPasswordRolesAndUnit(
+        userCPF,
+      );
+
+      if (!user) {
+        return res.status(401).json({
+          error: 'Usuário inexistente',
+          message: 'Usuário inexistente',
+        });
+      }
+
+      if (!user.accepted) {
+        return res.status(401).json({
+          message: 'Usuário não aceito',
+        });
+      }
+
+      const isPasswordCorrect = await verify(
+        user.password,
+        password,
+        passHashing,
+      );
+
+      if (isPasswordCorrect) {
+        return res.status(200).json({});
+      } else {
+        return res.status(401).json({
+          error: 'Impossível autenticar',
+          message: 'Credenciais inválidas',
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({ error, message: 'Erro inesperado' });
+    }
+  };
+
+  logoutExpiredSession = async (req, res) => {
+    try {
+      const tokenResult = await this.verifyToken(req);
+      if (tokenResult.error) {
+        return res.status(401).json({ message: tokenResult.message });
+      }
+
+      const { sessionId } = await userFromReq(req);
+
+      await this.userAccessLogService.update(
+        {
+          logoutTimestamp: new Date(),
+          logoutInitiator: 'tokenExpired',
+        },
+        {
+          where: {
+            sessionId,
+          },
+        },
+      );
+
+      return res.status(200).json({});
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao realizar logout' });
+    }
+  };
+
+  logoutAsAdmin = async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+
+      await this.userAccessLogService.update(
+        {
+          logoutTimestamp: new Date(),
+          logoutInitiator: 'adminInitiated',
+        },
+        {
+          where: {
+            sessionId,
+          },
+        },
+      );
+
+      return res
+        .json({ message: 'Usuário deslogado com sucesso!' })
+        .status(200);
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao realizar logout' });
+    }
+  };
+
+  getSessionStatus = async (req, res) => {
+    try {
+      const tokenResult = await this.verifyToken(req);
+      if (tokenResult.error) {
+        return res.status(401).json({ message: tokenResult.message });
+      }
+
+      const { sessionId } = req.params;
+
+      return res
+        .json({
+          ...(await this.userAccessLogService.isSessionActive(sessionId)),
+        })
+        .status(200);
+    } catch (error) {
+      return res
+        .status(500)
+        .json({ error, message: 'Erro ao realizar logout' });
     }
   };
 
@@ -352,6 +514,26 @@ export class UserController {
         error,
         message: 'Erro ao negar pedido do usuário',
       });
+    }
+  };
+
+  verifyToken = async req => {
+    const authorizationHeader = req.headers.authorization;
+
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer')) {
+      return { error: true, message: 'Nenhum token fornecido!' };
+    }
+
+    const token = authorizationHeader.split(' ')[1];
+
+    try {
+      jwt.verify(token, process.env.JWT_SECRET);
+      return { error: false };
+    } catch (error) {
+      if (error.name !== 'TokenExpiredError') {
+        return { error: true, message: 'Autenticação falhou!' };
+      }
+      return { error: true, tokenExpired: true };
     }
   };
 }

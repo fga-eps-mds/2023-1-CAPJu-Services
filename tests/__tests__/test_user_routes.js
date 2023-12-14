@@ -140,7 +140,7 @@ describe('UserController', () => {
       expect(resMock.status).toHaveBeenCalledWith(401);
       expect(resMock.json).toHaveBeenCalledWith({
         error: 'Impossível autenticar',
-        message: 'Senha ou usuário incorretos',
+        message: 'Credenciais inválidas',
       });
     });
 
@@ -161,7 +161,7 @@ describe('UserController', () => {
       expect(resMock.status).toHaveBeenCalledWith(500);
       expect(resMock.json).toHaveBeenCalledWith({
         error: expect.any(Error),
-        message: 'erro inesperado',
+        message: 'Erro inesperado',
       });
     });
   });
