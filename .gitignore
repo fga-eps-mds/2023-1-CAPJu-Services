@@ -1,5 +1,6 @@
-data
 *.env
 *node_modules*
 *coverage*
 *yarn*
+*package-lock.json
+*package.json
