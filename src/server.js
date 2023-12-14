@@ -8,12 +8,10 @@ import cron from 'node-cron';
 import services from './services/_index.js';
 import { logger } from './utils/logger.js';
 import { authenticate } from '../middleware/authMiddleware.js';
-import requestIp from 'request-ip';
 
 const app = express();
 const port = process.env.API_PORT;
 
-app.use(requestIp.mw());
 app.use(cors());
 app.use(express.json());
 app.use(
