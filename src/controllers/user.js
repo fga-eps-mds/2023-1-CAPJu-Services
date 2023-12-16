@@ -517,6 +517,44 @@ export class UserController {
     }
   };
 
+  requestPasswordRecovery = async (req, res) => {
+    try {
+      await this.userService.requestPasswordRecovery(req);
+
+      return res.json({}).status(200);
+    } catch (error) {
+      const status = error.status || 500;
+      const message =
+        error.message || 'Erro ao requisitar a recuperação de senha.';
+      return res.status(status).json({ error: message });
+    }
+  };
+
+  checkPasswordRecoveryToken = async (req, res) => {
+    try {
+      const { token } = req.params;
+      await this.userService.checkPasswordRecoveryToken(token);
+      return res.json({}).status(200);
+    } catch (error) {
+      const status = error.status || 500;
+      const message =
+        error.message || 'Erro ao verificar token de recuperação de senha.';
+      return res.status(status).json({ error: message });
+    }
+  };
+
+  updatePasswordFromRecoveryToken = async (req, res) => {
+    try {
+      const { token, password } = req.body;
+      await this.userService.updatePasswordFromRecoveryToken(token, password);
+      return res.json({}).status(200);
+    } catch (error) {
+      const status = error.status || 500;
+      const message = error.message || 'Erro ao atualizar senha.';
+      return res.status(status).json({ error: message });
+    }
+  };
+
   verifyToken = async req => {
     const authorizationHeader = req.headers.authorization;
 
