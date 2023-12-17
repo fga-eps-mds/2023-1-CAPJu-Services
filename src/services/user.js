@@ -321,13 +321,20 @@ class UserService {
       raw: true,
     });
 
-    if (
-      !resetRequest ||
-      new Date(resetRequest.expiresAt).getTime() <= new Date().getTime()
-    ) {
+    const status = 400;
+
+    if (!resetRequest) {
       throw {
-        status: 500,
+        status,
         message: 'Token de recuperação de senha inválido!',
+      };
+    }
+
+    if (new Date(resetRequest.expiresAt).getTime() <= new Date().getTime()) {
+      throw {
+        status,
+        message:
+          'Token de recuperação de senha expirado. Realize uma nova solicitação.',
       };
     }
   }
