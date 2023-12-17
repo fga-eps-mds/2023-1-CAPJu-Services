@@ -253,9 +253,6 @@ class UserService {
       })
     );
 
-    const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 10);
-
     const transport = nodemailer.createTransport({
       ...emailParams,
       tls: {
@@ -292,6 +289,9 @@ class UserService {
 
     try {
       await transport.sendMail(message);
+
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + 10);
 
       await this.passwordResetRepository.create(
         {
@@ -337,10 +337,12 @@ class UserService {
           'Token de recuperação de senha expirado. Realize uma nova solicitação.',
       };
     }
+
+    return resetRequest;
   }
 
   async updatePasswordFromRecoveryToken(token, newPassword) {
-    const resetRequest = await this.validatePasswordRecoveryToken(token);
+    const resetRequest = await this.checkPasswordRecoveryToken(token);
     const { userCPF: cpf } = resetRequest;
     const user = await this.repository.findOne({
       where: { cpf },
@@ -386,28 +388,6 @@ class UserService {
         { transaction },
       );
     });
-  }
-
-  async validatePasswordRecoveryToken(token) {
-    const resetRequest = await this.passwordResetRepository.findOne({
-      where: {
-        token,
-      },
-      logging: false,
-      raw: true,
-    });
-
-    if (
-      !resetRequest ||
-      new Date(resetRequest.expiresAt).getTime() <= new Date().getTime()
-    ) {
-      throw {
-        status: 500,
-        message: 'Token de recuperação de senha inválido!',
-      };
-    }
-
-    return resetRequest;
   }
 
   isPasswordSecure(password) {
