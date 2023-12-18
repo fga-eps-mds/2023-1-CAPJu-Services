@@ -307,7 +307,7 @@ class UserService {
     } catch (error) {
       throw {
         message:
-          'Erro ao enviar email de recuperação. Tente novamente mais tarde.',
+          'Erro ao enviar email de recuperação. Contate o administrador e tente novamente mais tarde.',
       };
     }
   }
