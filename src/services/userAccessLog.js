@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import models from '../models/_index.js';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
+import moment from 'moment-timezone';
 
 class UserAccessLogService {
   constructor(UserAccessLogModel) {
@@ -17,7 +18,7 @@ class UserAccessLogService {
   }) {
     await this.repository.update(
       {
-        logoutTimestamp: new Date(),
+        logoutTimestamp: moment().tz('America/Sao_Paulo'),
         logoutInitiator: 'sessionRenewalOnSameStation',
       },
       {
@@ -28,7 +29,8 @@ class UserAccessLogService {
         },
       },
     );
-    const loginTimestamp = loginTimestampParam || new Date();
+    const loginTimestamp =
+      loginTimestampParam || moment().tz('America/Sao_Paulo');
     return await this.repository.create({
       loginTimestamp,
       sessionId,
@@ -174,7 +176,7 @@ class UserAccessLogService {
   }
 
   async clearExpiredSessions({ message }) {
-    const now = new Date();
+    const now = moment().tz('America/Sao_Paulo');
     await this.repository.update(
       {
         logoutTimestamp: now,

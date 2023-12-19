@@ -5,6 +5,7 @@ import services from '../src/services/_index.js';
 import routesPermissions from '../src/routes/routesPermissions.js';
 import sequelizeConfig from '../src/config/sequelize.js';
 import { QueryTypes } from 'sequelize';
+import moment from 'moment-timezone';
 
 const publicEndpoints = [
   /^\/newUser(?:\/|$)/,
@@ -135,7 +136,7 @@ async function registerEndpointLogEvent({ req, isAccepted, message }) {
       {
         endpoint: req.originalUrl,
         httpVerb: req.method,
-        attemptTimestamp: new Date(),
+        attemptTimestamp: moment().tz('America/Sao_Paulo'),
         userCPF,
         isAccepted,
         message,
