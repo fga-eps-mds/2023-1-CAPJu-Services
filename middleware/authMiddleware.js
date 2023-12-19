@@ -7,12 +7,14 @@ import sequelizeConfig from '../src/config/sequelize.js';
 import { QueryTypes } from 'sequelize';
 
 const publicEndpoints = [
-  /^\/login(?:\/|$)/,
   /^\/newUser(?:\/|$)/,
-  /^\/updateUserPassword\/.+$/,
+  /^\/login(?:\/|$)/,
+  /^\/logout(?:\/|$)/,
   /^\/logoutExpiredSession(?:\/|$)/,
   /^\/sessionStatus(?:\/|$)/,
-  /^\/logout(?:\/|$)/,
+  /^\/requestPasswordRecovery(?:\/|$)/,
+  /^\/checkPasswordRecoveryToken(?:\/|$)/,
+  /^\/updatePasswordFromRecoveryToken(?:\/|$)/,
 ];
 
 async function authenticate(req, res, next) {

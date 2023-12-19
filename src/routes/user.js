@@ -50,5 +50,17 @@ UserRoutes.delete(
   '/deleteRequest/:cpf',
   controllers.userController.deleteRequest,
 );
+UserRoutes.post(
+  '/requestPasswordRecovery',
+  controllers.userController.requestPasswordRecovery,
+);
+UserRoutes.get(
+  '/checkPasswordRecoveryToken/:token',
+  controllers.userController.checkPasswordRecoveryToken,
+);
+UserRoutes.put(
+  '/updatePasswordFromRecoveryToken',
+  controllers.userController.updatePasswordFromRecoveryToken,
+);
 
 export default UserRoutes;

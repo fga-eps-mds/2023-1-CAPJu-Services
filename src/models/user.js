@@ -15,6 +15,7 @@ class UserModel extends Model {
         email: {
           type: DataTypes.STRING(300),
           allowNull: false,
+          unique: true,
         },
         password: {
           type: DataTypes.STRING(256),
