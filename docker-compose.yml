@@ -17,6 +17,8 @@ services:
       - capju
     env_file:
       - .env
+    environment:
+      - TZ=America/Sao_Paulo
 
 networks:
   capju:

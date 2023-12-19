@@ -9,6 +9,7 @@ import { userFromReq } from '../../middleware/authMiddleware.js';
 import requestIp from 'request-ip';
 import { v4 as uuidv4 } from 'uuid';
 import jwt from 'jsonwebtoken';
+import moment from 'moment-timezone';
 
 export class UserController {
   constructor() {
@@ -207,7 +208,7 @@ export class UserController {
 
       await this.userAccessLogService.update(
         {
-          logoutTimestamp: new Date(),
+          logoutTimestamp: moment().tz('America/Sao_Paulo'),
           logoutInitiator,
         },
         {
@@ -278,7 +279,7 @@ export class UserController {
 
       await this.userAccessLogService.update(
         {
-          logoutTimestamp: new Date(),
+          logoutTimestamp: moment().tz('America/Sao_Paulo'),
           logoutInitiator: 'tokenExpired',
         },
         {
@@ -302,7 +303,7 @@ export class UserController {
 
       await this.userAccessLogService.update(
         {
-          logoutTimestamp: new Date(),
+          logoutTimestamp: moment().tz('America/Sao_Paulo'),
           logoutInitiator: 'adminInitiated',
         },
         {

@@ -11,6 +11,7 @@ import * as nodemailer from 'nodemailer';
 import { generatePasswordResetEmail } from '../utils/passwordRecoveryEmailTemplate.js';
 import { capju, justicaFederal, unb } from '../../assets/logos.js';
 import sequelizeConfig from '../config/sequelize.js';
+import moment from 'moment-timezone';
 
 class UserService {
   constructor(UserModel) {
@@ -228,7 +229,7 @@ class UserService {
         where: {
           userCPF,
           expiresAt: {
-            [Op.gte]: new Date(),
+            [Op.gte]: moment().tz('America/Sao_Paulo'),
           },
         },
       });
@@ -290,8 +291,8 @@ class UserService {
     try {
       await transport.sendMail(message);
 
-      const expiresAt = new Date();
-      expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+      const expiresAt = moment().tz('America/Sao_Paulo');
+      expiresAt.add(10, 'minutes');
 
       await this.passwordResetRepository.create(
         {
@@ -383,7 +384,7 @@ class UserService {
         { transaction },
       );
       await this.passwordResetRepository.update(
-        { expiresAt: new Date() },
+        { expiresAt: moment().tz('America/Sao_Paulo') },
         { where: { token } },
         { transaction },
       );
