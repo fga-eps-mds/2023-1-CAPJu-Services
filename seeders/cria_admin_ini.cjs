@@ -22,7 +22,6 @@ module.exports = {
           idRole: 5,
           createdAt: new Date(),
           updatedAt: new Date(),
-          firstLogin: true,
         },
         {
           cpf: '12345678909',
@@ -34,7 +33,6 @@ module.exports = {
           idRole: 1,
           createdAt: new Date(),
           updatedAt: new Date(),
-          firstLogin: true,
         },
       ],
       {},
